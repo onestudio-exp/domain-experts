@@ -2,44 +2,107 @@
 
 A Claude Code plugin for building, evaluating, and evolving **domain expert agents**.
 
-> **Status:** Scaffold only. Skills and reference agent under construction.
-
 ## What it is
 
-Three skills plus one reference agent, distilled from observation of 13 production domain expert agents at OneStudio.
+Three skills + one reference agent.
 
 ### Skills
 
-| Skill | What it does |
-|---|---|
-| `domain-creator` | Walk a user through creating a new domain expert agent via dialog. Asks domain, user, output type, schema, confidence vocabulary, refusal rules, knowledge structure, bilingual handling. Produces a complete `.claude/agents/<id>.md` plus a starter knowledge scaffold and a starter prompt set for evaluation. |
-| `domain-eval` | Evaluate a domain expert agent against its own declared schema, vocabulary, and rules. Structural checks + light LLM-judge pass. Reports per-prompt pass/weak/fail with diff against last baseline. |
-| `domain-capture` | Capture new evidence-backed knowledge into a domain expert agent. Validates new claims against the agent's current understanding, requires source/evidence, debates contradictions, writes captured knowledge to the right location in the agent's structure with citation and timestamp. |
+| Skill | Status | What it does |
+|---|---|---|
+| `domain-creator` | ✅ Complete | Build a new agent OR uplevel an existing one. Two modes: **create** (interview from scratch) and **refit** (audit existing, walk through changes one-by-one, overwrite). |
+| `domain-eval` | 🚧 Stub | Run an agent against its own declared schema + a prompt set. Detect regressions. |
+| `domain-capture` | 🚧 Stub | Capture new evidence-backed knowledge into an existing agent. |
 
 ### Reference agent
 
-| Agent | Domain |
-|---|---|
-| `nala` | Venture building / startup studio — built using `domain-creator`, evolved via `domain-capture`, regression-checked via `domain-eval`. Demonstrates the patterns the toolkit produces. |
+| Agent | Domain | Status |
+|---|---|---|
+| `nala` | Venture building / startup studio (MENA/KSA focus) | Built via `domain-creator` |
+
+## The 7 categories of work
+
+`domain-creator` structures agents around these:
+
+```
+1. decision_support      — structured verdict with reasoning
+2. reference_lookup      — cited answers to domain questions
+3. structured_review     — audit an artifact, return categorized findings
+4. competitive_intel     — profile competitors, comparables
+5. regulatory_compliance — apply named regulations
+6. handoff_partner       — structured briefs for other agents/humans
+7. educational_explainer — teach domain concepts
+```
+
+Most schema questions in the skill have a tested default. Users accept with one keystroke.
+
+## Install
+
+```bash
+# Register the plugin's marketplace (local clone)
+/plugin marketplace add /path/to/domain-experts
+
+# Or from GitHub
+/plugin marketplace add onestudio-exp/domain-experts
+
+# Install the plugin
+/plugin install domain-experts@domain-experts
+
+# Reload skills
+/reload-plugins
+```
+
+After install, three skills appear:
+
+- `domain-experts:domain-creator`
+- `domain-experts:domain-eval`
+- `domain-experts:domain-capture`
+
+## Use
+
+### Create a new agent
+
+```
+/domain-experts:domain-creator
+> new
+```
+
+Answer ~10 short questions (most have defaults). The skill produces 3 files: agent definition + KB scaffold + starter prompts. Save when ready.
+
+### Refit an existing agent
+
+```
+/domain-experts:domain-creator
+> refit
+> <slug or full path>
+```
+
+The skill audits the agent against the framework, walks you through each recommended change one-by-one, and produces an upleveled version (overwrites the agent file; creates KB scaffold and starter prompts if missing).
+
+## Repository layout
+
+```
+domain-experts/
+├── .claude-plugin/
+│   ├── plugin.json
+│   └── marketplace.json
+├── skills/
+│   ├── domain-creator/                # complete
+│   │   ├── SKILL.md
+│   │   └── references/agent-template.md
+│   ├── domain-eval/                   # stub
+│   └── domain-capture/                # stub
+├── agents/
+│   ├── nala.md                        # reference agent
+│   └── nala-knowledge/                # KB scaffold (5 subdirs)
+└── examples/
+    └── nala-starter-prompts.yaml      # 12 starter prompts (9 + 3 refusal tests)
+```
 
 ## Why "domain-" prefix?
 
-These skills are specifically for **domain expert agents** — agents whose value is depth in a single substantive domain (a market, a regulation, a product practice, a craft). Future plugins will target other agent classes (coding agents, ops agents, integration agents). The `domain-` prefix scopes these skills to their target.
+These skills are scoped to **domain expert agents** — agents whose value is depth in a single domain (a market, a regulation, a product practice, a craft). Future plugins will target other agent classes (coding, ops, integration). The prefix keeps each plugin's scope clear.
 
 ## Status
 
-This plugin is in active construction. Build order:
-
-1. `domain-creator` skill (in progress)
-2. User runs `domain-creator` → produces `agents/nala.md` and seeds `examples/`
-3. `domain-eval` skill, validated against Nala
-4. `domain-capture` skill, validated against Nala
-5. Plugin manifest finalized and tested as a fresh install
-
-## Provenance
-
-Empirical source for the patterns embedded in these skills: 135 use-case entries extracted from 13 production domain expert agents at OneStudio (Rushd, Shaheen, Aref, Ziad, Wafaa, Abo Lijan, Adam, Sales-marketing, Fekri, Omar, Sada, Membership, Merchant Advocate). The clustering analysis that informed this plugin lives at `../bench/scripts/workshop_prep/clustering_proposal.md` in the parent workspace.
-
-## Internal-first
-
-This plugin is internal to OneStudio for now. Open-sourcing TBD after Nala has been used in real venture work.
+Active development. `domain-creator` is complete and ships with both modes. `domain-eval` and `domain-capture` are next. Internal to OneStudio for now.
