@@ -1,21 +1,27 @@
 ---
 name: domain-creator
-description: Walk a user through creating a new domain expert agent in Claude Code via interactive Q&A. Asks roughly 10 short questions covering domain, primary user, output type, response schema, confidence vocabulary, knowledge structure, refusal rules, and bilingual handling. Most questions have a tested default the user can accept with one keystroke. Produces a complete .claude/agents/<id>.md file plus a knowledge scaffold and a starter prompt set. Use when the user wants to create a NEW domain expert agent — not edit an existing one (use domain-capture for edits).
+description: Build or uplevel a domain expert agent in Claude Code. Two modes — (1) CREATE: interview the user with ~10 short questions and produce a new agent definition, knowledge scaffold, and starter prompt set; (2) REFIT: read an existing agent file, audit it against the framework's 9 dimensions, advise the user which changes to apply, then overwrite the agent with the upleveled version plus a KB scaffold and starter prompts if missing. Most questions have a tested default the user can accept with one keystroke. Use when the user wants to create a NEW agent OR uplevel an EXISTING one to fit domain-expert practice. Do not use for adding knowledge to an existing agent (that's domain-capture).
 ---
 
 # /domain-creator
 
-Interview the user to design a new domain expert agent. Generate the agent definition file plus a knowledge scaffold and starter prompt set.
+Build or uplevel a domain expert agent.
+
+Two modes:
+- **Create** — interview the user, produce a new agent + KB scaffold + starter prompts.
+- **Refit** — read an existing agent, audit it, apply framework changes, overwrite it (and add KB scaffold + starter prompts if they don't exist).
+
+Both modes produce the same 3 outputs: `agents/<slug>.md`, `agents/<slug>-knowledge/README.md`, `examples/<slug>-starter-prompts.yaml`.
 
 ## When to invoke
 
 - User wants to create a new domain expert agent.
-- User has a domain in mind but no agent yet.
-- User has a draft agent file but wants to restart cleanly.
+- User wants to uplevel/refit an EXISTING agent to fit domain-expert practice.
+- User has a draft agent and wants to restart cleanly with framework structure.
 
 ## When NOT to invoke
 
-- User wants to **edit knowledge** in an existing agent → use `domain-capture`.
+- User wants to **add new knowledge** to an existing agent → use `domain-capture`.
 - User wants to **evaluate** an existing agent → use `domain-eval`.
 - User is creating a non-domain agent (coding, ops, integration) — this skill is scoped to domain expert agents only.
 
@@ -59,7 +65,25 @@ custom   — write your own
 
 Questions without a meaningful default (slug, user, out-of-scope) skip the Default block.
 
-## The 9-phase interview
+## Phase 0 — Mode detection
+
+**Q0 — New or refit?**
+
+Are we creating a new agent, or refitting an existing one?
+
+```
+new      — start from scratch (Phase 1 onward)
+refit    — read an existing agent, audit it, apply framework changes
+```
+
+→ Type `new` or `refit`.
+
+If `new` → continue to **Create mode** below (Phases 1–9).
+If `refit` → jump to **Refit mode** (after Phase 9).
+
+---
+
+## Create mode — the 9-phase interview
 
 ### Phase 1 — Identity
 
@@ -543,6 +567,202 @@ After all answers captured:
 5. **Ask:** *"Save these 3 files? Or say `edit X` first."*
 6. **On `save`, write to disk.**
 
+## Refit mode — uplevel an existing agent
+
+When the user picks `refit` in Phase 0, follow these steps. The goal is to migrate an existing agent to fit framework practice and produce all 3 framework files (agent definition + KB scaffold + starter prompts).
+
+### Step R1 — Locate the agent
+
+**Q-R1**
+
+Where's the agent? You have two options:
+
+```
+path     — give me the full path to the .md file
+slug     — give me just the slug, I'll search common locations
+```
+
+→ Type a path or a slug.
+
+If slug, search in this order (first match wins; if multiple, list and ask):
+
+```
+1. <cwd>/.claude/agents/<slug>.md
+2. ~/.claude/agents/<slug>.md
+3. ~/onestudio-exp/agents/.claude/agents/<slug>.md
+4. ~/.claude/plugins/marketplaces/*/agents/<slug>.md
+5. ~/.claude/plugins/cache/*/*/*/agents/<slug>.md
+```
+
+Capture: `existing_path`, `existing_content` (full file text).
+
+Also probe for sibling artifacts (used in audit):
+
+```
+  agents/<slug>-knowledge/        →  capture exists / not exists
+  examples/<slug>-starter-prompts.yaml   →  capture exists / not exists
+```
+
+### Step R2 — Run the audit
+
+Read the file. Parse YAML frontmatter and body. For each of these 9 dimensions, classify:
+
+- ✓ **aligned** — present and matches framework
+- ⚠ **partial** — present but doesn't match the recommended pattern
+- ✗ **missing** — not declared
+
+Dimensions:
+
+```
+1. Identity            slug · display_name · bilingual display name (frontmatter)
+2. Domain              one-liner · geo + language scope
+3. Primary user        role · context · example question
+4. Categories          declared canonical categories (decision_support, etc.)
+5. Output schemas      verdict vocab · response sections · confidence vocab · review schema · etc.
+6. Knowledge           KB structure · live source · memory scope
+7. Hard rules          out of scope · anti-fabrication
+8. Behavior            pressure-test default
+9. Tools / model       frontmatter tools · model · memory: scope
++ KB scaffold          does agents/<slug>-knowledge/ exist
++ Starter prompts      does examples/<slug>-starter-prompts.yaml exist
+```
+
+**Audit report format:**
+
+```
+**Audit for <slug>** (path: <existing_path>)
+
+✓ aligned (N)        ⚠ partial (M)        ✗ missing (K)
+
+──────────────────────────────────────────────
+1. Identity
+   ✓ slug + display_name OK
+   ⚠ display_name_ar missing (body uses Arabic)
+
+2. Domain
+   ✓ one-liner: "<excerpt>"
+   ⚠ language handling not declared explicitly
+
+3. Primary user
+   ✗ no "Who you serve" section
+   → Recommend: add user role + example question
+
+4. Categories
+   ✓ decision_support detected (3-block schema present)
+   ✗ no other categories declared
+   → Recommend: declare additional categories or confirm decision-only scope
+
+5. Output schemas
+   ⚠ decision uses 3-block (good); confidence vocab inconsistent
+   → Recommend: standardize to three-state tags
+
+6. Knowledge
+   ✗ no KB structure
+   ✗ no memory declared
+   → Recommend: add memory: project + KB scaffold dir
+
+7. Hard rules
+   ⚠ out-of-scope present in body, not formalized
+   ✗ no explicit anti-fabrication rule
+   → Recommend: add hybrid anti-fab rule
+
+8. Behavior
+   ✓ "challenge weak ideas" rule present
+
+9. Tools / model
+   ✓ tools list OK
+   ⚠ no `memory:` field — recommend adding `memory: project`
+
+──────────────────────────────────────────────
+
+Sibling files:
+   ✗ KB scaffold missing       → will create agents/<slug>-knowledge/
+   ✗ Starter prompts missing   → will generate from claimed categories
+```
+
+### Step R3 — Get acceptance
+
+Ask:
+
+```
+Apply changes? Options:
+  all       — apply every recommended change
+  pick      — choose changes by number (e.g. "1, 4, 7")
+  diff      — show me the proposed full rewrite first
+  skip      — exit without changes
+```
+
+→ Type one option.
+
+If `pick`, show numbered list of every recommended change; user replies with selected numbers.
+If `diff`, render the rewrite using the existing template + accepted changes; show inline; back to acceptance.
+
+### Step R4 — Interview only the gaps
+
+For each accepted change that needs a value the existing agent doesn't already have, run the equivalent question from Phase 1–9 in **default-on-default style**:
+
+- Most users will type `default` to accept the framework's tested choice.
+- Skip questions where the agent's existing value is already aligned.
+- Skip questions where the user said `skip` for that dimension in R3.
+
+Capture all new/changed fields.
+
+### Step R5 — Generate the rewrite (3 files)
+
+Produce all 3 framework outputs, even if some already exist:
+
+**File 1 — agent definition** *(overwrite)*
+- Use `references/agent-template.md`.
+- Merge: existing aligned values + accepted changes from R3 + new values from R4.
+- Preserve any custom body content from the existing agent that doesn't map to a framework section by appending under `## Custom additions` near the end of the file. Don't silently drop content.
+
+**File 2 — KB scaffold** *(create only if missing)*
+- If `agents/<slug>-knowledge/` doesn't exist, generate `README.md` + 5 subdirectories (`regulations/`, `frameworks/`, `market-data/`, `cultural-context/`, `vendor-playbooks/`) — same structure as create mode.
+- If it already exists, leave the existing structure alone.
+
+**File 3 — starter prompts** *(create or extend)*
+- If `examples/<slug>-starter-prompts.yaml` doesn't exist, generate from claimed categories: 1–2 prompts per category + 2–3 refusal tests.
+- If it exists, MERGE: keep existing prompts (they are real-usage gold), add prompts only for categories not yet covered. Mark any new prompts with `# generated by domain-creator refit` comment.
+
+### Step R6 — Show + save
+
+Show all 3 files inline in this order:
+
+1. Agent definition (the overwrite — most important to review)
+2. KB scaffold README (if newly created)
+3. Starter prompts file (full content if newly created; just the diff if extended)
+
+Show a one-line summary diff per file:
+
+```
+agents/<slug>.md                            ← overwrite (N lines, M sections changed)
+agents/<slug>-knowledge/README.md           ← create (new)
+examples/<slug>-starter-prompts.yaml        ← extended (+K new prompts)
+```
+
+Ask:
+
+```
+Save options:
+  save        — write all changes to disk
+  save-as     — save the agent .md to a new path (specify); KB + prompts go to default
+  edit X      — edit something first
+  cancel      — discard the rewrite
+```
+
+→ Type one option.
+
+On `save`, write all 3 files. The agent .md goes to `existing_path` (overwrite). KB and prompts go to their conventional paths relative to the agent's parent dir.
+
+### Refit-specific anti-patterns
+
+- **Don't silently drop existing content.** If the original agent has custom sections that don't map to the framework, append under `## Custom additions` — don't lose them.
+- **Don't recreate KB if it already exists.** The user may have populated it. Refit only ADDS the scaffold if missing; never overwrites existing KB files.
+- **Don't overwrite an existing prompts file blindly.** Real-usage prompts are gold. Merge, don't replace.
+- **Don't pretend the audit is complete when parsing failed.** If the existing agent's structure is ambiguous (e.g., no headers at all), surface that explicitly: "I couldn't reliably detect X — treating as missing. Confirm or override."
+
+---
+
 ## Pattern library (reference)
 
 When a user picks an override or `custom`, these are the empirical patterns observed in production. Described by structural shape only.
@@ -566,6 +786,14 @@ When a user picks an override or `custom`, these are the empirical patterns obse
 | Two-source rule | Every empirical claim needs ≥2 independent credible sources |
 
 ## Output assembly
+
+Both modes produce the same 3 files using the same template — only the destination paths and overwrite behavior differ.
+
+| File | Create mode destination | Refit mode destination |
+|---|---|---|
+| `<slug>.md` | `agents/<slug>.md` (new) | `<existing_path>` (overwrite) |
+| `<slug>-knowledge/README.md` | `agents/<slug>-knowledge/README.md` (new) | same path next to existing agent (create only if missing) |
+| `<slug>-starter-prompts.yaml` | `examples/<slug>-starter-prompts.yaml` (new) | same path (merge if exists) |
 
 Read `references/agent-template.md` once before generating. Fill in placeholders from captured answers.
 
