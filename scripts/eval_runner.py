@@ -82,46 +82,72 @@ NALA_RUBRIC = {
 }
 
 
-async def invoke_agent(system_prompt: str, prompt: str, model: str = "claude-opus-4-7") -> tuple[str, dict]:
-    """Invoke an agent via the Claude Agent SDK with the agent's body as system prompt.
-
-    Allowed tools: empty (we want pure text output for eval — no file reads
-    that might pollute the response). The agent's tool list in production
-    matters for actual use, but for eval we're testing reasoning + adherence
-    to the schema, not tool usage.
-    """
+async def _invoke_once(system_prompt: str, prompt: str, model: str, allowed_tools: list[str], max_turns: int) -> tuple[str, dict]:
     options = ClaudeAgentOptions(
         model=model,
-        allowed_tools=[],
-        max_turns=1,
+        allowed_tools=allowed_tools,
+        max_turns=max_turns,
         system_prompt=system_prompt,
     )
     text_parts: list[str] = []
     usage = {}
     cost_usd = None
     started = time.monotonic()
-    try:
-        async for message in query(prompt=prompt, options=options):
-            if isinstance(message, AssistantMessage):
-                for block in message.content:
-                    if isinstance(block, TextBlock):
-                        text_parts.append(block.text)
-            elif isinstance(message, ResultMessage):
-                u = getattr(message, "usage", None) or {}
-                usage = {
-                    "input_tokens": int(u.get("input_tokens", 0) or 0),
-                    "output_tokens": int(u.get("output_tokens", 0) or 0),
-                }
-                cost_usd = getattr(message, "total_cost_usd", None)
-    except Exception as e:
-        return "", {"error": f"{type(e).__name__}: {e}"}
-
+    async for message in query(prompt=prompt, options=options):
+        if isinstance(message, AssistantMessage):
+            for block in message.content:
+                if isinstance(block, TextBlock):
+                    text_parts.append(block.text)
+        elif isinstance(message, ResultMessage):
+            u = getattr(message, "usage", None) or {}
+            usage = {
+                "input_tokens": int(u.get("input_tokens", 0) or 0),
+                "output_tokens": int(u.get("output_tokens", 0) or 0),
+            }
+            cost_usd = getattr(message, "total_cost_usd", None)
     elapsed = time.monotonic() - started
     return "".join(text_parts), {
         **usage,
         "cost_usd": cost_usd,
         "elapsed_sec": round(elapsed, 1),
     }
+
+
+async def invoke_agent(
+    system_prompt: str,
+    prompt: str,
+    model: str = "claude-opus-4-7",
+    allowed_tools: list[str] | None = None,
+    max_turns: int = 10,
+    max_attempts: int = 3,
+) -> tuple[str, dict]:
+    """Invoke an agent via the Claude Agent SDK.
+
+    Pass the agent's declared tools (from its frontmatter) so it can behave
+    like in production. When tools are disabled but a prompt would naturally
+    invoke them (e.g., reference_lookup wanting WebSearch), the SDK errors.
+
+    Retries on transient SDK errors (e.g., "Fatal error in message reader" —
+    a CC subprocess buffer/pipe issue, not an agent-level error).
+    """
+    if allowed_tools is None:
+        allowed_tools = []
+    last_error: str | None = None
+    for attempt in range(1, max_attempts + 1):
+        try:
+            text, meta = await _invoke_once(system_prompt, prompt, model, allowed_tools, max_turns)
+            if text.strip():
+                if attempt > 1:
+                    meta["retries"] = attempt - 1
+                return text, meta
+            last_error = "empty response"
+        except Exception as e:
+            last_error = f"{type(e).__name__}: {e}"
+        if attempt < max_attempts:
+            wait = 5 * attempt
+            loud(f"  retry {attempt}/{max_attempts - 1} after {wait}s ({last_error})")
+            await asyncio.sleep(wait)
+    return "", {"error": last_error or "unknown error"}
 
 
 def check_prompt(prompt: dict, response: str, rubric: dict) -> tuple[str, list[str], list[str]]:
@@ -217,9 +243,19 @@ def check_prompt(prompt: dict, response: str, rubric: dict) -> tuple[str, list[s
     return verdict, passed, failed
 
 
-async def run_eval(slug: str, limit: int | None) -> int:
+async def run_eval(slug: str, limit: int | None, category: str | None, ids: list[str] | None) -> int:
     path, _, fm, body = load_agent(slug)
     prompts = load_prompts(slug)
+    if ids:
+        wanted = set(ids)
+        prompts = [p for p in prompts if p.get("id") in wanted]
+        missing = wanted - {p.get("id") for p in prompts}
+        if missing:
+            fatal(f"unknown prompt ids: {missing}")
+    if category:
+        prompts = [p for p in prompts if p.get("category") == category]
+        if not prompts:
+            fatal(f"no prompts with category={category!r}")
     if limit:
         prompts = prompts[:limit]
 
@@ -232,10 +268,21 @@ async def run_eval(slug: str, limit: int | None) -> int:
     elif model == "sonnet":
         model = "claude-sonnet-4-6"
 
+    # Parse declared tools from frontmatter — comma-separated string.
+    # Agent runs with its production tool set; eval is honest test of behavior.
+    tools_raw = fm.get("tools", "")
+    if isinstance(tools_raw, str):
+        allowed_tools = [t.strip() for t in tools_raw.split(",") if t.strip()]
+    elif isinstance(tools_raw, list):
+        allowed_tools = [str(t).strip() for t in tools_raw]
+    else:
+        allowed_tools = []
+
     # Pick the right rubric. For now we have Nala only — extend as needed.
     rubric = NALA_RUBRIC if slug == "nala" else NALA_RUBRIC
 
     loud(f"agent: {slug} ({path.name}) · model: {model}")
+    loud(f"tools: {allowed_tools or '(none)'}")
     loud(f"prompts to run: {len(prompts)}")
     loud("─" * 60)
 
@@ -245,7 +292,12 @@ async def run_eval(slug: str, limit: int | None) -> int:
         pid = p.get("id", f"prompt-{i}")
         cat = p.get("category", "?")
         loud(f"[{i}/{len(prompts)}] {pid} ({cat}) → invoking nala...")
-        response, meta = await invoke_agent(system_prompt, p.get("text", ""), model=model)
+        response, meta = await invoke_agent(
+            system_prompt,
+            p.get("text", ""),
+            model=model,
+            allowed_tools=allowed_tools,
+        )
         if "error" in meta:
             loud(f"  ✗ ERROR: {meta['error']}")
             results.append({"id": pid, "verdict": "ERROR", "error": meta["error"]})
@@ -310,9 +362,11 @@ async def run_eval(slug: str, limit: int | None) -> int:
 def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--slug", default="nala", help="agent slug (default: nala)")
-    p.add_argument("--limit", type=int, default=None, help="run only first N prompts")
+    p.add_argument("--limit", type=int, default=None, help="run only first N prompts (after category filter)")
+    p.add_argument("--category", default=None, help="run only prompts with this category (e.g. refusal_test)")
+    p.add_argument("--id", action="append", dest="ids", default=None, help="run only specific prompt id(s); repeatable")
     args = p.parse_args()
-    return asyncio.run(run_eval(args.slug, args.limit))
+    return asyncio.run(run_eval(args.slug, args.limit, args.category, args.ids))
 
 
 if __name__ == "__main__":

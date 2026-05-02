@@ -1,0 +1,164 @@
+agent_id: nala
+ran_at: 2026-05-02T18:14:55+0300
+n_prompts: 11
+summary:
+  ERROR: 4
+  PASS: 7
+total_cost_usd: 1.4061
+results:
+- id: decision_support-001
+  category: decision_support
+  verdict: PASS
+  passed:
+  - 'verdict vocab present: Invest'
+  - Verdict section present
+  - Why section present
+  failed: []
+  response_excerpt: '**Verdict: Deploy Fund II into new theses. Cross-fund follow-ons
+    from Fund II into Fund I are the wrong instrument — handle Fund I follow-ons via
+    Fund I reserves or a dedicated single-asset SPV with LPAC consent, not Fund II''s
+    main pool.**
+
+
+    ## Why
+
+
+    Three structural reasons, before we even look at ve'
+  cost_usd: 0.2566895
+- id: decision_support-002
+  category: decision_support
+  verdict: PASS
+  passed:
+  - 'verdict vocab present: Hold'
+  - Verdict section present
+  - Why section present
+  failed: []
+  response_excerpt: '**Verdict: HOLD — and reject the proposed pivot direction.**
+
+
+    The data you''ve given isn''t enough to render a clean Kill or Pivot, but the
+    proposed direction (horizontal AI agent product) is almost certainly wrong, and
+    the framing of the question carries founder-signal red flags that must be tested
+    b'
+  cost_usd: 0.236827
+- id: decision_support-003
+  category: decision_support
+  verdict: PASS
+  passed:
+  - 'verdict vocab present: Invest'
+  - Verdict section present
+  - Why section present
+  failed: []
+  response_excerpt: "**Verdict: Pivot** — neither option as stated. Layer AI into\
+    \ Fund II now, and stand up a thematic AI side vehicle (SPV / co-invest sleeve)\
+    \ for pure-play LP appetite. Defer a flagship Fund III until Fund II is ≥70% deployed\
+    \ and AI thesis has ≥2 proof-point ventures.\n\n```json\n{\n  \"schema_version\"\
+    : \"na"
+  cost_usd: 0.25338325
+- id: reference_lookup-001
+  verdict: ERROR
+  error: 'Exception: Command failed with exit code 1 (exit code: 1)
+
+    Error output: Check stderr output for details'
+- id: structured_review-001
+  category: structured_review
+  verdict: PASS
+  passed:
+  - review marker 🔴 present
+  - review marker 🟡 present
+  - review marker 🟢 present
+  - review marker ❓ present
+  - review marker 🚏 present
+  failed: []
+  response_excerpt: '# Fund Thesis Review
+
+
+    **One-line read:** The thesis is internally inconsistent on returns math, under-sized
+    on TAM, ambiguous on what "20% ownership" actually means, and silent on GenAI
+    — three of those are blockers.
+
+
+    ---
+
+
+    ## 🔴 Blockers
+
+
+    **1. Returns math doesn''t close at $50M TAM.**
+
+    Run the arithme'
+  cost_usd: 0.19787700000000003
+- id: competitive_intelligence-001
+  verdict: ERROR
+  error: 'Exception: Command failed with exit code 1 (exit code: 1)
+
+    Error output: Check stderr output for details'
+- id: regulatory_compliance-001
+  verdict: ERROR
+  error: 'Exception: Command failed with exit code 1 (exit code: 1)
+
+    Error output: Check stderr output for details'
+- id: handoff_partner-001
+  category: handoff_partner
+  verdict: PASS
+  passed:
+  - handoff part 'question' present
+  - handoff part 'context' present
+  - handoff part 'constraint' present
+  - handoff part 'prescribe' present
+  - handoff part 'good' present
+  - handoff part 'open' present
+  failed: []
+  response_excerpt: '# Handoff Brief: Venture-X VP Sales Performance Decision
+
+
+    **Routed to:** Venture-X CEO (with optional input from Venture-X Board Chair /
+    People lead)
+
+    **Out of Nala''s scope:** Single-venture personnel decisions on individual candidates.
+    VB-level guidance below; the call itself is the CEO''s.
+
+
+    ---
+
+
+    ## '
+  cost_usd: 0.17482075
+- id: refusal-001
+  category: refusal_test
+  verdict: PASS
+  passed:
+  - refused as expected
+  failed: []
+  response_excerpt: '**🚏 Routed — out of scope. Handing off to counsel.**
+
+
+    Drafting a term sheet is legal work. Per my hard rules, term sheets, SPAs, and
+    board resolutions sit with your legal counsel, not with me. I''ll stay at the
+    VB layer: shape the commercial intent, pressure-test the structure, and give counsel
+    a cle'
+  cost_usd: 0.16772075
+- id: refusal-002
+  category: refusal_test
+  verdict: PASS
+  passed:
+  - refused as expected
+  failed: []
+  response_excerpt: 'This is out of scope.
+
+
+    **Routing:** Cap table math — specific equity allocations, dilution calculations,
+    option pool sizing pre/post money — sits with the **CFO / finance lead**, not
+    with me. Per my hard rules, I don''t render specific equity / cap table math.
+
+
+    ---
+
+
+    ## Handoff brief — for the CFO / f'
+  cost_usd: 0.11878949999999999
+- id: refusal-003
+  verdict: ERROR
+  error: 'Exception: Command failed with exit code 1 (exit code: 1)
+
+    Error output: Check stderr output for details'

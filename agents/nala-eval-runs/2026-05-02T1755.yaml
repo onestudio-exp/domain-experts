@@ -1,0 +1,53 @@
+agent_id: nala
+ran_at: 2026-05-02T17:55:45+0300
+n_prompts: 3
+summary:
+  PASS: 3
+total_cost_usd: 0.784
+results:
+- id: decision_support-001
+  category: decision_support
+  verdict: PASS
+  passed:
+  - 'verdict vocab present: Invest'
+  - Verdict section present
+  - Why section present
+  failed: []
+  response_excerpt: '**Verdict: Pivot the question, then Invest Fund II into new theses.
+    Kill the cross-fund follow-on idea.**
+
+
+    The framing itself is the first problem. "Fund II → Fund I follow-ons" is rarely
+    a strategy debate; it''s usually a structural one that gets killed at the LPA
+    layer before it reaches the team''s '
+  cost_usd: 0.34728749999999997
+- id: decision_support-002
+  category: decision_support
+  verdict: PASS
+  passed:
+  - 'verdict vocab present: Hold'
+  - Verdict section present
+  - Why section present
+  failed: []
+  response_excerpt: '**Verdict: Hold — reject the pivot as framed; do not release
+    pivot capital this week.**
+
+
+    This is not a Pivot/Kill binary. The proposal in front of you is structurally
+    weak, but the underlying venture isn''t dead. The right move is to refuse the
+    pivot *as currently scoped*, force a 4–6 week structured'
+  cost_usd: 0.21844575
+- id: decision_support-003
+  category: decision_support
+  verdict: PASS
+  passed:
+  - 'verdict vocab present: Invest'
+  - Verdict section present
+  - Why section present
+  failed: []
+  response_excerpt: "```yaml\nverdict: Pivot\nverdict_confidence: medium\ndecision_type:\
+    \ fund_strategy\nquestion_reframed: >\n  The binary (Fund III AI-native vs Fund\
+    \ II layering) is the wrong frame.\n  Default is to layer AI thesis into Fund\
+    \ II AND stand up a thematic co-invest\n  sidecar / SPV stack — not a full Fund\
+    \ III — f"
+  cost_usd: 0.21824575000000002

@@ -4,21 +4,25 @@ A Claude Code plugin for building, evaluating, and evolving **domain expert agen
 
 ## What it is
 
-Three skills + one reference agent.
+Three skills + one reference agent + a Python eval runner companion.
 
 ### Skills
 
 | Skill | Status | What it does |
 |---|---|---|
-| `domain-creator` | ✅ Complete | Build a new agent OR uplevel an existing one. Two modes: **create** (interview from scratch) and **refit** (audit existing, walk through changes one-by-one, overwrite). |
-| `domain-eval` | 🚧 Stub | Run an agent against its own declared schema + a prompt set. Detect regressions. |
+| `domain-creator` | ✅ Complete | Build a new agent OR uplevel an existing one. Two modes: **create** (interview from scratch) and **refit** (audit an existing agent, walk through changes one-by-one, overwrite). |
+| `domain-eval` | ✅ Complete | Run an agent against its own declared schema/vocabulary/rules. Structural checks per category + report PASS / WEAK / FAIL per prompt. Detects regressions before shipping. |
 | `domain-capture` | 🚧 Stub | Capture new evidence-backed knowledge into an existing agent. |
 
 ### Reference agent
 
-| Agent | Domain | Status |
+| Agent | Domain | Validation |
 |---|---|---|
-| `nala` | Venture building / startup studio (MENA/KSA focus) | Built via `domain-creator` |
+| `nala` | Venture building / startup studio (MENA/KSA focus) | **11 / 11 PASS** across 8 categories — see [Validation](#validation) |
+
+### Companion script
+
+`scripts/eval_runner.py` — Python automation harness for `domain-eval`. Uses the Claude Agent SDK with your Claude Code authentication (no API key). Same logic as the in-session skill; useful for batch runs, CI, and scheduled evals.
 
 ## The 7 categories of work
 
@@ -34,7 +38,7 @@ Three skills + one reference agent.
 7. educational_explainer — teach domain concepts
 ```
 
-Most schema questions in the skill have a tested default. Users accept with one keystroke.
+Most schema questions in `domain-creator` have a tested default. Users accept with one keystroke.
 
 ## Install
 
@@ -79,6 +83,48 @@ Answer ~10 short questions (most have defaults). The skill produces 3 files: age
 
 The skill audits the agent against the framework, walks you through each recommended change one-by-one, and produces an upleveled version (overwrites the agent file; creates KB scaffold and starter prompts if missing).
 
+### Evaluate an agent
+
+In a Claude Code session:
+
+```
+/domain-experts:domain-eval
+> <slug or path>
+```
+
+The skill loads the agent's declared schema/vocab/rules, runs each starter prompt through the agent, applies structural checks, and reports PASS / WEAK / FAIL per prompt with a category breakdown.
+
+For batch / scheduled runs, use the Python companion:
+
+```bash
+uv sync
+uv run python scripts/eval_runner.py --slug <agent-slug>          # full set
+uv run python scripts/eval_runner.py --slug nala --category refusal_test
+uv run python scripts/eval_runner.py --slug nala --id refusal-001 --id refusal-003
+uv run python scripts/eval_runner.py --slug nala --limit 3        # first 3
+```
+
+The runner writes a YAML report to `agents/<slug>-eval-runs/<timestamp>.yaml`. Use this as a baseline; future runs can diff against it to detect regressions.
+
+## Validation
+
+Nala (the reference agent) was tested across all 8 categories she claims:
+
+```
+decision_support       3/3 PASS   verdict vocab + adaptive schema
+reference_lookup       1/1 PASS   confidence tags + cited sources
+structured_review      1/1 PASS   severity markers (🔴 🟡 🟢 ❓ 🚏)
+competitive_intel      1/1 PASS   Direct / Indirect / Substitute tiers
+regulatory_compliance  1/1 PASS   article-level citation + applicability
+handoff_partner        1/1 PASS   6-part brief sections all present
+refusal_test           3/3 PASS   refused term-sheet & cap-table requests
+                                  answered org-structure (boundary case)
+
+Total:                 11 / 11 PASS
+```
+
+The eval was run via `scripts/eval_runner.py` with Nala's declared tools (`Read, Glob, Grep, WebSearch, WebFetch`) — same configuration she'd run in production.
+
 ## Repository layout
 
 ```
@@ -87,16 +133,22 @@ domain-experts/
 │   ├── plugin.json
 │   └── marketplace.json
 ├── skills/
-│   ├── domain-creator/                # complete
+│   ├── domain-creator/                # complete (create + refit modes)
 │   │   ├── SKILL.md
 │   │   └── references/agent-template.md
-│   ├── domain-eval/                   # stub
+│   ├── domain-eval/                   # complete
+│   │   └── SKILL.md
 │   └── domain-capture/                # stub
+│       └── SKILL.md
 ├── agents/
 │   ├── nala.md                        # reference agent
-│   └── nala-knowledge/                # KB scaffold (5 subdirs)
-└── examples/
-    └── nala-starter-prompts.yaml      # 12 starter prompts (9 + 3 refusal tests)
+│   ├── nala-knowledge/                # KB scaffold (5 subdirs)
+│   └── nala-eval-runs/                # eval reports per run
+├── examples/
+│   └── nala-starter-prompts.yaml      # 11 starter prompts (8 + 3 refusal tests)
+├── scripts/
+│   └── eval_runner.py                 # Python eval automation
+└── pyproject.toml                     # claude-agent-sdk + pyyaml
 ```
 
 ## Why "domain-" prefix?
@@ -105,4 +157,4 @@ These skills are scoped to **domain expert agents** — agents whose value is de
 
 ## Status
 
-Active development. `domain-creator` is complete and ships with both modes. `domain-eval` and `domain-capture` are next. Internal to OneStudio for now.
+Two of three skills complete. `domain-capture` is next. Internal to OneStudio for now.
