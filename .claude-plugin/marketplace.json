@@ -1,0 +1,15 @@
+{
+  "name": "domain-experts",
+  "version": "0.1.0-dev",
+  "description": "OneStudio's domain expert agent toolkit — skills for building, evaluating, and evolving domain expert agents.",
+  "owner": {
+    "name": "OneStudio"
+  },
+  "plugins": [
+    {
+      "name": "domain-experts",
+      "source": "./",
+      "description": "Three skills (domain-creator, domain-eval, domain-capture) plus Nala — a venture-building reference agent built using the toolkit."
+    }
+  ]
+}
