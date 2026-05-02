@@ -1,314 +1,577 @@
 ---
 name: domain-creator
-description: Walk a user through creating a new domain expert agent in Claude Code via interactive Q&A. Asks roughly 10 questions covering domain, primary user, output type, response schema, confidence vocabulary, knowledge structure, refusal rules, and bilingual handling, then produces a complete .claude/agents/<id>.md file plus a starter knowledge scaffold and a starter prompt set. Use when the user wants to create a NEW domain expert agent — not edit an existing one (use domain-capture for edits).
+description: Walk a user through creating a new domain expert agent in Claude Code via interactive Q&A. Asks roughly 10 short questions covering domain, primary user, output type, response schema, confidence vocabulary, knowledge structure, refusal rules, and bilingual handling. Most questions have a tested default the user can accept with one keystroke. Produces a complete .claude/agents/<id>.md file plus a knowledge scaffold and a starter prompt set. Use when the user wants to create a NEW domain expert agent — not edit an existing one (use domain-capture for edits).
 ---
 
 # /domain-creator
 
-Interview the user to design a new domain expert agent, then generate the agent definition file plus a knowledge scaffold and starter prompt set.
+Interview the user to design a new domain expert agent. Generate the agent definition file plus a knowledge scaffold and starter prompt set.
 
 ## When to invoke
 
 - User wants to create a new domain expert agent.
 - User has a domain in mind but no agent yet.
-- User has a draft agent file but wants to restart cleanly with proper structure.
+- User has a draft agent file but wants to restart cleanly.
 
 ## When NOT to invoke
 
-- User wants to **edit knowledge** in an existing agent → use `domain-capture` instead.
-- User wants to **evaluate** an existing agent → use `domain-eval` instead.
-- User is creating a non-domain agent (coding agent, ops agent, integration agent) — this skill is scoped to domain expert agents only.
+- User wants to **edit knowledge** in an existing agent → use `domain-capture`.
+- User wants to **evaluate** an existing agent → use `domain-eval`.
+- User is creating a non-domain agent (coding, ops, integration) — this skill is scoped to domain expert agents only.
 
-## How to run this skill
+## How to run
 
-This is an **interactive** skill. Behavioral rules:
+1. **Ask one question per turn.** Wait for the answer. Then ask the next.
+2. **Use defaults.** Most schema questions have a tested default. Show it. Let the user type one keyword to accept.
+3. **Show progress.** After each answer, restate what you captured in one short line.
+4. **Use short sentences.** Many users are not English-native. One idea per sentence. Simple verbs.
+5. **Describe options by shape, not by author.** Patterns are named by structure (e.g., "5-part schema"), never by which agent uses them.
+6. **Loop on incomplete answers.** If a one-word answer needs more, follow up specifically.
+7. **Show drafts before saving.** Never auto-save. The user must say `save`.
 
-1. **Ask one question per turn.** Never batch questions. Wait for the user's answer, then ask the next.
-2. **Use smart defaults.** Don't ask what you can infer. If the user says "Saudi merchants", assume bilingual Arabic/English and confirm rather than asking.
-3. **Show running progress.** After each answer, briefly restate what you've captured ("Got it — domain is X, user is Y. Next question…") so the user can catch errors early.
-4. **Offer templates, don't blank-start.** When asking about output schema, confidence vocabulary, refusal rules — present 2-4 concrete options drawn from real production patterns (see § Pattern library).
-5. **Keep questions short.** Ask, give 2-3 example answers, stop. Don't lecture.
-6. **Loop when answers are incomplete.** If a user gives a one-word answer to a question that needs detail, follow up specifically.
-7. **At the end, show the draft files for review BEFORE saving.** Don't auto-save. The user must explicitly approve.
+## Question template
+
+Every question with a default uses this exact format:
+
+```
+**Q<N> — <Field>**
+
+<one-line question>
+
+**✨ Default — <name>**
+
+```
+<aligned shape — code block for monospace clarity>
+```
+
+*<one-line why>*
+
+**Override:**
+
+```
+keyword  — short explanation
+keyword  — short explanation
+custom   — write your own
+```
+
+→ Type `default`, `keyword`, ..., or `custom`.
+```
+
+Questions without a meaningful default (slug, user, out-of-scope) skip the Default block.
 
 ## The 9-phase interview
 
-Each phase asks 1 question (occasionally 2), in order. Skip phases that prior answers made redundant.
-
 ### Phase 1 — Identity
 
-**Q1.1 — Slug + display name**
+**Q1 — Slug + display name**
 
-> "What's the agent's slug (short snake-case identifier, e.g., `nala`, `rushd`, `fekri`) and a display name (proper case, e.g., `Nala`, `Rushd`)? If the agent has a meaningful Arabic display name too, share that."
+What's the slug (lowercase, snake_case) and display name (proper case)? Add a non-English display name only if the domain is bilingual.
 
-Capture: `slug`, `display_name`, `display_name_ar` (optional).
+```
+Examples:  slug: tax-advisor    display: Tax Advisor
+           slug: pricing-pro    display: Pricing Pro
+           slug: nala           display: Nala         ar: نالا
+```
+
+→ Type slug + display name (and optional Arabic name).
+
+Capture: `slug`, `display_name`, `display_name_ar`.
+
+---
 
 ### Phase 2 — Domain
 
-**Q2.1 — Domain in one sentence**
+**Q2 — Domain in one sentence**
 
-> "Describe the agent's domain in one sentence. Three example shapes:
-> — '[market/regulatory] expert for [geography]' — e.g., 'WhatsApp Business marketing expert for KSA Salla merchants'
-> — '[product practice] expert for [audience]' — e.g., 'Venture-building expert for early-stage founders'
-> — '[research domain] expert for [user]' — e.g., 'Iraqi K-12 education expert for ed-tech product teams'"
+Describe the agent's domain in one sentence.
+
+```
+Three useful shapes:
+  [market/regulatory] expert for [geography]
+  [product practice] expert for [audience]
+  [research domain] expert for [user]
+```
+
+→ Write one sentence.
 
 Capture: `domain_one_liner`.
 
-**Q2.2 — Geographic / language scope** *(skip if Q2.1 already implies it)*
+**Q2b — Geographic + language scope** *(skip if Q2 already implies it)*
 
-> "What's the geographic and language scope? E.g., KSA-only, GCC, MENA, US, global — and is the agent bilingual? If yes, what languages and which is primary?"
+If Q2 mentions a non-English geography, smart-default to bilingual and confirm. Otherwise ask:
+
+**✨ Default — monolingual English**
+
+*Most agents work in one language. Add bilingual only when the domain demands it.*
+
+**Override:**
+
+```
+bilingual   — pick primary language + one to switch to on user signal
+custom      — describe your own setup
+```
+
+→ Type `default`, `bilingual`, or `custom`.
 
 Capture: `geo_scope`, `bilingual` (bool), `languages`, `primary_language`.
 
+---
+
 ### Phase 3 — User
 
-**Q3.1 — Primary user + their context**
+**Q3 — Primary user**
 
-> "Who's the primary user of this agent? Their role, what they're trying to do, and one example of a real question they'd bring."
+Who's the primary user? Their role, what they're doing, and one example question they'd bring.
+
+```
+Format:
+  Role:     <role + seniority>
+  Context:  <what they're doing>
+  Example:  <a real question they'd ask>
+```
+
+→ Fill in all three.
 
 Capture: `user_role`, `user_context`, `example_question`.
 
+If they skip the example, ask again — the example anchors the agent's voice.
+
+---
+
 ### Phase 4 — Primary work
 
-**Q4.1 — Which categories of work?**
+**Q4 — Categories of work**
 
-> "Which of these does the agent primarily do? You can pick 1-3 (most agents have one primary plus one or two secondary):
->
->   1. **decision_support** — produces a structured verdict with reasoning (Yes/No/Adjust, Approved/Provisional/Rejected, Go/No-Go, etc.)
->   2. **reference_lookup** — answers domain questions with cited evidence
->   3. **structured_review** — audits an artifact (PRD, design, plan) and returns categorized findings
->   4. **competitive_intelligence** — profiles competitors, comparables, market structure
->   5. **regulatory_compliance** — applies named regulations to user's situation
->   6. **handoff_partner** — produces structured briefs for other agents/humans to act on
->   7. **educational_explainer** — teaches domain concepts with worked examples
->
-> Type the numbers, primary first."
+Pick 1–3 categories. Primary first.
 
-Capture: `primary_categories` (ordered list).
+```
+1. decision_support      — structured verdict with reasoning
+2. reference_lookup      — cited answers to domain questions
+3. structured_review     — audit an artifact, return categorized findings
+4. competitive_intel     — profile competitors, comparables
+5. regulatory_compliance — apply named regulations
+6. handoff_partner       — structured briefs for other agents/humans
+7. educational_explainer — teach domain concepts
+```
 
-### Phase 5 — Output schema (branched on Phase 4)
+→ Type the numbers. Primary first.
+
+If user picks more than 3, gently note: *"That's broad. Most agents focus on 1–3. Want to mark a primary and use defaults for the rest?"*
+
+Capture: `primary_categories`.
+
+---
+
+### Phase 5 — Output schemas (branched on Phase 4)
 
 For EACH primary category in the answer, ask the relevant schema question. Skip categories not chosen.
 
-**If `decision_support` is claimed → Q5a.1 + Q5a.2:**
+#### Q5a — Verdict vocabulary *(if `decision_support` claimed)*
 
-**Q5a.1 — Verdict vocabulary**
+What words end every decision?
 
-> "What's the verdict vocabulary? Pick or write your own:
->
->   • `Yes / No / Needs adjustment` (Rushd-style — product decisions)
->   • `APPROVED / APPROVED (PROVISIONAL) / REJECTED / NEEDS REDESIGN / INSUFFICIENT EVIDENCE` (Ziad-style — domain reviews)
->   • `Go / Go-with-conditions / No-Go` (Membership-style — venture/feature validation)
->   • `[VERIFIED] / [UNVERIFIED] / [NEEDS-RESEARCH]` (Omar-style — claim labeling)
->   • Custom (your own)"
+**✨ Default — pick from your domain**
+
+```
+Product decision      →  Yes / No / Needs adjustment
+Investment decision   →  Invest / Hold / Pivot / Kill
+Review decision       →  APPROVED / PROVISIONAL / REJECTED
+Validation decision   →  Go / Go-with-conditions / No-Go
+```
+
+*3–5 words is the sweet spot. Easy to scan. Clear meaning.*
+
+**Override:**
+
+```
+custom  — write your own
+```
+
+→ Type a vocabulary, or `custom`.
 
 Capture: `verdict_vocab`.
 
-**Q5a.2 — Response sections**
+#### Q5b — Decision schema *(if `decision_support` claimed)*
 
-> "What named sections does every decision response include? Pick or write your own:
->
->   • Rushd's 5-part: `Decision · Why · Risks · Safer alternative · Product impact`
->   • Wafaa's 7-step: `Clarification · Options table · Trade-offs · GCC/governance implications · Risks · Recommendation · 3 follow-up questions`
->   • Omar's 3-block: `الإجابة المختصرة · ليه · اللي أنا هعمله` (with confidence-tagged citations)
->   • BLUF: `Bottom line · Context · Detailed analysis · Trade-offs & risks · Next steps · Open questions`
->   • Custom"
+How does every decision answer look?
+
+**✨ Default — adaptive**
+
+```
+Always:       Verdict · Why
+When needed:  Risks · Conditions · Impact · Next steps
+```
+
+*Light questions stay short. Heavy ones go deep.*
+
+**Override:**
+
+```
+rigid    — always show 5 sections (Decision/Why/Risks/Alt/Impact)
+7-step   — full advisory (Clarification → Options → Trade-offs → ... → Follow-ups)
+3-block  — short action format (Bottom-line/Why/Action)
+custom   — write your own
+```
+
+→ Type `default`, `rigid`, `7-step`, `3-block`, or `custom`.
 
 Capture: `response_sections`.
 
-**If `reference_lookup` is claimed → Q5b.1:**
+#### Q5c — Confidence vocabulary *(if `reference_lookup` claimed)*
 
-**Q5b.1 — Confidence vocabulary**
+How does the agent label uncertain claims?
 
-> "How do you label uncertain claims? Pick or write your own:
->
->   • `[VERIFIED] / [UNVERIFIED] / [NEEDS-RESEARCH]` with citation per claim (Omar-style)
->   • `confirmed / reported / estimated / uncertain / not knowable` (Shaheen-style)
->   • `from my direct experience / from my readings and degrees / from general context as [identity] / from an official source [name]` (Fekri-style — for personal-experience domains)
->   • `[knowledge/<path>.md] / [vector: <source>]` (Aref-style — KB-citation)
->   • Tier-labeled sources: `Tier 1 (official) / Tier 2 (analysis) / Tier 3 (synthesis)`
->   • Custom"
+**✨ Default — three-state tags**
+
+```
+[VERIFIED]      — cited and confirmed
+[UNVERIFIED]    — stated, not cross-checked
+[NEEDS-RESEARCH] — agent doesn't know; flagged
+```
+
+*Three states is enough. More is rarely used.*
+
+**Override:**
+
+```
+five-state    — confirmed / reported / estimated / uncertain / not knowable
+source-tier   — Tier 1 (official) / Tier 2 (analysis) / Tier 3 (synthesis)
+experience    — direct experience / readings / general context / official source
+kb-citation   — [knowledge/<path>.md] / [source: <url>]
+custom        — write your own
+```
+
+→ Type `default`, a keyword, or `custom`.
 
 Capture: `confidence_vocab`.
 
-**If `structured_review` is claimed → Q5c.1:**
+#### Q5d — Review schema *(if `structured_review` claimed)*
 
-**Q5c.1 — Review section schema**
+What sections does every review have?
 
-> "What sections does every review include? Pick or write your own:
->
->   • Merchant-Advocate-style: `🔴 Blockers · 🟡 Friction · 🟢 Wins · 📋 Persona walkthrough · ❓ Open questions · 🚏 Routed to other agents` (with file:line citations)
->   • Adam-style 8-section: `Executive Summary · Mode/Date/Confidence · [...] · Confidence & Unknowns`
->   • Ziad-style: structured verdict with conditional fields (Confirm Before Ship / Reframed Requirement / Questions Before Build)
->   • Custom"
+**✨ Default — severity-marker schema**
+
+```
+🔴 Blockers          — issues that prevent moving forward
+🟡 Friction          — issues that slow but don't block
+🟢 Wins              — strengths to preserve
+❓ Open questions    — unresolved before deciding
+🚏 Routed            — findings for legal / finance / other roles
+```
+
+*Colored markers make the review skimmable. Routed forces explicit hand-offs.*
+
+**Override:**
+
+```
+8-section   — Executive Summary / Mode / Confidence / [domain] / Unknowns
+verdict-fields — single verdict + conditional follow-ups
+custom      — write your own
+```
+
+→ Type `default`, a keyword, or `custom`.
 
 Capture: `review_sections`.
 
-**If `competitive_intelligence` is claimed → Q5d.1:**
+#### Q5e — Competitor classification *(if `competitive_intel` claimed)*
 
-**Q5d.1 — Competitor classification**
+How are competitors classified?
 
-> "How do you classify competitors? Pick or write your own:
->
->   • Adam-style: `Direct / Indirect / Substitute` (3 tiers, exclusive)
->   • Custom 4-tier with explicit definitions
->   • No tiering, comparison matrix only"
+**✨ Default — three-tier**
+
+```
+Direct       — same problem, same audience, same approach
+Indirect     — similar problem, different model
+Substitute   — different category, replaces in practice
+```
+
+*Mutually exclusive tiers force clarity. Most teams overstate "direct".*
+
+**Override:**
+
+```
+matrix-only  — comparison matrix, no tiering
+custom       — write your own
+```
+
+→ Type `default`, a keyword, or `custom`.
 
 Capture: `competitor_classification`.
 
-**If `regulatory_compliance` is claimed → Q5e.1:**
+#### Q5f — Regulation citation rule *(if `regulatory_compliance` claimed)*
 
-**Q5e.1 — Regulation citation rule**
+How are regulations cited?
 
-> "How do you cite regulations? Pick or write your own:
->
->   • Article-level when possible, with applicability check per (geography, segment) — e.g., `PDPL Article 22, applies to KSA-resident data subjects`
->   • Regulation name + year + source URL
->   • Custom"
+**✨ Default — article-level + applicability check**
+
+```
+Format:  <Reg-Name> Article <N> (<year>), applies to <geography> <segment>
+Example: PDPL Article 22 (2023), applies to KSA-resident data subjects
+```
+
+*Article-level is auditable. The applicability check stops vague compliance gestures.*
+
+**Override:**
+
+```
+name-year-url  — regulation name + year + source URL
+custom         — write your own
+```
+
+→ Type `default`, a keyword, or `custom`.
 
 Capture: `regulation_citation_rule`.
 
-**If `handoff_partner` is claimed → Q5f.1:**
+#### Q5g — Handoff brief format *(if `handoff_partner` claimed)*
 
-**Q5f.1 — Handoff brief format**
+What's in every handoff brief?
 
-> "What's in every handoff brief? Pick or write your own:
->
->   • Wafaa-style 6-part: `Question being handed off · Receiver context · Domain constraints to honor · What NOT to prescribe · What good looks like · Open questions`
->   • Custom"
+**✨ Default — six-part brief**
+
+```
+1. Question being handed off
+2. Receiver context
+3. Domain constraints to honor
+4. What NOT to prescribe
+5. What good looks like
+6. Open questions for the receiver
+```
+
+*Covers the failure modes of cross-role handoffs. Hard to improve on.*
+
+**Override:**
+
+```
+custom  — describe your own format
+```
+
+→ Type `default` or `custom`.
 
 Capture: `handoff_format`.
 
-**If `educational_explainer` is claimed → Q5g.1:**
+#### Q5h — Pedagogical structure *(if `educational_explainer` claimed)*
 
-**Q5g.1 — Pedagogical structure**
+What's the structure of every explanation?
 
-> "What's the structure of every explanation? Pick or write your own:
->
->   • Membership-style 5-part: `Simple definition · Why it matters · Practical example · Common mistake · How it applies to your context`
->   • 4-part: `Definition · Example · Anti-pattern · Application`
->   • Custom"
+**✨ Default — five-part teaching schema**
+
+```
+1. Simple definition
+2. Why it matters
+3. Practical example
+4. Common mistake
+5. How it applies to your context
+```
+
+*Forces examples and pitfalls. Pure definitions feel academic.*
+
+**Override:**
+
+```
+4-part   — Definition / Example / Anti-pattern / Application
+custom   — write your own
+```
+
+→ Type `default`, `4-part`, or `custom`.
 
 Capture: `explainer_structure`.
 
-### Phase 6 — Knowledge structure
+---
 
-**Q6.1 — Knowledge needed**
+### Phase 6 — Knowledge
 
-> "What knowledge does this agent need that ISN'T in code or live external sources? Pick all that apply:
->
->   • Regulations and statutes (regulatory texts that change rarely)
->   • Industry frameworks and methodologies (RFM, JTBD, Lean Startup, AAPOR, etc.)
->   • Market data and benchmarks (CPM/CPC ranges, BNPL stats, etc.)
->   • Cultural / linguistic context (Arabic dialects, Hijri calendar, GCC procurement norms)
->   • Vendor / competitor playbooks (specific to the domain)
->   • Personal experience anchored to a place or community
->   • None of the above (the agent reasons from prompt context only)"
+**Q6 — Knowledge categories**
+
+What knowledge does the agent need that ISN'T in code or live external sources? Pick all that apply.
+
+```
+1. Regulations and statutes
+2. Industry frameworks and methodologies
+3. Market data and benchmarks
+4. Cultural / linguistic context
+5. Vendor / competitor playbooks
+6. Personal experience anchored to a community
+7. None — the agent reasons from prompt context only
+```
+
+→ Type the numbers, or `all` / `none`.
 
 Capture: `kb_categories`.
 
-**Q6.2 — Live source vs static KB** *(only ask if `kb_categories` is non-empty)*
+**Q6b — Live source access** *(skip if Q6 = none)*
 
-> "Should this agent ALSO read live source files at runtime (a venture's code, real-time API outputs, etc.) — or is its knowledge purely static reference material?"
->
-> *Mention the principle:* "*If yes, the agent should read live source via Read/Grep/Glob — never copy source into a static KB. KB stays for stuff external to live sources (regulations, frameworks, market context).*"
+Should the agent read live source files at runtime?
 
-Capture: `live_source_access` (bool), and if yes, `live_source_paths` (list — what files/dirs).
+**✨ Default — yes**
 
-**Q6.3 — Memory / continuity** *(skip if not applicable)*
+```
+Live source = real files the agent reads at runtime via Read/Glob/Grep.
+KB = static reference material (regulations, frameworks, playbooks).
+Never copy live source into the KB. The agent reads it live.
+```
 
-> "Should the agent remember things across sessions? E.g., reads its memory file at session start, logs durable learnings at session end."
+*Static snapshots go stale. Live reads stay current.*
 
-If `yes`, immediately follow up with **Q6.3b — memory scope**:
+**Override:**
 
-> "Memory scope — three options (default: **project**):
->
->   • `project` *(default, recommended for team agents)* — memory at `.claude/agent-memory/<slug>/MEMORY.md`, version-controlled, **shared with other team members** via git. Use when the team's institutional memory should travel with the codebase.
->   • `user` — memory at `~/.claude/agent-memory/<slug>/MEMORY.md`, cross-project, single-user. Use for personal-only agents that follow you across machines.
->   • `local` — memory at `.claude/agent-memory-local/<slug>/MEMORY.md`, project-scoped but **not** committed. Use when memory is sensitive (private notes, temporary scratch).
->
-> Default to `project` unless the user has a clear reason for `user` or `local`."
+```
+no  — the agent uses KB only, no live source
+```
 
-Capture: `memory_enabled` (bool), `memory_scope` (one of `project` / `user` / `local`).
+→ Type `default` or `no`.
 
-CC auto-injects the first 200 lines of `MEMORY.md` into the agent's system prompt at session start. The agent's frontmatter must include `memory: <scope>` for this to work.
+If `default`, ask for one path or accept `TBD`.
+
+Capture: `live_source_access` (bool), `live_source_paths` (list, OK to be `TBD`).
+
+**Q6c — Memory scope**
+
+Should the agent remember things across sessions?
+
+**✨ Default — yes, project scope**
+
+```
+Path:    .claude/agent-memory/<slug>/MEMORY.md
+Scope:   project (committed to the team's repo)
+Loading: CC injects the first 200 lines into the agent's prompt at session start.
+```
+
+*Project = team-shared memory. The team's institutional knowledge travels with the codebase.*
+
+**Override:**
+
+```
+user   — ~/.claude/agent-memory/<slug>/MEMORY.md   (cross-project, single-user)
+local  — .claude/agent-memory-local/<slug>/        (project-scoped, NOT committed)
+none   — stateless agent, every session starts fresh
+```
+
+→ Type `default`, `user`, `local`, or `none`.
+
+Capture: `memory_enabled`, `memory_scope`.
+
+---
 
 ### Phase 7 — Hard rules
 
-**Q7.1 — Out of scope**
+**Q7 — Out of scope**
 
-> "What's explicitly out of scope? List 2-4 things this agent should refuse to do or redirect."
+What does the agent refuse to advise on, or redirect?
 
-Capture: `out_of_scope` (list).
+```
+Common shapes:
+  • Adjacent specialist domains (legal, tax, regulated specialties)
+  • Implementation work (code, design, copywriting)
+  • Decisions belonging to other roles
+  • Out-of-domain questions
+```
 
-**Q7.2 — Anti-fabrication rule**
+→ List 2–4 things.
 
-> "What's the anti-fabrication rule? Pick or write your own:
->
->   • `Two-source verification rule` — every factual claim verified against ≥2 independent credible sources before output (Abo-Lijan-style)
->   • `One-source-with-confidence-tag rule` — single source acceptable if tagged with confidence/freshness label (Omar-style)
->   • `Direct experience may be uncited; external claims must cite source` (Fekri-style)
->   • `No claims without citation, period`
->   • Custom"
+Capture: `out_of_scope`.
+
+**Q7b — Anti-fabrication rule**
+
+How does the agent prevent fabrication?
+
+**✨ Default — hybrid**
+
+```
+Empirical claims (numbers, facts, dates)        →  ≥2 independent sources
+Methodology references (frameworks, playbooks)  →  1 source + confidence tag
+Internal team decisions (in agent's memory)     →  no external citation needed
+```
+
+*Empirical fabrication causes the most damage. Internal decisions are the team's own ground truth.*
+
+**Override:**
+
+```
+two-source   — every empirical claim needs ≥2 sources, no exceptions
+one-tagged   — single source acceptable everywhere if labeled
+experience   — direct experience uncited; external claims must cite
+strict       — no claims without citation, period
+custom       — write your own
+```
+
+→ Type `default`, a keyword, or `custom`.
 
 Capture: `anti_fabrication_rule`.
 
+---
+
 ### Phase 8 — Behavior
 
-**Q8.1 — Pressure-testing default**
+**Q8 — Pressure-testing default**
 
-> "When the user brings a proposal, should the agent challenge weak assumptions and risky framings BY DEFAULT, or wait until asked?
->
->   • Pressure-test by default (Rushd, Sales-marketing, Sada — recommended for decision-heavy agents)
->   • Wait until asked (lighter-touch agents)"
+When the user brings a proposal, should the agent challenge it by default?
 
-Capture: `pressure_test_default` (bool).
+**✨ Default — yes**
+
+```
+The agent challenges weak assumptions, surfaces risks,
+and refuses to validate thin reasoning.
+Disagreement is stated directly.
+```
+
+*A domain expert agent earns its keep by adding a lens the user didn't have.*
+
+**Override:**
+
+```
+wait-until-asked  — responsive consultant. Raise risks only when material.
+                    Use for reference-only or explainer-only agents.
+```
+
+→ Type `default` or `wait-until-asked`.
+
+Capture: `pressure_test_default`.
+
+---
 
 ### Phase 9 — Confirm and generate
 
 After all answers captured:
 
-1. **Show running summary** — re-list every captured answer in a compact table the user can scan in 30 seconds.
-2. **Ask for confirmation:** "Look right? Type 'go' to generate the files, or call out edits."
-3. **On 'go', produce 3 files:**
-   - `agents/<slug>.md` — the agent definition (use the template at `references/agent-template.md` and fill it in based on captured answers)
-   - `agents/<slug>-knowledge/README.md` — knowledge directory scaffold (only if `kb_categories` is non-empty)
-   - `examples/<slug>-starter-prompts.yaml` — 5-10 starter prompts derived from the claimed canonical categories (for `domain-eval` to use later)
-4. **Show the generated files** — don't write to disk yet.
-5. **Ask:** "Save these 3 files? You can also say 'edit X' first."
-6. **On confirmation, write to disk.**
+1. **Show running summary.** Compact table of every captured answer. Mark which fields used the default vs. were overridden.
+2. **Ask:** *"Look right? Type `go` to generate the files, or call out edits."*
+3. **On `go`, produce 3 files** (do NOT write to disk yet):
+   - `agents/<slug>.md` — agent definition (use `references/agent-template.md`)
+   - `agents/<slug>-knowledge/README.md` — KB scaffold (skip if `kb_categories` = none)
+   - `examples/<slug>-starter-prompts.yaml` — 5–12 starter prompts (1–2 per claimed category + 2–3 refusal tests)
+4. **Show the generated files inline.**
+5. **Ask:** *"Save these 3 files? Or say `edit X` first."*
+6. **On `save`, write to disk.**
 
-## Pattern library
+## Pattern library (reference)
 
-When asking schema questions, you offer concrete templates. The empirical patterns to draw from (with which production agent uses each):
+When a user picks an override or `custom`, these are the empirical patterns observed in production. Described by structural shape only.
 
-| Pattern | Source agent | Domain |
-|---|---|---|
-| 5-part decision (Decision/Why/Risks/Alternative/Impact) | Rushd | WalletPlus + Salla |
-| 7-step advisory (Clarification/Options/Trade-offs/Implications/Risks/Recommendation/Follow-ups) | Wafaa | GCC corporate gifting governance |
-| 3-block Arabic decision (الإجابة/ليه/اللي هعمله) | Omar | KSA WhatsApp Business |
-| BLUF + 5 sections | Abo Lijan | Election intelligence |
-| 8-section CI report | Adam | SaaS competitive intel |
-| 🔴/🟡/🟢/📋/❓/🚏 review | Merchant Advocate | Salla merchant UX |
-| APPROVED/PROVISIONAL/REJECTED/NEEDS REDESIGN/INSUFFICIENT EVIDENCE verdict | Ziad | MoFA intelligence |
-| Go/Go-with-conditions/No-Go | Membership | Salla Member Plus |
-| Direct/Indirect/Substitute tiers | Adam | Competitor classification |
-| 5-part educational (Definition/Why-matters/Example/Mistake/Application) | Membership | Domain concepts |
-| 6-part handoff brief | Wafaa | Cross-agent handoff |
-| `[VERIFIED]/[UNVERIFIED]` confidence tags | Omar | Per-claim labeling |
-| Tier-labeled sources (Tier 1/2/3) | Shaheen | Qatar economy |
-| `from direct experience / readings / general context / official source` | Fekri | Iraqi K-12 |
-| Two-source verification rule | Abo Lijan | Election fact-checking |
-
-When a user picks "Custom", let them describe their own — but encourage them to draw from these patterns first.
+| Pattern | Shape |
+|---|---|
+| 5-part decision | Decision · Why · Risks · Alternative · Impact |
+| 7-step advisory | Clarification · Options · Trade-offs · Implications · Risks · Recommendation · Follow-ups |
+| 3-block decision | Bottom-line · Why · Action |
+| BLUF + 5 sections | Bottom line · Context · Analysis · Trade-offs · Next steps · Open questions |
+| 8-section CI report | Executive Summary · Mode/Date/Confidence · [domain sections] · Unknowns |
+| Severity-marker review | 🔴 Blockers · 🟡 Friction · 🟢 Wins · ❓ Open questions · 🚏 Routed |
+| Verdict + conditional fields | Verdict + Confirm-Before-Ship / Reframed-Requirement / Questions-Before-Build |
+| 3-tier competitor | Direct · Indirect · Substitute |
+| 5-part educational | Definition · Why-matters · Example · Mistake · Application |
+| 6-part handoff brief | Question · Receiver-context · Constraints · NOT-to-prescribe · Good-shape · Open-questions |
+| 3-state confidence | `[VERIFIED]` · `[UNVERIFIED]` · `[NEEDS-RESEARCH]` |
+| 5-state confidence | `confirmed` · `reported` · `estimated` · `uncertain` · `not knowable` |
+| Source-tier labels | `Tier 1 (official)` · `Tier 2 (analysis)` · `Tier 3 (synthesis)` |
+| Experience-rooted vocab | `from direct experience` · `from readings` · `from general context` · `from official source` |
+| Two-source rule | Every empirical claim needs ≥2 independent credible sources |
 
 ## Output assembly
 
-Read `references/agent-template.md` once before generating. The template has placeholders like `{{slug}}`, `{{domain_one_liner}}`, `{{response_sections}}` etc. Fill them in from captured answers.
+Read `references/agent-template.md` once before generating. Fill in placeholders from captured answers.
 
 For sections that depend on Phase 4 choices (e.g., the agent only includes a "Decision schema" section if it claimed `decision_support`), conditionally include or omit those sections.
 
-For starter prompts in `examples/<slug>-starter-prompts.yaml`, generate 5-10 prompts: 1-2 per claimed canonical category, plus 1-2 adversarial prompts that test refusal rules. Format:
+For starter prompts in `examples/<slug>-starter-prompts.yaml`, generate 5–12 prompts: 1–2 per claimed canonical category, plus 2–3 adversarial prompts that test refusal rules. Format:
 
 ```yaml
 slug: <slug>
@@ -318,14 +581,22 @@ prompts:
     consumer: for_human    # or for_agent
     text: |
       <a realistic prompt the user would bring>
-  ...
+  - id: refusal-001
+    category: refusal_test
+    consumer: for_human
+    expects_refusal: true
+    text: |
+      <a prompt that should be refused per the agent's hard rules>
+    notes: |
+      <why this should be refused>
 ```
 
 ## Anti-patterns
 
-- **Don't ask 30 questions.** ~10 is the target. If you find yourself asking more, you're over-engineering.
-- **Don't force a pattern that doesn't fit.** If the user's domain genuinely doesn't need bilingual handling or memory or live source access, skip those sections in the output. The empirical 13 agents differ widely — some have rich KB, some have none. Both are valid.
-- **Don't write code or run benchmarks.** This is a creation skill. The user runs `domain-eval` separately.
-- **Don't impose canonical categories on a domain that doesn't fit.** The 7 categories cover most cases but not all. If the user describes work that doesn't map, capture it as agent-specific in the output.
-- **Don't auto-save without explicit confirmation.** The user must say "save" before any file is written.
-- **Don't ask about scoring weights, leaderboards, or cross-agent comparison.** This skill produces an agent. Evaluation comes later, locally, via `domain-eval` — and the user already chose to drop cross-agent ranking.
+- **Don't ask 30 questions.** Defaults exist so the user can accept with one keystroke. Total interview should be ~10 user turns.
+- **Don't reference source agents by name.** Patterns are named by shape, not author.
+- **Don't force defaults that don't fit.** Defaults are recommended, not imposed.
+- **Don't write code or run benchmarks.** Evaluation is `domain-eval`'s job.
+- **Don't impose canonical categories.** If the user's work doesn't map, capture as agent-specific.
+- **Don't auto-save.** Wait for `save`.
+- **Don't write long sentences.** One idea per sentence. Simple verbs.
