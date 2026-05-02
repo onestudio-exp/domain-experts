@@ -12,7 +12,7 @@ Three skills + one reference agent + a Python eval runner companion.
 |---|---|---|
 | `domain-creator` | ✅ Complete | Build a new agent OR uplevel an existing one. Two modes: **create** (interview from scratch) and **refit** (audit an existing agent, walk through changes one-by-one, overwrite). |
 | `domain-eval` | ✅ Complete | Run an agent against its own declared schema/vocabulary/rules. Structural checks per category + report PASS / WEAK / FAIL per prompt. Detects regressions before shipping. |
-| `domain-capture` | 🚧 Stub | Capture new evidence-backed knowledge into an existing agent. |
+| `domain-capture` | ✅ Complete | Capture new evidence-backed knowledge into an existing agent. Validates against the agent's current view, requires evidence, refuses live-source claims, writes with citation + timestamp to KB / memory / frontmatter. |
 
 ### Reference agent
 
@@ -83,6 +83,16 @@ Answer ~10 short questions (most have defaults). The skill produces 3 files: age
 
 The skill audits the agent against the framework, walks you through each recommended change one-by-one, and produces an upleveled version (overwrites the agent file; creates KB scaffold and starter prompts if missing).
 
+### Capture new knowledge into an agent
+
+```
+/domain-experts:domain-capture
+> <slug or path>
+> <your claim — fact, correction, decision, or lesson>
+```
+
+The skill classifies the claim (rule / decision / lesson / live-source), surfaces the agent's current view to detect contradictions, requires a source, and writes to the right destination (KB topic file or memory, with citation and a dated entry). Refuses to capture content that should be live-read from source.
+
 ### Evaluate an agent
 
 In a Claude Code session:
@@ -138,7 +148,7 @@ domain-experts/
 │   │   └── references/agent-template.md
 │   ├── domain-eval/                   # complete
 │   │   └── SKILL.md
-│   └── domain-capture/                # stub
+│   └── domain-capture/                # complete
 │       └── SKILL.md
 ├── agents/
 │   ├── nala.md                        # reference agent
@@ -157,4 +167,4 @@ These skills are scoped to **domain expert agents** — agents whose value is de
 
 ## Status
 
-Two of three skills complete. `domain-capture` is next. Internal to OneStudio for now.
+All three skills complete. Reference agent (Nala) validated 11/11. Internal to OneStudio for now; open-sourcing TBD after broader internal use.
