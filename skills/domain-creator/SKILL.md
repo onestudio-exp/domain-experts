@@ -217,9 +217,21 @@ Capture: `live_source_access` (bool), and if yes, `live_source_paths` (list — 
 
 **Q6.3 — Memory / continuity** *(skip if not applicable)*
 
-> "Should the agent remember things across sessions? E.g., reads a memory file at session start, logs durable learnings at session end."
+> "Should the agent remember things across sessions? E.g., reads its memory file at session start, logs durable learnings at session end."
 
-Capture: `memory_enabled` (bool).
+If `yes`, immediately follow up with **Q6.3b — memory scope**:
+
+> "Memory scope — three options (default: **project**):
+>
+>   • `project` *(default, recommended for team agents)* — memory at `.claude/agent-memory/<slug>/MEMORY.md`, version-controlled, **shared with other team members** via git. Use when the team's institutional memory should travel with the codebase.
+>   • `user` — memory at `~/.claude/agent-memory/<slug>/MEMORY.md`, cross-project, single-user. Use for personal-only agents that follow you across machines.
+>   • `local` — memory at `.claude/agent-memory-local/<slug>/MEMORY.md`, project-scoped but **not** committed. Use when memory is sensitive (private notes, temporary scratch).
+>
+> Default to `project` unless the user has a clear reason for `user` or `local`."
+
+Capture: `memory_enabled` (bool), `memory_scope` (one of `project` / `user` / `local`).
+
+CC auto-injects the first 200 lines of `MEMORY.md` into the agent's system prompt at session start. The agent's frontmatter must include `memory: <scope>` for this to work.
 
 ### Phase 7 — Hard rules
 

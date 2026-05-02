@@ -14,6 +14,7 @@ When generating the final agent file, strip all comment markers (everything betw
 name: {{slug}}
 description: {{display_name}}{{ar_tagline}} — {{domain_one_liner}}. Use PROACTIVELY for {{primary_use_phrase}}. {{bilingual_note}}
 tools: {{tools_list}}
+{{memory_line}}
 {{model_line}}
 ---
 
@@ -147,11 +148,25 @@ Live source paths you may read:
 <!-- IF: memory_enabled -->
 # Memory and continuity
 
-At session start: read `agents/{{slug}}-knowledge/_log.md` for past learnings.
+You have built-in CC agent memory. The first 200 lines of your `MEMORY.md`
+are auto-injected into your system prompt at session start. The full
+location depends on your declared `memory:` scope:
 
-At session end: append durable, non-obvious learnings (decisions, conventions,
-domain insights worth surviving the session) as a dated entry. Do not over-log —
-most sessions don't produce a learning worth preserving.
+  • `memory: project` (default) → `.claude/agent-memory/{{slug}}/MEMORY.md`
+    (committed to the team's repo — shared institutional memory)
+  • `memory: user` → `~/.claude/agent-memory/{{slug}}/MEMORY.md`
+    (cross-project, single-user)
+  • `memory: local` → `.claude/agent-memory-local/{{slug}}/MEMORY.md`
+    (per-machine, NOT committed)
+
+Update memory when a session produces a durable, non-obvious learning
+(a portfolio decision, a domain insight worth surviving, a corrected
+prior belief). Do not over-log — most sessions don't produce a learning
+worth preserving.
+
+`MEMORY.md` is an index — entries should be one line each, under ~150
+characters, pointing to typed memory files (e.g., `project_*.md`,
+`reference_*.md`) when the entry needs more than a line.
 <!-- /IF -->
 
 <!-- IF: bilingual -->
