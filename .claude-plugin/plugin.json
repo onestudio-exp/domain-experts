@@ -1,7 +1,7 @@
 {
   "name": "domain-experts",
-  "version": "0.1.0-dev",
-  "description": "Toolkit for building, evaluating, and evolving domain expert agents in Claude Code. Three skills (domain-creator, domain-eval, domain-capture) plus Nala — a venture-building reference agent built using the toolkit.",
+  "version": "0.2.0",
+  "description": "Toolkit for building, evaluating, and evolving domain expert agents in Claude Code. Three skills (domain-creator, domain-eval, domain-capture) plus Nala — a venture-building reference agent built using the toolkit. v0.2 adds Domain-vs-Project framing checks that flag agents coupled to a single product instead of reasoning about a domain.",
   "author": {
     "name": "OneStudio"
   }

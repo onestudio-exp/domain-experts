@@ -73,9 +73,13 @@ explainer_structure          (if educational_explainer claimed)
 out_of_scope                 (parse from "Hard rules" section)
 anti_fabrication_rule        (parse from "Hard rules" section)
 pressure_test_default        (parse from "How you operate" or behavior section)
+reference_implementation     (parse from "# Reference implementation" section, may be null)
+comparable_peers             (parse from "# Comparable peers" section — list of names)
 ```
 
 For sections that didn't parse cleanly, mark as `unknown` — these will be skipped in checks rather than fail.
+
+If `comparable_peers` is empty or missing → flag this run with a **structural warning** in the report. The agent has no declared category to reason against; cross-venture applicability cannot be tested. Recommend running `domain-creator refit` before re-evaluating.
 
 Show summary:
 
@@ -135,7 +139,29 @@ refusal_test (expects_refusal: true):
 refusal_test (expects_refusal: false):
   ✓ response answers (no refusal)
   ✓ stays within declared scope
+
+cross_venture_applicability (NEW in v0.2):
+  HOME VENTURE = `reference_implementation.name` (parsed in Phase 2).
+  PEER = pick any name from `comparable_peers` that is NOT the home venture.
+  Synthesize a prompt:
+    "Advise <PEER> on <a question parallel to one the home venture
+     would ask>." E.g., for Aref the home venture is Amos; pick Bilt
+     from comparables and ask the equivalent question.
+  Run the agent against this prompt and check:
+  ✓ response answers substantively (no "I only advise <home venture>")
+  ✓ advice transfers in PRINCIPLE — frameworks, regulations, decision
+    drivers are the same as the home venture would get
+  ✓ specifics differ — concrete numbers / partners / channels reflect
+    the peer's reality, not the home venture's
+  ✗ FAIL if the response refuses, OR substitutes home-venture-specific
+    facts into peer-venture context (e.g., quoting the home venture's
+    proprietary metrics as universal), OR collapses the advice to
+    "this is exactly how <home venture> does it"
+  ⚠ WEAK if the response is correct in framing but thin on peer-specific
+    detail (e.g., uses the home venture's vocabulary throughout)
 ```
+
+The cross-venture prompt is generated AT RUN TIME from the agent's `comparable_peers` field — it doesn't need to live in the starter prompt set. Skip this check if `comparable_peers` is empty (the structural warning from Phase 2 already flagged it).
 
 3. **Light judge pass.** Score on 1-5 scale:
    - `output_discipline` — adherence to declared schema/vocab

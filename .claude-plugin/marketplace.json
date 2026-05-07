@@ -1,6 +1,6 @@
 {
   "name": "domain-experts",
-  "version": "0.1.0-dev",
+  "version": "0.2.0",
   "description": "OneStudio's domain expert agent toolkit — skills for building, evaluating, and evolving domain expert agents.",
   "owner": {
     "name": "OneStudio"

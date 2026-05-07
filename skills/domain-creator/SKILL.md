@@ -1,6 +1,6 @@
 ---
 name: domain-creator
-description: Build or uplevel a domain expert agent in Claude Code. Two modes — (1) CREATE: interview the user with ~10 short questions and produce a new agent definition, knowledge scaffold, and starter prompt set; (2) REFIT: read an existing agent file, audit it against the framework's 9 dimensions, advise the user which changes to apply, then overwrite the agent with the upleveled version plus a KB scaffold and starter prompts if missing. Most questions have a tested default the user can accept with one keystroke. Use when the user wants to create a NEW agent OR uplevel an EXISTING one to fit domain-expert practice. Do not use for adding knowledge to an existing agent (that's domain-capture).
+description: Build or uplevel a domain expert agent in Claude Code. Two modes — (1) CREATE: interview the user with ~10 short questions and produce a new agent definition, knowledge scaffold, and starter prompt set; (2) REFIT: read an existing agent file, audit it against the framework's 10 dimensions (incl. Domain-vs-Project framing — flags agents coupled to a single product instead of a category), advise the user which changes to apply, then overwrite the agent with the upleveled version plus a KB scaffold and starter prompts if missing. Most questions have a tested default the user can accept with one keystroke. Use when the user wants to create a NEW agent OR uplevel an EXISTING one to fit domain-expert practice. Do not use for adding knowledge to an existing agent (that's domain-capture).
 ---
 
 # /domain-creator
@@ -105,6 +105,31 @@ Capture: `slug`, `display_name`, `display_name_ar`.
 
 ### Phase 2 — Domain
 
+**Q2.0 — Domain or project?** *(framing gate — must be answered first)*
+
+Is this an agent for a DOMAIN, or for ONE specific product / venture?
+
+```
+domain   — a body of knowledge that applies to many companies
+           (e.g., "merchant-funded loyalty in MENA", "GCC corporate
+            gifting governance", "Iraqi K-12 education").
+           Reference companies are EXAMPLES, not the agent's identity.
+
+project  — a single product, codebase, or venture's PM work.
+           (e.g., "the WhatsApp-Hero Laravel app PM", "Member Plus
+            product manager", "RevXAI codebase auditor").
+```
+
+→ Type `domain` or `project`.
+
+If `project`: stop. This skill is scoped to **domain experts**, not project agents. A project PM agent is legitimate but is a different shape — use a generic Claude Code subagent with the project's CLAUDE.md as context. Re-invoke this skill only if you can describe the work as a *domain* of which the project is one example.
+
+If `domain`: capture `framing = domain` and continue. The rest of the skill assumes domain framing — every later section (description, Reference implementation, Comparable peers) reinforces it.
+
+Capture: `framing` (must equal `domain` to proceed).
+
+---
+
 **Q2 — Domain in one sentence**
 
 Describe the agent's domain in one sentence.
@@ -115,6 +140,12 @@ Three useful shapes:
   [product practice] expert for [audience]
   [research domain] expert for [user]
 ```
+
+**The reusability test:** would another company building in this same domain — not your venture — also benefit from this agent? If no, the framing is too narrow. Widen it.
+
+**Anti-pattern (auto-flag):**
+- Description leads with `for <ProductName>` or `<ProductName> expert` → reframe.
+- Description names a single venture as the agent's purpose → reframe; the venture goes under "Reference implementation" later, not in the description.
 
 → Write one sentence.
 
@@ -138,6 +169,43 @@ custom      — describe your own setup
 → Type `default`, `bilingual`, or `custom`.
 
 Capture: `geo_scope`, `bilingual` (bool), `languages`, `primary_language`.
+
+**Q2c — Reference implementation** *(optional but recommended)*
+
+Is there a venture or product where this domain expert is currently being applied? It will appear in the agent under a `## Reference implementation` section — framed as one example, not the agent's identity.
+
+```
+Format:
+  Name:     <venture / product>
+  Role:     <how the agent serves it — e.g., "advises the team's
+            decisions" / "reviews PRDs" / "benchmarks competitors">
+  Note:     <one line clarifying that this is one example, not the
+            agent's identity>
+```
+
+→ Fill in, or type `none`.
+
+Capture: `reference_implementation` (object or null).
+
+**Q2d — Comparable peers / category benchmarks**
+
+List 3–7 peer companies, products, or programs that operate in the same domain. These appear in the agent under `## Comparable peers` and signal that the agent reasons about a *category*, not one product.
+
+```
+Examples by domain:
+  loyalty / cashback     →  Bilt, Rakuten, Entertainer, Collinson, Sprive
+  K-12 education         →  IB, Cambridge, AERO, regional curricula bodies
+  GCC gifting governance →  Wrap, Snappy, Reachdesk, Sendoso, regional vendors
+  WhatsApp marketing     →  Wati, Gallabox, AiSensy, Twilio, Meta's own BSPs
+```
+
+If the user can't list any: that's a strong signal the agent is project-coupled, not a domain expert. Push back once: "Without comparables, the agent has no category to reason against. List 3 — even rough peers."
+
+If still no peers after that one pushback: **return to Q2.0**. The user thought they had a domain but the inability to name 3 peers means it's actually a project. Re-evaluate. Don't paper over it by accepting an empty list — the agent's own eval (cross-venture applicability) will fail without peers, and downstream users will see a hollow shell.
+
+→ List 3–7 names.
+
+Capture: `comparable_peers` (list, must be non-empty to proceed).
 
 ---
 
@@ -605,7 +673,7 @@ Also probe for sibling artifacts (used in audit):
 
 ### Step R2 — Run the audit
 
-Read the file. Parse YAML frontmatter and body. For each of these 9 dimensions, classify:
+Read the file. Parse YAML frontmatter and body. For each of these 10 dimensions, classify:
 
 - ✓ **aligned** — present and matches framework
 - ⚠ **partial** — present but doesn't match the recommended pattern
@@ -614,18 +682,65 @@ Read the file. Parse YAML frontmatter and body. For each of these 9 dimensions, 
 Dimensions:
 
 ```
-1. Identity            slug · display_name · bilingual display name (frontmatter)
-2. Domain              one-liner · geo + language scope
-3. Primary user        role · context · example question
-4. Categories          declared canonical categories (decision_support, etc.)
-5. Output schemas      verdict vocab · response sections · confidence vocab · review schema · etc.
-6. Knowledge           KB structure · live source · memory scope
-7. Hard rules          out of scope · anti-fabrication
-8. Behavior            pressure-test default
-9. Tools / model       frontmatter tools · model · memory: scope
-+ KB scaffold          does agents/<slug>-knowledge/ exist
-+ Starter prompts      does examples/<slug>-starter-prompts.yaml exist
+ 1. Identity            slug · display_name · bilingual display name (frontmatter)
+ 2. Domain              one-liner · geo + language scope
+ 3. Primary user        role · context · example question
+ 4. Categories          declared canonical categories (decision_support, etc.)
+ 5. Output schemas      verdict vocab · response sections · confidence vocab · review schema · etc.
+ 6. Knowledge           KB structure · live source · memory scope
+ 7. Hard rules          out of scope · anti-fabrication
+ 8. Behavior            pressure-test default
+ 9. Tools / model       frontmatter tools · model · memory: scope
+10. Domain-vs-project   framing leads with a domain (not a product) ·
+                        Reference implementation framed as one example ·
+                        Comparable peers section listed ·
+                        no code-level coupling in body
++ KB scaffold           does agents/<slug>-knowledge/ exist
++ Starter prompts       does examples/<slug>-starter-prompts.yaml exist
 ```
+
+**Dimension 10 — auto-checks (regex / structural):**
+
+Run all of these against the file. Any flag → mark dimension 10 as ⚠ or ✗.
+
+```
+A. Description leads with a product
+   regex on `description:` line — flag if matches:
+     /\bfor [A-Z][A-Za-z0-9 ]+\b/         e.g. "for Member Plus"
+     /\b[A-Z][A-Za-z0-9]+ (PM|product manager|expert)\b/  e.g. "WalletPlus expert"
+   → ✗ if leads-with-product detected.
+
+B. Persona subtitle binds identity to a venture
+   scan for "Operating Persona" / "Project Persona" / "<Venture> Persona"
+   in the first 30 lines of the body.
+   → ⚠ "subtitle couples identity to one venture; drop or rephrase."
+
+C. Code-level coupling in body
+   regex flags (count any 3+ matches as ✗, 1–2 as ⚠):
+     - File paths:        /\bapp\/|backend\/|frontend\/|src\/[A-Za-z]/
+     - Class names:       /\b[A-Z][a-zA-Z]+(Service|Controller|Repository|Provider|Interface)\b/
+     - Commit hashes:     /\b[0-9a-f]{7,40}\b/
+     - ORM model refs:    /\bModel:|Migration:|Schema:.*\b/i
+   → ⚠/✗ "agent body references a specific codebase; abstract to category-level
+     terms or move to a separate ## Reference implementation section."
+
+D. Missing comparable peers
+   scan for an `## Comparable peers` (or `## Comparables` / `## Category benchmarks`)
+   section in the body.
+   → ✗ if absent. *Strongest single signal that the agent is product-coupled.*
+
+E. Missing reference implementation framing
+   if a venture name appears in description AND there's no `## Reference implementation`
+   section, the venture IS the agent's identity → ⚠.
+
+F. Multi-purpose role
+   if the body has a "two layers" / "two jobs" structure where one job is
+   domain-expert and the other is "code reviewer" / "codebase auditor" /
+   "implementation auditor" → ⚠ "split into two agents; this skill is scoped
+   to domain experts only."
+```
+
+If the agent has zero issues across A–F: ✓ aligned. Otherwise enumerate findings in the audit report (see format below) so the user knows exactly which lines triggered each flag.
 
 **Audit report format:**
 
@@ -672,6 +787,14 @@ Dimensions:
 9. Tools / model
    ✓ tools list OK
    ⚠ no `memory:` field — recommend adding `memory: project`
+
+10. Domain-vs-project framing
+    ⚠ description leads with "for Member Plus" — couples agent to one venture
+    ✗ no `## Comparable peers` section — agent has no category to reason against
+    ⚠ body references specific class `WhatsAppMessageService.php:42`
+    → Recommend: reframe description domain-first; add Reference implementation
+      + Comparable peers sections; abstract code-level references to category
+      terms.
 
 ──────────────────────────────────────────────
 
@@ -789,6 +912,7 @@ On `save`, write all 3 files. The agent .md goes to `existing_path` (overwrite).
 - **Don't recreate KB if it already exists.** The user may have populated it. Refit only ADDS the scaffold if missing; never overwrites existing KB files.
 - **Don't overwrite an existing prompts file blindly.** Real-usage prompts are gold. Merge, don't replace.
 - **Don't pretend the audit is complete when parsing failed.** If the existing agent's structure is ambiguous (e.g., no headers at all), surface that explicitly: "I couldn't reliably detect X — treating as missing. Confirm or override."
+- **Don't paper over project-coupling.** If dimension 10 fires hard (multiple code-level references, "Operating Persona" subtitle, missing Comparables, lead-with-product description), the agent is structurally a project agent — refit alone won't fix it. Tell the user: "This needs a substantive reframe, not a patch. Re-answer Phase 2 (domain framing) and Q2c–d (reference implementation + comparable peers) — I'll regenerate the body around the new framing instead of patching the old one."
 
 ---
 

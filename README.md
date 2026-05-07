@@ -118,19 +118,22 @@ If you already have a domain agent (Aref, Rushd, Wafaa, Ziad, Sada, Omar, etc.),
 **What it does, in plain language:**
 
 1. Reads your existing agent.
-2. Compares it to the standard every domain agent should meet — Does it have a clear decision format? A verdict vocabulary? A way to label confidence on facts? A rule about when to refuse? A knowledge base?
+2. Compares it against **10 dimensions** every domain agent should meet — clear decision format, verdict vocabulary, confidence labelling, refusal rules, knowledge base, and (new in v0.2) **domain-vs-project framing** — i.e. you reason about a domain, not act as a PM for one product.
 3. Walks you through each gap **one at a time**, showing you *what's there now → what it should be → why it matters*.
 4. You accept, edit, or skip each suggestion independently.
 5. At the end, the agent file is upgraded and any missing scaffolding (knowledge base folders, starter prompts) is created for you.
 
 **When to refit your agent:**
 
+- Your agent's description leads with a product name (e.g. *"…for Member Plus"*) instead of a domain.
+- The body references specific code: file paths, class names, commit hashes — that's a project agent, not a domain expert.
+- The agent has no `## Comparable peers` section listing 3+ peer products in the category. Without comparables, the agent has nothing to reason against.
 - It sometimes makes things up, or invents details that aren't in any source.
 - Its outputs feel inconsistent — different verdict words, missing severity tags, no citations.
 - You want to be able to **evaluate** it (you can't run `/domain-eval` until it has starter prompts).
 - It was written before this framework existed.
 
-**After refit:** run `/domain-experts:domain-eval` on the upleveled agent. If it passes, you've successfully brought it up to spec without rebuilding from scratch.
+**After refit:** run `/domain-experts:domain-eval` on the upleveled agent. The eval now includes a **cross-venture applicability test** — it asks the agent to advise a peer company from your Comparable peers list and checks whether the advice transfers in principle (frameworks portable, specifics differ). If the agent can only answer about one venture, it's still product-coupled.
 
 ---
 
@@ -165,3 +168,16 @@ Once installed, the three skills appear in any Claude Code session:
 ## Status
 
 All three skills complete. Reference agent (Nala) validated 11/11. Internal to OneStudio for now.
+
+## Changelog
+
+**v0.2.0** *(2026-05-08)*
+- Added 10th audit dimension: **Domain-vs-Project framing**. Refit now flags agents whose description leads with a product, whose body has code-level coupling (file paths / class names / commit hashes), or that lack a `## Comparable peers` section.
+- New CREATE-mode framing gate (`Q2.0 — Domain or project?`). The skill refuses to build a project-bound PM agent and explains why.
+- New required template sections: `## Reference implementation` (the venture as one example, not the agent's identity) and `## Comparable peers` (3–7 peers in the category).
+- New eval check: `cross_venture_applicability` — synthesizes a prompt that asks the agent to advise a peer company from its own Comparable peers list, and verifies that advice transfers in principle.
+- Source: 2026-05-08 audit of OneStudio's 13 agents revealed that 6 of them were project-coupled in ways the v0.1 framework didn't catch. v0.2 closes that gap.
+- **Known**: Nala (the reference agent in this repo, `agents/nala.md`) was authored against v0.1 and does not yet have `## Reference implementation` or `## Comparable peers` sections. She'll be refit to v0.2 in a follow-up commit so the canonical example passes its own checks.
+
+**v0.1.0** *(initial release)*
+- Three skills: `domain-creator`, `domain-eval`, `domain-capture`. Reference agent: Nala.
