@@ -1,15 +1,22 @@
 {
   "name": "domain-experts",
-  "version": "0.2.0",
-  "description": "OneStudio's domain expert agent toolkit — skills for building, evaluating, and evolving domain expert agents.",
+  "version": "0.3.0-dev",
+  "description": "OneStudio's domain expert agent toolkit + portfolio. The toolkit (4 skills + Nala) is one plugin; each portfolio agent ships as its own independent plugin. Install only what you need.",
   "owner": {
     "name": "OneStudio"
   },
   "plugins": [
     {
       "name": "domain-experts",
-      "source": "./",
-      "description": "Three skills (domain-creator, domain-eval, domain-capture) plus Nala — a venture-building reference agent built using the toolkit."
+      "source": "./plugins/domain-experts",
+      "version": "0.3.0-dev",
+      "description": "The toolkit — 4 skills (domain-creator, domain-eval, domain-capture, domain-contribute) plus Nala, the venture-building reference agent. Install this if you're building or maintaining domain expert agents."
+    },
+    {
+      "name": "aref",
+      "source": "./plugins/aref",
+      "version": "1.0.0",
+      "description": "Aref (عارف) — independent domain expert on merchant-funded loyalty, embedded cashback, retention economics, and MENA payment regulation. Bilingual (English/Arabic). Built using the domain-experts toolkit."
     }
   ]
 }
