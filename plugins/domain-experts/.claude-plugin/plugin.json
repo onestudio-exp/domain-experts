@@ -1,7 +1,7 @@
 {
   "name": "domain-experts",
-  "version": "0.3.0-dev",
-  "description": "Toolkit for building, evaluating, evolving, and contributing domain expert agents in Claude Code. Four skills (domain-creator, domain-eval, domain-capture, domain-contribute) plus Nala — a venture-building reference agent built using the toolkit. v0.3 adds domain-contribute, which lets agent owners ship local improvements back to the catalog repo as a PR without leaving their venture's project.",
+  "version": "0.3.0-rc1",
+  "description": "Toolkit for building, evaluating, evolving, and contributing domain expert agents in Claude Code. Four skills (domain-creator, domain-eval, domain-capture, domain-contribute) plus Nala — a venture-building reference agent built using the toolkit. v0.3 adds domain-contribute (with PATCH and PUBLISH modes — improve installed agents OR ship brand-new ones to the catalog without leaving the venture's project).",
   "author": {
     "name": "OneStudio"
   }
