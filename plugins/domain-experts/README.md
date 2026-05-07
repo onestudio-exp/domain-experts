@@ -112,23 +112,30 @@ The entry now lives in Nala's KB. When primary sources land later, I run `/domai
 /domain-experts:domain-contribute
 ```
 
-You installed an agent from the catalog (e.g. `/plugin install aref@onestudio-agents`). While using it on real work, you spot a real improvement — better refusal rule, missing comparable, sharpened verdict vocab. You want that fix to land in the catalog so every other team gets it too.
+Two auto-detected modes — the skill picks based on whether the slug already lives in the catalog.
 
-**The friction it removes:** without this skill, you'd clone the catalog repo, navigate to the right subdir, edit the file blind (without context of where you were testing), commit, push, open a PR. Lots of context-switching, and the file you push isn't byte-for-byte the one you tested.
+### PATCH mode — improving an installed agent
 
-**With it:**
+You installed an agent from the catalog. While using it on real work, you spot an improvement — better refusal rule, missing comparable, sharpened verdict vocab.
 
-1. Inside your venture's project, edit `.claude/agents/<slug>.md` directly. This is a *project override* — Claude Code uses your edited version instead of the canonical one. Test it in real time. Reload, run, iterate.
-2. When happy, run `/domain-experts:domain-contribute`. It detects the override, finds which catalog repo shipped the canonical version, shows you the diff, asks one question (*"what changed and why?"*), and on `go` opens a PR against the catalog from your improvement.
-3. After the PR merges, delete the override — the project pulls the new canonical version going forward.
+1. Edit `.claude/agents/<slug>.md` in your venture's project (this is a *project override* — Claude Code uses your edited version instead of the canonical). Test live.
+2. Run `/domain-experts:domain-contribute`. It detects the override, diffs vs canonical, asks *"what changed and why?"*, and opens a PR against the catalog.
+3. After merge, delete the override — your project pulls the new canonical version.
 
-You stay in your venture's working dir the whole time. No clone, no nav-to-subdir, no manual file copy.
+### PUBLISH mode — shipping a new agent
 
-**When to invoke:**
+You built an agent locally with `domain-creator new`, evaluated it, and want it added to the catalog as a new plugin.
 
-- You patched an installed agent during real work and want it upstreamed.
-- Eval surfaced a gap; you fixed it locally and want it in the catalog.
-- A regulation / framework / refusal rule should become canonical.
+1. Build it with `/domain-experts:domain-creator → new` (drops files in your project).
+2. Test it. Run `/domain-experts:domain-eval`. Get a PASS.
+3. Run `/domain-experts:domain-contribute`. It detects the slug isn't in the catalog yet → publish mode.
+4. The skill walks the local KB and asks per top-level dir: **ship** (reusable) or **skip** (venture-specific). `my-venture/` and `decisions/` default to skip; `playbooks/`, `reference/`, `glossary.md` default to ship.
+5. It auto-generates `plugin.json` from the agent's frontmatter, plans a marketplace.json delta, asks *"what's this agent for?"*, and opens a PR adding the new plugin.
+6. After merge, run `/plugin install <slug>@<marketplace>` to switch from local-build to installed plugin.
+
+### What both modes share
+
+You stay in your venture's working dir the whole time. **No clone, no nav-to-subdir, no manual file copy.** The PR contains exactly the bytes you tested locally.
 
 ---
 
