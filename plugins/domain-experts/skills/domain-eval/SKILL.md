@@ -38,11 +38,11 @@ Where's the agent? (path or slug)
 Search order (first match wins):
 
 ```
-1. <cwd>/.claude/agents/<slug>.md
-2. ~/.claude/agents/<slug>.md
-3. ~/onestudio-exp/agents/.claude/agents/<slug>.md
-4. ~/onestudio-exp/agents/domain-experts/agents/<slug>.md
-5. ~/.claude/plugins/marketplaces/*/agents/<slug>.md
+1. <cwd>/.claude/agents/<slug>.md                           # project override
+2. <cwd>/agents/<slug>.md                                    # local-build (domain-creator new)
+3. ~/.claude/agents/<slug>.md                                # user-scoped agent
+4. ~/.claude/plugins/cache/*/plugins/*/agents/<slug>.md      # multi-plugin marketplace cache
+5. ~/.claude/plugins/cache/*/agents/<slug>.md                # single-plugin marketplace cache
 ```
 
 → Type a slug or full path.

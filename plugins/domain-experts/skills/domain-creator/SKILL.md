@@ -655,11 +655,11 @@ slug     — give me just the slug, I'll search common locations
 If slug, search in this order (first match wins; if multiple, list and ask):
 
 ```
-1. <cwd>/.claude/agents/<slug>.md
-2. ~/.claude/agents/<slug>.md
-3. ~/onestudio-exp/agents/.claude/agents/<slug>.md
-4. ~/.claude/plugins/marketplaces/*/agents/<slug>.md
-5. ~/.claude/plugins/cache/*/*/*/agents/<slug>.md
+1. <cwd>/.claude/agents/<slug>.md                           # project override
+2. <cwd>/agents/<slug>.md                                    # local-build
+3. ~/.claude/agents/<slug>.md                                # user-scoped agent
+4. ~/.claude/plugins/cache/*/plugins/*/agents/<slug>.md      # multi-plugin marketplace cache
+5. ~/.claude/plugins/cache/*/agents/<slug>.md                # single-plugin marketplace cache
 ```
 
 Capture: `existing_path`, `existing_content` (full file text).
