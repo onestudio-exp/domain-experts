@@ -655,12 +655,16 @@ slug     — give me just the slug, I'll search common locations
 If slug, search in this order (first match wins; if multiple, list and ask):
 
 ```
-1. <cwd>/.claude/agents/<slug>.md                           # project override
-2. <cwd>/agents/<slug>.md                                    # local-build
-3. ~/.claude/agents/<slug>.md                                # user-scoped agent
-4. ~/.claude/plugins/cache/*/plugins/*/agents/<slug>.md      # multi-plugin marketplace cache
-5. ~/.claude/plugins/cache/*/agents/<slug>.md                # single-plugin marketplace cache
+1. <cwd>/.claude/agents/<slug>.md                                    # project override
+2. <cwd>/agents/<slug>.md                                             # local-build
+3. ~/.claude/agents/<slug>.md                                         # user-scoped agent
+4. ~/.claude/plugins/cache/*/<slug>/*/agents/<slug>.md                # installed plugin (slug = plugin name)
+5. ~/.claude/plugins/cache/*/*/*/agents/<slug>.md                     # installed plugin (slug ≠ plugin name)
+6. ~/.claude/plugins/marketplaces/*/plugins/<slug>/agents/<slug>.md   # marketplace source, multi-plugin
+7. ~/.claude/plugins/marketplaces/*/agents/<slug>.md                   # marketplace source, single-plugin
 ```
+
+Cache paths are 4 levels deep: `<marketplace>/<plugin>/<version>/agents/`. The version dir is dynamic per install — always glob with `*`.
 
 Capture: `existing_path`, `existing_content` (full file text).
 

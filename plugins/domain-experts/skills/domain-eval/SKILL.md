@@ -38,12 +38,15 @@ Where's the agent? (path or slug)
 Search order (first match wins):
 
 ```
-1. <cwd>/.claude/agents/<slug>.md                           # project override
-2. <cwd>/agents/<slug>.md                                    # local-build (domain-creator new)
-3. ~/.claude/agents/<slug>.md                                # user-scoped agent
-4. ~/.claude/plugins/cache/*/plugins/*/agents/<slug>.md      # multi-plugin marketplace cache
-5. ~/.claude/plugins/cache/*/agents/<slug>.md                # single-plugin marketplace cache
+1. <cwd>/.claude/agents/<slug>.md                                    # project override
+2. <cwd>/agents/<slug>.md                                             # local-build (domain-creator new)
+3. ~/.claude/agents/<slug>.md                                         # user-scoped agent
+4. ~/.claude/plugins/cache/*/<slug>/*/agents/<slug>.md                # installed plugin (slug is the plugin name)
+5. ~/.claude/plugins/marketplaces/*/plugins/<slug>/agents/<slug>.md   # marketplace source, multi-plugin
+6. ~/.claude/plugins/marketplaces/*/agents/<slug>.md                   # marketplace source, single-plugin
 ```
+
+The `cache/` paths use 4 levels: `<marketplace>/<plugin>/<version>/agents/`. The `<version>` is dynamic per install — glob with `*`. For agents inside a plugin whose name is NOT the slug (e.g. when nala lives inside the `domain-experts` plugin), also try `~/.claude/plugins/cache/*/*/*/agents/<slug>.md`.
 
 → Type a slug or full path.
 

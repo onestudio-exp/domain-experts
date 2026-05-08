@@ -64,18 +64,62 @@ Find which marketplace + plugin shipped this slug, or — for publish mode — w
 **Search order for the canonical agent file:**
 
 ```
-1. ~/.claude/plugins/cache/<marketplace>/<plugin>/agents/<slug>.md
-2. ~/.claude/plugins/cache/<marketplace>/plugins/<plugin>/agents/<slug>.md   (multi-plugin marketplaces)
+1. ~/.claude/plugins/cache/*/<slug>/*/agents/<slug>.md                # cache, slug = plugin name
+2. ~/.claude/plugins/cache/*/*/*/agents/<slug>.md                     # cache, slug ≠ plugin name
+3. ~/.claude/plugins/marketplaces/*/plugins/<slug>/agents/<slug>.md   # marketplace source, multi-plugin
+4. ~/.claude/plugins/marketplaces/*/agents/<slug>.md                   # marketplace source, single-plugin
 ```
+
+Cache paths are 4 levels: `<marketplace>/<plugin>/<version>/agents/`. Glob the `<version>` dir.
 
 Parse the **marketplace metadata** to find the source repo URL:
 
 ```
-~/.claude/plugins/cache/<marketplace>/.claude-plugin/marketplace.json
-  → look up the matching plugin entry by slug
-  → its `source` field, combined with the marketplace `repo` URL,
-    gives you: <repo_url> + relative path to the plugin
+~/.claude/plugins/marketplaces/<marketplace>/.claude-plugin/marketplace.json
+  → look up the matching plugin entry by slug in plugins[]
+  → its `source` field is the relative path to the plugin within the repo
+
+The repo URL comes from ~/.claude/plugins/known_marketplaces.json — but the resolution differs by source type:
+
 ```
+The marketplaces file is an object keyed by marketplace name. For each
+entry, .source.source tells you the resolution mode:
+
+  "github"     → .source.repo is "owner/repo"; pass to `gh repo clone`.
+  "directory"  → no remote in this file. Read .source.path to find the
+                 local checkout, then run `git -C <path> remote get-url
+                 origin` to discover the upstream. If the local checkout
+                 has no remote, abort with: "This marketplace was added
+                 from a local directory with no remote configured —
+                 push your local marketplace to GitHub first, then re-
+                 register the marketplace from the GitHub URL."
+  other        → fall back to the directory case (read installLocation
+                 + git remote).
+```
+
+Concretely:
+
+```bash
+KNOWN=~/.claude/plugins/known_marketplaces.json
+SRC_TYPE=$(jq -r ".[\"<marketplace>\"].source.source" "$KNOWN")
+
+case "$SRC_TYPE" in
+  github)
+    MARKETPLACE_REPO=$(jq -r ".[\"<marketplace>\"].source.repo" "$KNOWN")
+    gh repo clone "$MARKETPLACE_REPO" /tmp/contrib-... -- --depth=1
+    ;;
+  directory)
+    LOCAL=$(jq -r ".[\"<marketplace>\"].source.path" "$KNOWN")
+    REMOTE=$(git -C "$LOCAL" remote get-url origin 2>/dev/null)
+    if [ -z "$REMOTE" ]; then
+      echo "Marketplace at $LOCAL has no remote — abort"; exit 1
+    fi
+    gh repo clone "$REMOTE" /tmp/contrib-... -- --depth=1
+    ;;
+esac
+```
+
+You can also derive the repo URL from `~/.claude/plugins/installed_plugins.json` (look up `<plugin>@<marketplace>` and parse the marketplace name from the key).
 
 For **publish mode** (slug not yet in any marketplace), ask the user:
 
