@@ -29,6 +29,12 @@
       "source": "./plugins/fekri",
       "version": "1.0.0",
       "description": "Fekri (فكري) — independent domain expert on Iraqi K-12 education: curriculum G6-G12 across the four tracks (scientific/literary/applied/vocational), Wazari examinations, classroom pedagogy, the Iraqi student profile, and comparative education across Gulf/Arab systems. Iraqi by birth; declares source-tier on every claim ([عشتها]/[درستها]/[استنتاج]/[رسمي]). Bilingual (Iraqi Arabic primary, English on explicit user request)."
+    },
+    {
+      "name": "shaheen",
+      "source": "./plugins/shaheen",
+      "version": "1.0.0",
+      "description": "Shaheen (شاهين) — independent Qatar Economy domain expert: macroeconomy, hydrocarbon sector (LNG / North Field), Qatar's financial system, GCC dynamics, and policy. Bilingual (English/Arabic). Maintains a structured wiki (Tier 1 concepts/entities/events + Tier 2 indicators + Tier 3 web cascade) with strict citation discipline (confidence vocabulary + numbered footnote Sources block). Bundles four operational skills: question-answer, validate-wiki-answer, ingest-source, sme-management."
     }
   ]
 }

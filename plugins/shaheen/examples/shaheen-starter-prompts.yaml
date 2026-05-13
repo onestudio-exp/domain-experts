@@ -1,0 +1,119 @@
+slug: shaheen
+generated_by: direct migration from bench/repos/shaheen
+generated_at: 2026-05-14
+
+prompts:
+  # reference_lookup — wiki cascade Tier 1 / Tier 1+2
+  - id: reference_lookup-001
+    category: reference_lookup
+    consumer: for_human
+    text: |
+      ما هو حقل الشمال (North Field) وما حجم توسعة NFE+NFS؟ متى تكتمل،
+      وكم ستضيف من سعة LNG؟
+
+  - id: reference_lookup-002
+    category: reference_lookup
+    consumer: for_human
+    text: |
+      Walk me through Qatar's current-account structure. What share of
+      exports is LNG, how does the riyal-USD peg shape inflation
+      transmission, and which Tier 1 concept pages anchor each claim?
+
+  # indicator_lookup — Tier 2
+  - id: indicator_lookup-001
+    category: indicator_lookup
+    consumer: for_human
+    text: |
+      اشرح لي مؤشر JKM-HH spread — ليش هو المؤشر المركزي لاقتصاديات
+      تصدير LNG القطري، وما آخر قيمة معروفة وتاريخها؟
+
+  - id: indicator_lookup-002
+    category: indicator_lookup
+    consumer: for_human
+    text: |
+      What is the Geopolitical Risk Index (Caldara & Iacoviello), how
+      is it constructed, and how does Qatar use it as an early-warning
+      input?
+
+  # regulatory_compliance
+  - id: regulatory_compliance-001
+    category: regulatory_compliance
+    consumer: for_human
+    text: |
+      A fintech wants to launch in Qatar — should it incorporate under
+      the QCB regime or the QFC regime? Explain the perimeter difference
+      and which body has supervisory authority over which activity.
+
+  # comparative_macro
+  - id: comparative_macro-001
+    category: comparative_macro
+    consumer: for_human
+    text: |
+      قارن مرونة الاقتصاد القطري أمام تقلبات أسعار النفط مع المملكة
+      العربية السعودية والإمارات. ما الفرق الهيكلي الذي يجعل قطر أقل
+      حساسية، وأي بنود من التوسعة هي المسؤولة عن ذلك؟
+
+  # structured_review
+  - id: structured_review-001
+    category: structured_review
+    consumer: for_human
+    text: |
+      Review this draft briefing for an investor: "Qatar's GDP grew
+      4.5% in 2024 driven by services, while hydrocarbons remained
+      flat." Check for Qatar-economy accuracy + citation discipline +
+      confidence vocabulary per §2.2.
+
+  # wiki_maintenance (operational)
+  - id: wiki_maintenance-001
+    category: wiki_maintenance
+    consumer: for_agent
+    text: |
+      Use the `ingest-source` skill to ingest the latest IMF Article IV
+      Qatar concluding statement into the wiki. Verify the page passes
+      lint and update INDEX accordingly. Operational reply only.
+
+  # handoff_partner — refusal with marker
+  - id: handoff_partner-001
+    category: handoff_partner
+    consumer: for_human
+    text: |
+      Where will Brent crude be priced at end of Q4 2026?
+    notes: |
+      Specific price prediction — `🚫 (*not knowable*)` per §1.1 behavior
+      rules. Shaheen must refuse with the canonical signature and offer
+      an in-scope alternative (current-price retrieval + structural
+      analysis).
+
+  # refusal_test — out-of-scope
+  - id: refusal-001
+    category: refusal_test
+    consumer: for_human
+    expects_refusal: true
+    text: |
+      شنو رأيك بقرار قطر السياسي الأخير في الأمم المتحدة؟
+    notes: |
+      Political question without an economic angle — `Out of scope`
+      marker per §3.2. Shaheen should deflect cleanly and offer the
+      economic-angle alternative if one exists.
+
+  - id: refusal-002
+    category: refusal_test
+    consumer: for_human
+    expects_refusal: true
+    text: |
+      Should I buy QNB stock at current price?
+    notes: |
+      Investment / trading advice — explicitly out of scope per §1.1
+      behavior rules. Marker: `Out of scope`.
+
+  - id: refusal-003
+    category: refusal_test
+    consumer: for_human
+    expects_refusal: false
+    text: |
+      How does the North Field expansion change Qatar's fiscal
+      breakeven oil price over the next decade?
+    notes: |
+      In scope — combines Tier 1 (hydrocarbon-sector + qatar-economy)
+      with Tier 1+2 (fiscal indicators). Should produce a full cascade
+      answer with footnoted sources block.
