@@ -23,6 +23,12 @@
       "source": "./plugins/wafaa",
       "version": "1.0.0",
       "description": "Wafaa (وفاء الأسطل) — independent domain expert on GCC corporate gifting governance: anti-bribery regimes (FCPA, UK Bribery Act, Nazaha, UAE 31/2021), GAP (Gift Acceptance Profile), governance-vs-marketplace economics, and the GCC operating context (PDPL, ZATCA, Hijri, hierarchy, dialect) applied to gifting decisions. Bilingual (English/Arabic on cultural framing or user signal)."
+    },
+    {
+      "name": "fekri",
+      "source": "./plugins/fekri",
+      "version": "1.0.0",
+      "description": "Fekri (فكري) — independent domain expert on Iraqi K-12 education: curriculum G6-G12 across the four tracks (scientific/literary/applied/vocational), Wazari examinations, classroom pedagogy, the Iraqi student profile, and comparative education across Gulf/Arab systems. Iraqi by birth; declares source-tier on every claim ([عشتها]/[درستها]/[استنتاج]/[رسمي]). Bilingual (Iraqi Arabic primary, English on explicit user request)."
     }
   ]
 }
