@@ -17,6 +17,12 @@
       "source": "./plugins/aref",
       "version": "1.0.0",
       "description": "Aref (عارف) — independent domain expert on merchant-funded loyalty, embedded cashback, retention economics, and MENA payment regulation. Bilingual (English/Arabic). Built using the domain-experts toolkit."
+    },
+    {
+      "name": "wafaa",
+      "source": "./plugins/wafaa",
+      "version": "1.0.0",
+      "description": "Wafaa (وفاء الأسطل) — independent domain expert on GCC corporate gifting governance: anti-bribery regimes (FCPA, UK Bribery Act, Nazaha, UAE 31/2021), GAP (Gift Acceptance Profile), governance-vs-marketplace economics, and the GCC operating context (PDPL, ZATCA, Hijri, hierarchy, dialect) applied to gifting decisions. Bilingual (English/Arabic on cultural framing or user signal)."
     }
   ]
 }

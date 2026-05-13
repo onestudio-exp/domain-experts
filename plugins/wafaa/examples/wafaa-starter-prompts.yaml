@@ -1,0 +1,138 @@
+slug: wafaa
+generated_by: direct migration from bench/repos/wafaa
+generated_at: 2026-05-14
+
+prompts:
+  # reference_lookup — sourced domain answers
+  - id: reference_lookup-001
+    category: reference_lookup
+    consumer: for_human
+    text: |
+      What is the difference between corporate gifting, promotional products,
+      gift cards, and consumer gifting as separately-tracked markets in the
+      GCC? Why does conflating them break TAM math for a governance-class
+      platform?
+
+  - id: reference_lookup-002
+    category: reference_lookup
+    consumer: for_human
+    text: |
+      Walk me through GAP (Gift Acceptance Profile) as a concept. What does
+      it encode about the recipient that the gifting platform needs to know,
+      and why is that the moat rather than the inventory side?
+
+  # regulatory_compliance — PDPL, ZATCA, Nazaha, FCPA applied to gifting
+  - id: regulatory_compliance-001
+    category: regulatory_compliance
+    consumer: for_human
+    text: |
+      A KSA enterprise wants to gift €500-equivalent items to 12 EU-based
+      executives during a procurement window. Walk me through the Nazaha
+      per-recipient cap considerations, the KSA PDPL cross-border transfer
+      requirements for recipient data, and how ZATCA Phase 2 e-invoicing
+      affects the upstream PO/invoice flow.
+
+  - id: regulatory_compliance-002
+    category: regulatory_compliance
+    consumer: for_human
+    text: |
+      Does FCPA reach apply to a UAE-based corporate gifting platform
+      handling gifts to non-US public officials, if the platform is funded
+      by US investors? Cite the relevant FCPA provisions (issuer / domestic
+      concern / agent) with article-level applicability checks.
+
+  # competitive_intel — comparable profiling + classification
+  - id: competitive_intel-001
+    category: competitive_intel
+    consumer: for_human
+    text: |
+      Profile Sendoso and Reachdesk side-by-side as comparables for a
+      governance-class GCC corporate gifting platform. For each: classify
+      as Governance-class or Marketplace-class, summarize the model, and
+      flag the top 2 things the GCC platform should NOT copy from them.
+
+  - id: competitive_intel-002
+    category: competitive_intel
+    consumer: for_human
+    text: |
+      The Entertainer operates a coalition-rewards model in MENA. Why is
+      that not a corporate-gifting comparable, and what's the cleanest one-
+      paragraph explanation of why GCC enterprise compliance leaders read
+      coalition rewards and corporate gifting as separate categories?
+
+  # decision_support — structured recommendations
+  - id: decision_support-001
+    category: decision_support
+    consumer: for_human
+    text: |
+      We're considering owning inventory (curated marketplace) in addition
+      to running the governance layer, because some prospects want a one-
+      stop-shop. Given the moat argument and vendor-neutrality positioning,
+      should we proceed, hold, or reconsider?
+
+  - id: decision_support-002
+    category: decision_support
+    consumer: for_human
+    text: |
+      A KSA bank Compliance Officer wants per-recipient cap enforcement to
+      apply not just to gifts but also to hospitality (meals, event tickets).
+      Should we expand GAP scope to hospitality in v1, or treat that as
+      Phase 2? What are the trade-offs given Compliance + HR + Finance
+      ownership dynamics?
+
+  # structured_review — review schema test (🔴🟡🟢❓🚏)
+  - id: structured_review-001
+    category: structured_review
+    consumer: for_human
+    text: |
+      Review this MVP scope proposal for a GCC corporate gifting governance
+      platform: 6-module MVP (GAP, recipient onboarding, gift catalog
+      orchestration, audit log, anchor onboarding, reporting), 4-month
+      build, KSA + UAE PDPL compliance from day one, ZATCA Phase 2 deferred,
+      Hijri scheduling deferred to Phase 2. Provide structured review with
+      blockers, friction, wins, open questions, and routed items.
+
+  # handoff_partner — handoff brief format test
+  - id: handoff_partner-001
+    category: handoff_partner
+    consumer: for_agent
+    text: |
+      A founder has asked Wafaa to draft the MSA terms for the platform's
+      first anchor client — including liability caps, indemnification under
+      UAE Federal Decree-Law 31/2021, and data-residency clauses for KSA
+      PDPL. This crosses into legal scope. Produce a structured handoff
+      brief for counsel (Al Tamimi or equivalent) — do NOT draft the MSA
+      terms yourself.
+
+  # refusal_test — out-of-scope discipline
+  - id: refusal-001
+    category: refusal_test
+    consumer: for_human
+    expects_refusal: true
+    text: |
+      Design the Postgres schema for Module 4 of the platform.
+    notes: |
+      Engineering / data modeling is explicitly out of scope. Wafaa must
+      produce a handoff brief, not the schema.
+
+  - id: refusal-002
+    category: refusal_test
+    consumer: for_human
+    expects_refusal: true
+    text: |
+      Build me a 5-year financial model with sensitivity analysis on take-
+      rate and merchant-acquisition cost.
+    notes: |
+      Spreadsheet construction is out of scope. Wafaa explains framework
+      and inputs; finance lead builds the model.
+
+  - id: refusal-003
+    category: refusal_test
+    consumer: for_human
+    expects_refusal: false
+    text: |
+      What's the governance-vs-marketplace economics framework and how does
+      it apply when classifying competitors like Sendoso and Reachdesk?
+    notes: |
+      In scope — this is the core mental model. Wafaa should answer fully
+      with framework + comparable application.
