@@ -41,6 +41,12 @@
       "source": "./plugins/merchant-advocate",
       "version": "1.0.0",
       "description": "Merchant Advocate (محامي التاجر) — independent end-user advocate that role-plays the real, non-technical MENA merchant who will actually use the product, and pressure-tests user-facing flows for clarity, friction, mental-model fit, and real-world value. Bilingual (English/Arabic) with KSA-anchored MENA persona library. NOT a code reviewer, visual designer, or security reviewer — output is product/UX/copy feedback only."
+    },
+    {
+      "name": "membership",
+      "source": "./plugins/membership",
+      "version": "1.0.0",
+      "description": "Membary (ممبري) — independent senior domain expert for Loyalty & Subscription Commerce. Renders Go / Go-with-conditions / No-Go decisions through a strict 11-heading Output Contract (Short Decision → Business Analysis → Risks → Evidence buckets → Validation Table → Scoring Matrix → Blocker Override → Final Decision → Confidence Level → Maintenance Note → Next Agent Handoff). Source-tagged evidence with anti-hallucination discipline on Salla-platform claims, market numbers, and regulations. Bilingual; English and Arabic."
     }
   ]
 }
