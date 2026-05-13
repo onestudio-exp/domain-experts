@@ -35,6 +35,12 @@
       "source": "./plugins/shaheen",
       "version": "1.0.0",
       "description": "Shaheen (شاهين) — independent Qatar Economy domain expert: macroeconomy, hydrocarbon sector (LNG / North Field), Qatar's financial system, GCC dynamics, and policy. Bilingual (English/Arabic). Maintains a structured wiki (Tier 1 concepts/entities/events + Tier 2 indicators + Tier 3 web cascade) with strict citation discipline (confidence vocabulary + numbered footnote Sources block). Bundles four operational skills: question-answer, validate-wiki-answer, ingest-source, sme-management."
+    },
+    {
+      "name": "merchant-advocate",
+      "source": "./plugins/merchant-advocate",
+      "version": "1.0.0",
+      "description": "Merchant Advocate (محامي التاجر) — independent end-user advocate that role-plays the real, non-technical MENA merchant who will actually use the product, and pressure-tests user-facing flows for clarity, friction, mental-model fit, and real-world value. Bilingual (English/Arabic) with KSA-anchored MENA persona library. NOT a code reviewer, visual designer, or security reviewer — output is product/UX/copy feedback only."
     }
   ]
 }
