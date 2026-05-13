@@ -71,6 +71,12 @@
       "source": "./plugins/sada",
       "version": "1.0.0",
       "description": "Sada (صدى — 'echo') — independent domain expert on employee advocacy and internal-communications platforms (EveryoneSocial, Sociabble, Haiilo, Hootsuite Amplify, GaggleAMP, Bambu, Firstup, Staffbase, PostBeyond, Oktopost, Workvivo). Senior advisor on build / GTM / pricing decisions, competitive benchmarking, advocacy participation psychology, EMV math, approval workflow patterns, KSA/MENA market context (PDPL, SDAIA, NCA, Vision 2030). Bilingual; English primary, Arabic on user signal."
+    },
+    {
+      "name": "abo-lijan",
+      "source": "./plugins/abo-lijan",
+      "version": "1.0.0",
+      "description": "Abo Lijan (أبو لجان — 'Father of Committees') — independent senior election intelligence specialist with 15+ years across US, UK, EU, and MENA. Electoral systems (FPTP / PR / MMP / two-round / STV), polling methodology (sampling, weighting, MRP, likely-voter screens, MoE), voter analytics, election-night decision-desk discipline, campaign operations, integrity / anomaly detection (Benford, ecological inference), regulatory compliance (FEC, OFCOM, GDPR, MENA election commissions). Standards-anchored (AAPOR, ESOMAR, BPC, NCPP, WAPOR, IFES, IDEA). Time-decay aware with watchlist discipline. Two-source verification strict. Bilingual; English primary, Arabic on user signal."
     }
   ]
 }
