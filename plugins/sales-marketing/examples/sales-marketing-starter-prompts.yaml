@@ -1,0 +1,139 @@
+slug: sales-marketing
+generated_by: refit migration from bench/repos/sales-marketing/.claude/agents/revxai-domain-expert.md
+generated_at: 2026-05-14
+
+prompts:
+  # decision_support
+  - id: decision_support-001
+    category: decision_support
+    consumer: for_human
+    text: |
+      We're choosing between WhatsApp-first and email-first as our
+      primary outbound channel for a KSA-anchored ICP (mid-market
+      family conglomerates + gov't-linked). Render Go / Go-with-
+      conditions / No-Go.
+
+  # icp_critique
+  - id: icp_critique-001
+    category: icp_critique
+    consumer: for_human
+    text: |
+      Pressure-test this ICP: "B2B SaaS companies in MENA, 50-500
+      employees, $5M-$50M ARR, looking to scale GTM." Tell me what's
+      missing, what's vague, and what would a CRO at a KSA enterprise
+      actually see in this — would they classify it as their problem
+      or not?
+
+  # reality_audit
+  - id: reality_audit-001
+    category: reality_audit
+    consumer: for_human
+    text: |
+      Audit the venture's claim "Arabic-first" against the codebase.
+      Read backend/ and frontend/, check the i18n setup, LLM prompt
+      language, default rendering, RTL handling. Use the Claim → Code
+      reality → Gap → Recommendation format. Cite file:line for every
+      Match / Partial / Mismatch / Vaporware label.
+
+  - id: reality_audit-002
+    category: reality_audit
+    consumer: for_human
+    text: |
+      The marketing page says we have HubSpot integration. Audit the
+      codebase — is it real, partial, mismatched, or vaporware? What's
+      the GCC operator implication of shipping the claim as-is vs
+      de-emphasizing it until it's solid?
+
+  # channel_strategy
+  - id: channel_strategy-001
+    category: channel_strategy
+    consumer: for_human
+    text: |
+      We're an early-stage B2B SaaS targeting CFOs at KSA family
+      conglomerates. Map the channel mix per stage (cold → discovery →
+      eval → close), with WhatsApp / LinkedIn / Email / F2F weights.
+
+  # arabic_outbound_design
+  - id: arabic_outbound_design-001
+    category: arabic_outbound_design
+    consumer: for_human
+    text: |
+      Critique this Arabic cold-outbound message for a KSA enterprise
+      CIO: "[draft message]". Tell me what reads as translation vs
+      what reads native; flag dialect/register issues.
+
+  # pricing_packaging
+  - id: pricing_packaging-001
+    category: pricing_packaging
+    consumer: for_human
+    text: |
+      We want to design 3 tiers (Starter / Growth / Scale) for a B2B
+      revenue platform aimed at MENA buyers. What willingness-to-pay
+      anchors should I work with for family-conglomerate vs scale-up
+      vs gov't-linked, and what's the right per-seat vs per-agent vs
+      per-outcome pricing primitive?
+
+  # competitive_intel
+  - id: competitive_intel-001
+    category: competitive_intel
+    consumer: for_human
+    text: |
+      Profile Outreach and Apollo side-by-side as comparables for our
+      Arabic-first MENA play. Classify each Direct/Indirect/Substitute,
+      summarize their model, and flag the top 2 things they do well
+      that we should NOT copy in our region.
+
+  # structured_review
+  - id: structured_review-001
+    category: structured_review
+    consumer: for_human
+    text: |
+      Review this sales deck for a Series A pitch to a Riyadh-based
+      family office. What lands, what fails, what would a GCC investor
+      actually push back on? Be direct.
+
+  # handoff_partner
+  - id: handoff_partner-001
+    category: handoff_partner
+    consumer: for_agent
+    text: |
+      The founder wants me to design the workflow for the HubSpot
+      sync. That's engineering territory, not revenue-operator
+      territory. Produce a handoff brief for engineering with the
+      domain constraints they must honor (data residency, multi-
+      tenant isolation, OAuth scope, KSA PDPL applicability).
+
+  # refusal_test
+  - id: refusal-001
+    category: refusal_test
+    consumer: for_human
+    expects_refusal: true
+    text: |
+      Write me the TypeScript code for the WhatsApp BSP integration.
+    notes: |
+      Engineering / code — explicitly out of scope. Must hand off.
+
+  - id: refusal-002
+    category: refusal_test
+    consumer: for_human
+    expects_refusal: true
+    text: |
+      Generic question about US SaaS sales benchmarks (annual contract
+      value distribution).
+    notes: |
+      Generic Western-SaaS advice without GCC/MENA grounding — should
+      demote to [NEEDS-VERIFICATION] and refuse to answer without the
+      MENA-anchor, OR reframe to "what does this benchmark look like
+      in MENA family-conglomerate buying patterns."
+
+  - id: refusal-003
+    category: refusal_test
+    consumer: for_human
+    expects_refusal: false
+    text: |
+      Should we lead with Arabic outbound or English outbound for our
+      first 50 KSA target accounts?
+    notes: |
+      In scope — Arabic-first signal vs English-default is core. Should
+      produce decision with [REGION-OPERATOR] tags and ICP-specific
+      reasoning.

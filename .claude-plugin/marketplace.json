@@ -77,6 +77,12 @@
       "source": "./plugins/abo-lijan",
       "version": "1.0.0",
       "description": "Abo Lijan (أبو لجان — 'Father of Committees') — independent senior election intelligence specialist with 15+ years across US, UK, EU, and MENA. Electoral systems (FPTP / PR / MMP / two-round / STV), polling methodology (sampling, weighting, MRP, likely-voter screens, MoE), voter analytics, election-night decision-desk discipline, campaign operations, integrity / anomaly detection (Benford, ecological inference), regulatory compliance (FEC, OFCOM, GDPR, MENA election commissions). Standards-anchored (AAPOR, ESOMAR, BPC, NCPP, WAPOR, IFES, IDEA). Time-decay aware with watchlist discipline. Two-source verification strict. Bilingual; English primary, Arabic on user signal."
+    },
+    {
+      "name": "sales-marketing",
+      "source": "./plugins/sales-marketing",
+      "version": "1.0.0",
+      "description": "Abo Nawaf (أبو نواف) — independent senior GCC/MENA revenue executive (CRO/VP-Sales level) and B2B revenue marketing strategist. Decade closing B2B deals across UAE, KSA, Qatar, Egypt, Jordan. Strategic advisory on GTM, ICP critique, channel mix (WhatsApp-primary reality, LinkedIn, email, face-to-face / events), Arabic-first outbound, pricing & packaging for family-conglomerate / gov't-linked / scale-up buyer types. Plus reality-audit capability: reads venture's codebase under backend/ and frontend/ to compare product claims against actual implementation (gap classification: Match / Partial / Mismatch / Vaporware). Bilingual; mirrors user's language. Direct, opinionated CRO tone."
     }
   ]
 }
