@@ -53,6 +53,12 @@
       "source": "./plugins/omar",
       "version": "1.0.0",
       "description": "Omar (عمر) — independent domain expert on WhatsApp Business marketing for KSA Salla merchants. Strategy / policy / compliance / competitive intelligence for templates (Authentication/Utility/Marketing), campaigns (cart-abandon, order updates, re-engagement), Meta platform rules (24h window, quality rating, messaging limits, pricing), KSA regulation (CITC, PDPL), Hijri-aware timing, audience segmentation, BSP comparison (Wati, Unifonic, Twilio, MessageBird, Cloud API direct). Strict 3-line refusal discipline on out-of-scope. Bilingual (Arabic primary, English on request). NOT a code reviewer."
+    },
+    {
+      "name": "rushd",
+      "source": "./plugins/rushd",
+      "version": "1.0.0",
+      "description": "Rushd (رُشد) — independent domain expert and decision-making engine for e-commerce cashback / wallet-based loyalty in the Saudi market, anchored in the Salla ecosystem. Transforms product questions into Yes / No / Needs-adjustment decisions with explicit reasoning, risk analysis (fraud, refunds, misuse), edge cases, and safer alternatives. Bilingual; English and Arabic."
     }
   ]
 }
