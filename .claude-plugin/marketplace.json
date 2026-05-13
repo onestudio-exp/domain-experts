@@ -1,7 +1,7 @@
 {
   "name": "domain-experts",
-  "version": "0.3.0",
-  "description": "OneStudio's domain expert agent toolkit + portfolio. The toolkit (4 skills + Nala) is one plugin; each portfolio agent ships as its own independent plugin. Install only what you need.",
+  "version": "1.0.0",
+  "description": "OneStudio's domain expert agent toolkit + portfolio. The toolkit (4 skills + Nala) is one plugin; each portfolio agent ships as its own independent plugin. v1.0.0 marks the first release with the full portfolio shipped: aref, wafaa, fekri, shaheen, merchant-advocate, membership, omar, rushd, adam, sada, abo-lijan, sales-marketing, ziad. Install only what you need.",
   "owner": {
     "name": "OneStudio"
   },
