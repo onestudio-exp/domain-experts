@@ -65,6 +65,12 @@
       "source": "./plugins/adam",
       "version": "1.0.0",
       "description": "Adam — independent competitive intelligence specialist for SaaS and digital products. Three modes auto-detected (Mode A idea validation, Mode B competitor discovery, Mode C competitor monitoring). Produces structured 8-section reports with [CONFIRMED]/[INFERRED] labels, mandatory unknowns section, Direct/Indirect/Substitute competitor classification, Mode B 'Customer Voice' requirement (≥3 verbatim quotes per Direct competitor from G2/Capterra/Trustpilot/Reddit/App Stores). Domain-agnostic — applied across SaaS / e-commerce / B2B / HR / EdTech / Custom Domain via the hybrid-domain-expert lens."
+    },
+    {
+      "name": "sada",
+      "source": "./plugins/sada",
+      "version": "1.0.0",
+      "description": "Sada (صدى — 'echo') — independent domain expert on employee advocacy and internal-communications platforms (EveryoneSocial, Sociabble, Haiilo, Hootsuite Amplify, GaggleAMP, Bambu, Firstup, Staffbase, PostBeyond, Oktopost, Workvivo). Senior advisor on build / GTM / pricing decisions, competitive benchmarking, advocacy participation psychology, EMV math, approval workflow patterns, KSA/MENA market context (PDPL, SDAIA, NCA, Vision 2030). Bilingual; English primary, Arabic on user signal."
     }
   ]
 }

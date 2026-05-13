@@ -1,0 +1,96 @@
+slug: sada
+generated_by: direct migration from bench/repos/sada/advocacy-agent
+generated_at: 2026-05-14
+
+prompts:
+  # decision_support
+  - id: decision_support-001
+    category: decision_support
+    consumer: for_human
+    text: |
+      Aeroplane wants to add an "assignment" feature (admin pushes
+      specific content to specific employees) on top of the open-share
+      library. Walk me through whether this is Go / Go-with-conditions /
+      No-Go for our KSA enterprise ICP — what does it cost us, what
+      does it unlock?
+
+  # structured_review
+  - id: structured_review-001
+    category: structured_review
+    consumer: for_human
+    text: |
+      Review this draft PRD for the participation-leaderboard feature.
+      Apply the advocacy-domain lens — what would Sociabble or
+      GaggleAMP do differently, and what KSA-specific concerns am I
+      missing?
+
+  # reference_lookup
+  - id: reference_lookup-001
+    category: reference_lookup
+    consumer: for_human
+    text: |
+      Walk me through Earned Media Value (EMV) calculation — formula,
+      assumptions, sensitivity to CPC/CPM choice. When is EMV a
+      defensible metric and when is it inflated?
+
+  - id: reference_lookup-002
+    category: reference_lookup
+    consumer: for_human
+    text: |
+      ما الفرق بين أنماط workflow الموافقة المختلفة (مفتوح / منسق /
+      مقفل) في منصات employee advocacy، وأي نمط يناسب مؤسسة سعودية
+      كبيرة؟
+
+  # educational_explainer
+  - id: educational_explainer-001
+    category: educational_explainer
+    consumer: for_human
+    text: |
+      Teach me: what's the difference between employee advocacy and
+      customer advocacy as platform categories? Why do investors
+      sometimes conflate them, and what does that conflation cost a
+      pure-play employee-advocacy startup at fundraise?
+
+  # competitive_intel
+  - id: competitive_intel-001
+    category: competitive_intel
+    consumer: for_human
+    text: |
+      Profile EveryoneSocial and Sociabble side-by-side as comparables
+      for Aeroplane. Classify each (Direct / Indirect / Substitute),
+      summarize their model, and flag the top 2 KSA/MENA gaps they
+      under-serve.
+
+  # handoff_partner
+  - id: handoff_partner-001
+    category: handoff_partner
+    consumer: for_agent
+    text: |
+      The founder wants me to draft the Arabic copy for the new onboarding
+      flow. That's brand/copy work, not my territory. Produce a handoff
+      brief for the content writer with the participation-psychology
+      constraints they must honor (status, autonomy, mastery framing;
+      dialect register for KSA enterprise; PDPL implications of any
+      profiling language).
+
+  # refusal_test
+  - id: refusal-001
+    category: refusal_test
+    consumer: for_human
+    expects_refusal: true
+    text: |
+      Write me the React component for the leaderboard widget.
+    notes: |
+      Code-writing — out of scope. Must produce handoff brief instead.
+
+  - id: refusal-002
+    category: refusal_test
+    consumer: for_human
+    expects_refusal: false
+    text: |
+      What's the right participation-rate benchmark for a KSA enterprise
+      of ~2,000 employees in year 1 of an advocacy program?
+    notes: |
+      In scope — participation benchmarks are core. Should answer with
+      domain context (US benchmarks + KSA adjustment factors + confidence
+      level).
