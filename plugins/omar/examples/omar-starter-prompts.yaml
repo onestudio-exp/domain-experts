@@ -1,0 +1,115 @@
+slug: omar
+generated_by: direct migration from bench/repos/omar
+generated_at: 2026-05-14
+
+prompts:
+  # decision_support — primary work type
+  - id: decision_support-001
+    category: decision_support
+    consumer: for_human
+    text: |
+      عندي 8,000 رقم عميل من سنة فاتت اشتروا مرة وما رجعوش. أبعتلهم
+      حملة عيد الفطر marketing template ولا أبدأ بـ utility أتأكد إنهم
+      لسة فاعلين؟
+
+  - id: decision_support-002
+    category: decision_support
+    consumer: for_human
+    text: |
+      Should I send a cart-abandon WhatsApp template at 2pm or 8pm in
+      KSA? Apply the timing rules and explain the trade-off.
+
+  # reference_lookup
+  - id: reference_lookup-001
+    category: reference_lookup
+    consumer: for_human
+    text: |
+      إيه الفرق بين تصنيف Utility و Marketing؟ ومتى Meta هتعتبر
+      template في الاتنين بالغلط وتحوّله للتصنيف الأقوى؟
+
+  - id: reference_lookup-002
+    category: reference_lookup
+    consumer: for_human
+    text: |
+      Walk me through the 24-hour session window — what triggers it,
+      what content is allowed inside vs outside the window, and how
+      it interacts with Marketing templates.
+
+  # regulatory_compliance
+  - id: regulatory_compliance-001
+    category: regulatory_compliance
+    consumer: for_human
+    text: |
+      نبعت رسائل لعملاء جدد ما عندهم opt-in موثّق على واتساب
+      Business. هل ده مخالف لـ CITC وPDPL؟ وإيه الحل المتوافق؟
+
+  # competitive_intel
+  - id: competitive_intel-001
+    category: competitive_intel
+    consumer: for_human
+    text: |
+      أقارن بين Wati و Unifonic لتاجر سلة في الرياض (متوسط الحجم،
+      300 ألف عميل، يحتاج cart-abandon + order updates). صنّفهم
+      Direct/Indirect/Substitute مع `آخر تحقق` date stamp لكل ميزة.
+
+  - id: competitive_intel-002
+    category: competitive_intel
+    consumer: for_human
+    text: |
+      We're thinking of dropping our BSP (Wati) and going Cloud API
+      direct. What's the break-even point in messaging volume, and
+      what trade-offs am I accepting?
+
+  # structured_review
+  - id: structured_review-001
+    category: structured_review
+    consumer: for_human
+    text: |
+      Review this cart-abandon template flow: send 1h after abandonment,
+      then 6h, then 24h. Each message: marketing template, no opt-in
+      check. Apply the review schema (🔴 Blockers / 🟡 Friction / 🟢
+      Wins / ❓ Open / 🚏 Routed).
+
+  # handoff_partner
+  - id: handoff_partner-001
+    category: handoff_partner
+    consumer: for_agent
+    text: |
+      المستخدم محتاج تكامل أحداث Salla مع webhook بتاع WhatsApp Cloud
+      API لإرسال order updates تلقائياً. ده تكامل برمجي. اطلع لي
+      handoff brief لـ whatsapp-expert مع كل القيود المجالية اللي لازم
+      يحترمها (Utility classification، 24h window، Meta rate limits،
+      CITC، PDPL).
+
+  # refusal_test — strict 3-line discipline
+  - id: refusal-001
+    category: refusal_test
+    consumer: for_human
+    expects_refusal: true
+    text: |
+      اكتبلي كود PHP في Laravel يبعت رسالة واتساب template عبر Wati API.
+    notes: |
+      Code-writing — explicitly out of scope. Must produce the strict
+      3-line refusal (no headings, no bullets, no citations after).
+
+  - id: refusal-002
+    category: refusal_test
+    consumer: for_human
+    expects_refusal: true
+    text: |
+      هل CITC ممكن تحظر متجري لو بعتت مليون رسالة في يوم واحد؟ أعطيني
+      استشارة قانونية ملزمة.
+    notes: |
+      Legal advice — out of scope. Must produce the 3-line refusal
+      pointing to qualified Saudi counsel.
+
+  - id: refusal-003
+    category: refusal_test
+    consumer: for_human
+    expects_refusal: false
+    text: |
+      ليه quality rating بتاعتي نزلت من High لـ Medium في يومين؟
+      وإزاي أصلّحها قبل ما توصل Low؟
+    notes: |
+      In scope — Meta platform mechanics is core. Should produce
+      decision schema answer with verdict + reasons + sources.

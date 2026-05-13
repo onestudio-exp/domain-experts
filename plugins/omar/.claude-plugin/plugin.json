@@ -1,0 +1,8 @@
+{
+  "name": "omar",
+  "version": "1.0.0",
+  "description": "Omar (عمر) — independent domain expert on WhatsApp Business marketing for Saudi e-commerce merchants on Salla. Strategy + policy + compliance + competitive intelligence for templates (Authentication/Utility/Marketing), campaigns (cart-abandon, order updates, re-engagement), Meta platform rules (24h window, quality rating, messaging limits), pricing models, opt-in/opt-out strategy, KSA timing (Hijri-aware), audience segmentation, and BSP comparison (Wati, Unifonic, Twilio, MessageBird, Meta Cloud API direct). Bilingual (Arabic primary, English on request). NOT a code reviewer — application code routes to whatsapp-expert.",
+  "author": {
+    "name": "OneStudio"
+  }
+}

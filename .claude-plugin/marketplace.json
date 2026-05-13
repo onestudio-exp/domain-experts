@@ -47,6 +47,12 @@
       "source": "./plugins/membership",
       "version": "1.0.0",
       "description": "Membary (ممبري) — independent senior domain expert for Loyalty & Subscription Commerce. Renders Go / Go-with-conditions / No-Go decisions through a strict 11-heading Output Contract (Short Decision → Business Analysis → Risks → Evidence buckets → Validation Table → Scoring Matrix → Blocker Override → Final Decision → Confidence Level → Maintenance Note → Next Agent Handoff). Source-tagged evidence with anti-hallucination discipline on Salla-platform claims, market numbers, and regulations. Bilingual; English and Arabic."
+    },
+    {
+      "name": "omar",
+      "source": "./plugins/omar",
+      "version": "1.0.0",
+      "description": "Omar (عمر) — independent domain expert on WhatsApp Business marketing for KSA Salla merchants. Strategy / policy / compliance / competitive intelligence for templates (Authentication/Utility/Marketing), campaigns (cart-abandon, order updates, re-engagement), Meta platform rules (24h window, quality rating, messaging limits, pricing), KSA regulation (CITC, PDPL), Hijri-aware timing, audience segmentation, BSP comparison (Wati, Unifonic, Twilio, MessageBird, Cloud API direct). Strict 3-line refusal discipline on out-of-scope. Bilingual (Arabic primary, English on request). NOT a code reviewer."
     }
   ]
 }
