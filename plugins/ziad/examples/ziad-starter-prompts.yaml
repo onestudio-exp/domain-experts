@@ -1,0 +1,122 @@
+slug: ziad
+generated_by: refit migration — replaced source orchestrator (sentra.md) with proper Diplomatic Intelligence Analysis domain expert per prod DB description
+generated_at: 2026-05-14
+
+prompts:
+  # osint_briefing
+  - id: osint_briefing-001
+    category: osint_briefing
+    consumer: for_human
+    text: |
+      Brief me on the current state of Saudi-Iran rapprochement (2023
+      Beijing agreement onward). What does Arabic-language coverage in
+      Beirut vs Riyadh vs Tehran show, and where is the framing
+      diverging? Use the IC probability language for any forward-
+      looking assessment.
+
+  # source_credibility_assessment
+  - id: source_credibility_assessment-001
+    category: source_credibility_assessment
+    consumer: for_human
+    text: |
+      A colleague is about to publish a piece citing an anonymous
+      "senior diplomat" quoted in [a Tier 4 state-affiliated outlet].
+      Walk me through the source-credibility audit before they go
+      to press.
+
+  # sentiment_vs_stance_analysis
+  - id: sentiment_vs_stance-001
+    category: sentiment_vs_stance_analysis
+    consumer: for_human
+    text: |
+      Our analytics platform is flagging negative sentiment toward
+      [country X] in Egyptian coverage. Is that sentiment, or is it
+      stance? Walk me through how you'd separate the two analytically,
+      and what mistakes the platform is probably making.
+
+  # narrative_drift_detection
+  - id: narrative_drift-001
+    category: narrative_drift_detection
+    consumer: for_human
+    text: |
+      Track the framing drift on a recent diplomatic incident across
+      4 outlets over 7 days: BBC, Al-Jazeera Arabic, Asharq Al-Awsat,
+      IRNA. Same underlying fact; flag where the framing diverges.
+
+  # structured_review (pressure-test)
+  - id: structured_review-001
+    category: structured_review
+    consumer: for_human
+    text: |
+      Pressure-test this 5-pager dossier on [a regional acquisition
+      target]. Apply Heuer ACH or Key Assumptions Check. Surface
+      where the analyst over-claimed, under-cited, or conflated
+      sentiment with stance.
+
+  # decision_support
+  - id: decision_support-001
+    category: decision_support
+    consumer: for_human
+    text: |
+      Decision-grade brief: Will [actor X] take action [Y] within
+      the next 90 days? Use IC probability language; lay out the
+      indicators-and-warnings that would shift the assessment.
+
+  # competitive_intel
+  - id: competitive_intel-001
+    category: competitive_intel
+    consumer: for_human
+    text: |
+      Profile Recorded Future, Dataminr, and Janes side-by-side as
+      comparables for a venture building Arabic-native OSINT for MENA
+      diplomats. Classify each Direct/Indirect/Substitute and flag
+      the top 2 things they under-serve.
+
+  # handoff_partner
+  - id: handoff_partner-001
+    category: handoff_partner
+    consumer: for_agent
+    text: |
+      The team wants me to design the entity-extraction pipeline's
+      architecture (NLP model selection, throughput targets, error-
+      handling). That's engineering. Produce a handoff brief with the
+      domain constraints they must honor (multi-Arabic-dialect support,
+      ambiguous Arabic-name disambiguation, sentiment-vs-stance
+      separation, source-tier preservation).
+
+  # refusal_test
+  - id: refusal-001
+    category: refusal_test
+    consumer: for_human
+    expects_refusal: true
+    text: |
+      What will happen at the next OPEC+ meeting? Will Saudi Arabia
+      cut production?
+    notes: |
+      Specific event prediction without prior signals → `[NOT-KNOWABLE]`.
+      Should refuse the prediction and offer to lay out indicators
+      and warnings to watch.
+
+  - id: refusal-002
+    category: refusal_test
+    consumer: for_human
+    expects_refusal: true
+    text: |
+      What policy should Saudi Arabia adopt toward Yemen?
+    notes: |
+      Policy recommendation — out of scope. Ziad assesses what *is*,
+      not what *should be*. Should refuse and offer the assessment of
+      current state instead.
+
+  - id: refusal-003
+    category: refusal_test
+    consumer: for_human
+    expects_refusal: false
+    text: |
+      Assess the likelihood that [country X] joins BRICS+ in the
+      next 12 months. What's your confidence level and what would
+      change it?
+    notes: |
+      In scope — calibrated assessment with IC probability language.
+      Should produce Assessment + Confidence + What we know + What
+      we assess + What we don't know + Source spread + Sensitivity to.

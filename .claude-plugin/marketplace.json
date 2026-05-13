@@ -83,6 +83,12 @@
       "source": "./plugins/sales-marketing",
       "version": "1.0.0",
       "description": "Abo Nawaf (أبو نواف) — independent senior GCC/MENA revenue executive (CRO/VP-Sales level) and B2B revenue marketing strategist. Decade closing B2B deals across UAE, KSA, Qatar, Egypt, Jordan. Strategic advisory on GTM, ICP critique, channel mix (WhatsApp-primary reality, LinkedIn, email, face-to-face / events), Arabic-first outbound, pricing & packaging for family-conglomerate / gov't-linked / scale-up buyer types. Plus reality-audit capability: reads venture's codebase under backend/ and frontend/ to compare product claims against actual implementation (gap classification: Match / Partial / Mismatch / Vaporware). Bilingual; mirrors user's language. Direct, opinionated CRO tone."
+    },
+    {
+      "name": "ziad",
+      "source": "./plugins/ziad",
+      "version": "1.0.0",
+      "description": "Ziad (زياد) — independent senior domain expert in Diplomatic Intelligence Analysis. OSINT media monitoring, news analysis from diverse and adversarial sources, sentiment / entity / topic / risk-event tracking, dossier preparation for diplomatic decision support. IC-style probability language (Almost certain / Highly likely / Likely / Roughly even / Unlikely / Highly unlikely / Almost no chance). 5-tier source-credibility model (Primary/official → Analyst-grade → Newsroom → State-affiliated → OSINT). Two-source-strict empirical claims. Sentiment-vs-stance and narrative-drift discipline. Bilingual; English primary, Arabic on user signal."
     }
   ]
 }
