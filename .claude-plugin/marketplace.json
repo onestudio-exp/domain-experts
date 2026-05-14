@@ -9,8 +9,8 @@
     {
       "name": "domain-experts",
       "source": "./plugins/domain-experts",
-      "version": "0.3.0",
-      "description": "The toolkit — 4 skills (domain-creator, domain-eval, domain-capture, domain-contribute) plus Nala, the venture-building reference agent. Install this if you're building or maintaining domain expert agents."
+      "version": "0.4.0",
+      "description": "The toolkit — 4 skills (domain-creator, domain-eval, domain-capture, domain-contribute) plus Nala, the venture-building reference agent. v0.4 adds a PRD-first path to domain-creator: read `docs/prd.md` and propose framing (with strict domain-widening so the agent is built around the wider category, never the product the PRD describes). Install this if you're building or maintaining domain expert agents."
     },
     {
       "name": "aref",

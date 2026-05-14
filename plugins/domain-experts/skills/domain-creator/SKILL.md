@@ -1,17 +1,19 @@
 ---
 name: domain-creator
-description: Build or uplevel a domain expert agent in Claude Code. Two modes — (1) CREATE: interview the user with ~10 short questions and produce a new agent definition, knowledge scaffold, and starter prompt set; (2) REFIT: read an existing agent file, audit it against the framework's 10 dimensions (incl. Domain-vs-Project framing — flags agents coupled to a single product instead of a category), advise the user which changes to apply, then overwrite the agent with the upleveled version plus a KB scaffold and starter prompts if missing. Most questions have a tested default the user can accept with one keystroke. Use when the user wants to create a NEW agent OR uplevel an EXISTING one to fit domain-expert practice. Do not use for adding knowledge to an existing agent (that's domain-capture).
+description: Build or uplevel a domain expert agent in Claude Code. Three entry paths — (1) CREATE from scratch: interview the user with ~10 short questions and produce a new agent definition, knowledge scaffold, and starter prompt set; (2) CREATE from a PRD: read the venture's PRD (e.g. `docs/prd.md`), propose answers for identity / domain / primary user / categories / reference implementation / comparable peers, collapsing the interview to ~3 turns — with strict domain-widening discipline so the agent is built around the WIDER category, never the specific product the PRD describes; (3) REFIT: read an existing agent file, audit it against the framework's 10 dimensions (incl. Domain-vs-Project framing — flags agents coupled to a single product instead of a category), advise the user which changes to apply, then overwrite the agent with the upleveled version plus a KB scaffold and starter prompts if missing. Most questions have a tested default the user can accept with one keystroke. Use when the user wants to create a NEW agent (from blank or from a PRD) OR uplevel an EXISTING one to fit domain-expert practice. Do not use for adding knowledge to an existing agent (that's domain-capture).
 ---
 
 # /domain-creator
 
 Build or uplevel a domain expert agent.
 
-Two modes:
-- **Create** — interview the user, produce a new agent + KB scaffold + starter prompts.
+Two modes, three entry paths:
+
+- **Create — blank** — interview the user from scratch, produce a new agent + KB scaffold + starter prompts.
+- **Create — from a PRD** *(new in v0.4)* — read the venture's PRD (`docs/prd.md` or user-supplied path), propose values for identity / domain / primary user / categories / reference implementation / comparable peers, let the user accept-or-edit each, then continue with output-schema questions only. **Domain-widening is enforced**: the product the PRD describes becomes the Reference Implementation, never the agent's identity — the agent is built around the wider *category*.
 - **Refit** — read an existing agent, audit it, apply framework changes, overwrite it (and add KB scaffold + starter prompts if they don't exist).
 
-Both modes produce the same 3 outputs: `agents/<slug>.md`, `agents/<slug>-knowledge/README.md`, `examples/<slug>-starter-prompts.yaml`.
+All paths produce the same 3 outputs: `agents/<slug>.md`, `agents/<slug>-knowledge/README.md`, `examples/<slug>-starter-prompts.yaml`.
 
 ## When to invoke
 
@@ -78,8 +80,174 @@ refit    — read an existing agent, audit it, apply framework changes
 
 → Type `new` or `refit`.
 
-If `new` → continue to **Create mode** below (Phases 1–9).
+If `new` → continue to **Phase 0.5 — PRD-aware prefill** (below).
 If `refit` → jump to **Refit mode** (after Phase 9).
+
+---
+
+## Phase 0.5 — PRD-aware prefill *(new path, optional)*
+
+Before launching the 10-turn interview, check whether the user has a PRD in the venture. A PRD is rich enough to propose answers for Phases 1–4 automatically — collapsing the interview to ~3 user turns. The user accepts the proposal as a single screen, or overrides individual fields.
+
+This phase is **mode-gated to `new`**. If the user picked `refit` in Phase 0, skip directly to Refit mode.
+
+### Step 0.5.1 — Detect a PRD
+
+Try these paths in order. Stop at the first hit and remember the path:
+
+```
+1. docs/prd.md
+2. docs/PRD.md
+3. prd.md           (repo root)
+4. docs/*.md        (glob — if exactly one match, offer it; else
+                     list candidates and ask which one)
+```
+
+If none of these exist: skip directly to **Phase 1**, no question asked. The user will fall through to the regular interview.
+
+### Step 0.5.2 — Ask once
+
+**Q0.5 — Prefill from your PRD?**
+
+I found a candidate PRD at `<path>`. I can read it and propose answers for identity, domain, primary user, primary work, and comparable peers — collapsing the interview to ~3 turns. You'll see every proposed value and can edit any of them.
+
+```
+yes        — read it, propose, then walk through edits
+different  — give me a different file path
+no         — skip the prefill, run the full interview
+```
+
+→ Type `yes`, `different`, or `no`.
+
+If `no` → jump to Phase 1.
+If `different` → ask for a path. Confirm it exists. Then proceed with `yes` semantics on that path.
+If `yes` → continue to Step 0.5.3.
+
+### Step 0.5.3 — Read the PRD and extract candidate values
+
+Use the Read tool to load the file end-to-end. Then, reasoning carefully, extract candidate values for these fields:
+
+```
+slug                       kebab-case noun for the DOMAIN (NOT the product)
+display_name               proper-case domain name
+display_name_ar            optional, only if PRD has Arabic content
+domain_one_liner           the WIDER category, never the product itself
+geo_scope                  if PRD mentions a geography (MENA, KSA, GCC...)
+bilingual + languages      if PRD is bilingual or mentions a non-English audience
+primary_user               role + seniority (from PRD's user / customer / audience section)
+user_context               what they're doing (from PRD's "use case" or "scenarios")
+example_question           a real question that user would bring to the agent
+primary_categories         1–3 categories from Phase 4's canonical list, derived
+                           from the PRD's "what we're building" framing
+reference_implementation   the venture/product the PRD describes (object: name, role, note)
+comparable_peers           3–7 named peer companies in the same category
+```
+
+For each extracted value, also record a short *source* — either a quoted phrase from the PRD ("L.12: 'merchant-funded cashback for MENA SMBs'") or `(derived)` if you inferred it. The source is shown to the user in the proposal so they can verify your reading.
+
+### Step 0.5.4 — Enforce domain widening *(critical)*
+
+A PRD almost always describes ONE specific product. The agent's domain MUST be the wider category, never the product itself. Apply this discipline **before showing the proposal**:
+
+**Examples — required widening:**
+
+```
+PRD describes "Member Plus" (loyalty platform)
+  ✗ domain: "Member Plus expert"
+  ✓ domain: "merchant-funded loyalty in MENA"
+  → Reference implementation: Member Plus
+  → Peers: Bilt, Rakuten, Entertainer, Collinson, Sprive
+
+PRD describes "RevXAI Auditor" (AI code reviewer for vibe-coded apps)
+  ✗ domain: "RevXAI expert"
+  ✓ domain: "AI-assisted code review for rapid-prototype apps"
+  → Reference implementation: RevXAI Auditor
+  → Peers: Snyk, SonarQube, CodeRabbit, GreptileAI, DeepCode
+
+PRD describes "WhatsApp Hero" (WhatsApp marketing for MENA SMBs)
+  ✗ domain: "WhatsApp Hero expert"
+  ✓ domain: "WhatsApp business marketing for MENA SMBs"
+  → Reference implementation: WhatsApp Hero
+  → Peers: Wati, Gallabox, AiSensy, Twilio, Meta's official BSPs
+
+PRD describes "Turif" (one-tap onboarding for KSA banks)
+  ✗ domain: "Turif expert"
+  ✓ domain: "Saudi banking onboarding UX & Vision/Mada compliance"
+  → Reference implementation: Turif
+  → Peers: Tahweel, STC Pay, urpay, Hala, Lean, Tarabut
+```
+
+**Auto-check before showing the proposal:**
+
+- `slug` MUST NOT contain the PRD's product name.
+- `domain_one_liner` MUST NOT begin with `for <ProductName>` or `<ProductName> expert`.
+- `domain_one_liner` MUST describe a body of knowledge — a market, regulatory regime, product practice, or research domain — that applies to **multiple companies**.
+- `comparable_peers` MUST list **≥3 named companies/products** that aren't the PRD's subject.
+
+If any check fails, **fix it before showing the user**. Don't show a draft you'd have to apologize for.
+
+If you genuinely cannot widen the framing (the PRD is for something so unique that no peers exist), that's a strong signal the work isn't a *domain* — it's a *project*. Surface this to the user explicitly:
+
+> "I can't find a wider category for this — the PRD reads as one specific product without peers. A project-PM agent is a legitimate ask, but it's NOT what this skill produces. Want me to (a) push you to articulate the wider domain anyway, or (b) bail and recommend a generic Claude Code subagent with your CLAUDE.md as context?"
+
+### Step 0.5.5 — Present the proposal
+
+Show **one compact screen** with every proposed value and its source. Use a table.
+
+```
+**Proposed framing from your PRD** (`<path>`)
+
+  Field               Proposed                                       Source
+  ─────────────────   ───────────────────────────────────────────    ──────
+  Slug                merchant-loyalty-mena                          (derived)
+  Display name        Merchant Loyalty (MENA)
+  Domain              merchant-funded loyalty in MENA, focused on    L.4-12
+                      retention economics and embedded cashback
+  Geo / language      MENA, bilingual English/Arabic                 L.18
+  Primary user        Founders/PMs at MENA fintech ventures          L.22
+  User context        Deciding between in-house loyalty engine and   L.24-28
+                      partnering with a vendor
+  Example question    "Should we build the loyalty engine in-house   (derived from
+                      or partner with Bilt?"                          PRD framing)
+  Primary categories  decision_support, competitive_intel             (derived)
+  Reference impl.     Member Plus (the PRD's product)                 Title
+  Comparable peers    Bilt, Rakuten, Entertainer, Collinson, Sprive   (derived)
+
+**Notice:** the PRD describes one specific product. I framed the agent
+around the WIDER category so any team building in this space can use it.
+The product becomes the Reference Implementation, not the agent's
+identity.
+
+Does this framing fit?
+
+  yes        — accept all, jump to Phase 5 (output schemas)
+  edit N     — accept most, edit field N
+  too-narrow — push the framing wider (I'll propose a broader domain)
+  too-wide   — pull the framing tighter (I'll propose a narrower domain)
+  restart    — drop the prefill, run the full interview from Phase 1
+```
+
+→ Type one option.
+
+### Step 0.5.6 — Resolve the choice
+
+- **`yes`** → Capture every proposed value into the running answers. Mark each as `prefilled-from-PRD` in the running summary (so the user sees later which fields came from the PRD vs. were typed). Jump to **Phase 5 — Output schemas**.
+
+- **`edit N`** → Ask for the new value for that field only. Update the running answers. Re-display the table and ask again. Loop until the user is satisfied or types `yes`.
+
+- **`too-narrow`** → Acknowledge. Re-extract with a wider lens (think category-of-categories — e.g. "loyalty in MENA" → "retention & lifecycle economics for MENA fintech"). Re-run the auto-checks. Show the new proposal.
+
+- **`too-wide`** → Acknowledge. Tighten the framing toward the actual specialty (e.g. "MENA fintech" → "merchant-funded loyalty in MENA"). Re-run the auto-checks. Show the new proposal.
+
+- **`restart`** → Drop the prefill entirely. Continue to Phase 1.
+
+### Anti-patterns in Phase 0.5
+
+- **Don't ever take the product name as the domain.** The product is the Reference Implementation. If you find yourself proposing it, stop and widen.
+- **Don't skip the auto-checks.** They exist because LLM extraction will sometimes slip the product into the domain field. The checks catch it.
+- **Don't show the proposal if `comparable_peers` is empty.** That's the strongest single signal the framing is too narrow. Widen first, then show.
+- **Don't ask 5 questions to verify the PRD.** One question (Q0.5), then one proposal screen. The user should see your read of the PRD as a complete artifact, not a half-built scaffold.
+- **Don't lose the user's overrides.** Once they `edit N`, that field is theirs — don't re-propose it on the next re-display.
 
 ---
 
@@ -978,7 +1146,8 @@ prompts:
 
 ## Anti-patterns
 
-- **Don't ask 30 questions.** Defaults exist so the user can accept with one keystroke. Total interview should be ~10 user turns.
+- **Don't ask 30 questions.** Defaults exist so the user can accept with one keystroke. Total interview should be ~10 user turns (or ~3 turns via Phase 0.5 PRD prefill).
+- **Don't take a PRD's product name as the domain.** A PRD describes one product; the agent's domain is the wider *category* that product lives in. The product is always the Reference Implementation, never the agent's identity. The auto-checks in Phase 0.5 enforce this — don't bypass them.
 - **Don't reference source agents by name.** Patterns are named by shape, not author.
 - **Don't force defaults that don't fit.** Defaults are recommended, not imposed.
 - **Don't write code or run benchmarks.** Evaluation is `domain-eval`'s job.

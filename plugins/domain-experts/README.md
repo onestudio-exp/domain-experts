@@ -40,6 +40,26 @@ It produced three things:
 - **A knowledge base scaffold** — empty folders organized by topic (regulations, frameworks, market data, cultural context, comparable studios) ready to be filled in over time
 - **A set of starter prompts** — 11 example questions the agent should be able to answer well, used later for testing
 
+### Have a PRD? Start from it *(new in v0.4)*
+
+If your venture already has `docs/prd.md`, the skill detects it automatically and offers to **prefill the interview from the PRD**. You'll get a single screen with proposed values for identity, domain, primary user, work categories, reference implementation, and comparable peers — each annotated with the line in the PRD it came from. Accept all, edit individual fields, or restart fresh.
+
+```
+Q0   — new or refit? > new
+Q0.5 — I found docs/prd.md. Prefill from it? > yes
+
+(skill reads the PRD, proposes 8 fields with sources)
+
+Does this framing fit?
+  yes        — accept all, jump to output schemas
+  edit N     — accept most, edit field N
+  too-narrow — push wider
+  too-wide   — pull tighter
+  restart    — drop the prefill, run the full interview
+```
+
+**Domain-widening is enforced.** A PRD usually describes one specific product. The skill *never* takes the product name as the agent's domain — instead it widens to the *category* the product lives in, and parks the product as the **Reference Implementation**. So a PRD titled "Member Plus" doesn't produce a "Member Plus expert"; it produces a "merchant-funded loyalty in MENA" expert with Member Plus as one example among many (Bilt, Rakuten, Entertainer, Collinson, Sprive). This is the discipline that keeps the catalog reusable — the agent any team building in this space can install, not a project agent painted as a domain expert.
+
 > **Already have an agent?** Skip `new` and use the **refit** path further down.
 
 ---
