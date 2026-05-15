@@ -213,7 +213,7 @@ so the hub's eval badge reflects reality (it shows "no eval" until you do).
    `score` = PASS count; `total` = n_prompts.
 2. `report_url` = the committed eval-run file's repo URL if the repo is
    pushed, else omit.
-3. Call the `report_agent_eval` MCP tool (OneStudio MCP):
+3. Call the `report_agent_eval` MCP tool (OneStudio MCP) — requires a user PAT with `post:self`; agent service tokens are rejected:
 
    report_agent_eval({
      agent_id: "<slug>",
