@@ -414,6 +414,10 @@ Pick 1–3 categories. Primary first.
 7. educational_explainer — teach domain concepts
 ```
 
+These slugs are also the CONTRACT category vocabulary — they are emitted
+verbatim into the agent frontmatter `categories:` list and become the hub's
+`agents.skills`. Do not invent new slugs.
+
 → Type the numbers. Primary first.
 
 If user picks more than 3, gently note: *"That's broad. Most agents focus on 1–3. Want to mark a primary and use defaults for the rest?"*
@@ -799,6 +803,10 @@ After all answers captured:
    - `agents/<slug>.md` — agent definition (use `references/agent-template.md`)
    - `agents/<slug>-knowledge/README.md` — KB scaffold (skip if `kb_categories` = none)
    - `examples/<slug>-starter-prompts.yaml` — 5–12 starter prompts (1–2 per claimed category + 2–3 refusal tests)
+   - Emit `name_ar:` and `categories:` in frontmatter per `domain-experts/CONTRACT.md`.
+     `categories` = the exact canonical slugs picked in Phase 4. These are how the
+     OneStudio hub maps the agent losslessly — a missing/wrong category silently
+     drops a skill from the hub.
 4. **Show the generated files inline.**
 5. **Ask:** *"Save these 3 files? Or say `edit X` first."*
 6. **On `save`, write to disk.**

@@ -11,12 +11,20 @@ When generating the final agent file, strip all comment markers (everything betw
 
 ```markdown
 ---
-name: {{slug}}
-description: {{display_name}}{{ar_tagline}} — {{domain_one_liner}}. Use PROACTIVELY for {{primary_use_phrase}}. {{bilingual_note}}
-tools: {{tools_list}}
-{{memory_line}}
-{{model_line}}
+name: <slug>
+description: <Display Name> (<arabic if any>) — <one-liner>. Use PROACTIVELY for <triggers>.
+name_ar: <arabic display name, OMIT this key entirely if none>
+categories: [<canonical category slugs claimed in Phase 4>]
+tools: Read, Glob, Grep, WebSearch, WebFetch
+memory: project
+model: opus
 ---
+
+<!-- name_ar and categories are CONTRACT fields (see domain-experts/CONTRACT.md).
+     categories MUST be the canonical Phase-4 slugs: decision_support,
+     reference_lookup, structured_review, competitive_intel,
+     regulatory_compliance, handoff_partner, educational_explainer.
+     OMIT name_ar entirely when the persona has no Arabic name. -->
 
 # Who you are
 

@@ -204,6 +204,32 @@ Per prompt:
 
 Save the run? Default `yes`. Path: `<agent-dir>/eval-runs/<YYYY-MM-DDTHHMM>.yaml`
 
+## Phase 4.5 — Push the run to the hub (optional, default ON)
+
+After writing `agents/<slug>/eval-runs/<ts>.yaml`, offer to push the result
+so the hub's eval badge reflects reality (it shows "no eval" until you do).
+
+1. Compute: `status` = `passing` if zero FAIL verdicts, else `failing`;
+   `score` = PASS count; `total` = n_prompts.
+2. `report_url` = the committed eval-run file's repo URL if the repo is
+   pushed, else omit.
+3. Call the `report_agent_eval` MCP tool (OneStudio MCP):
+
+   report_agent_eval({
+     agent_id: "<slug>",
+     status: "<passing|failing>",
+     score: <PASS count>,
+     total: <n_prompts>,
+     report_url: "<repo url to the yaml, optional>",
+     ran_at: "<ISO ts from the run>"
+   })
+
+4. If the MCP is not configured or the call fails, say so and continue —
+   the local eval-run yaml is still the source of truth. Never block the
+   eval on the push.
+
+Skip only if the user says not to publish.
+
 ## Phase 5 — Baseline + diff (optional)
 
 If `<agent-dir>/eval-baseline.yaml` exists, compute diff:
