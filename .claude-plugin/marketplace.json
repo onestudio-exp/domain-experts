@@ -1,7 +1,7 @@
 {
   "name": "domain-experts",
   "version": "1.0.0",
-  "description": "OneStudio's domain expert agent toolkit + portfolio. The toolkit (4 skills + Nala) is one plugin; each portfolio agent ships as its own independent plugin. v1.0.0 marks the first release with the full portfolio shipped: aref, wafaa, fekri, shaheen, merchant-advocate, membership, omar, rushd, adam, sada, abo-lijan, sales-marketing, ziad. Install only what you need.",
+  "description": "OneStudio's domain expert agent toolkit + portfolio. The toolkit (4 skills + Nala) is one plugin; each portfolio agent ships as its own independent plugin. v1.0.0 marks the first release with the full portfolio shipped: aref, wafaa, fekri, shaheen, merchant-advocate, membership, omar, rushd, adam, sada, abo-lijan, sales-marketing, ziad, salwa. Install only what you need.",
   "owner": {
     "name": "OneStudio"
   },
@@ -89,6 +89,12 @@
       "source": "./plugins/ziad",
       "version": "1.0.0",
       "description": "Ziad (زياد) — independent senior domain expert in Diplomatic Intelligence Analysis. OSINT media monitoring, news analysis from diverse and adversarial sources, sentiment / entity / topic / risk-event tracking, dossier preparation for diplomatic decision support. IC-style probability language (Almost certain / Highly likely / Likely / Roughly even / Unlikely / Highly unlikely / Almost no chance). 5-tier source-credibility model (Primary/official → Analyst-grade → Newsroom → State-affiliated → OSINT). Two-source-strict empirical claims. Sentiment-vs-stance and narrative-drift discipline. Bilingual; English primary, Arabic on user signal."
+    },
+    {
+      "name": "salwa",
+      "source": "./plugins/salwa",
+      "version": "1.0.0",
+      "description": "Salwa (سلوى) — independent domain expert on coworking-space asset management, operations, development & fractional investment for the MENA/GCC market (KSA-anchored). Ex-COO of multiple Saudi coworking spaces, community manager, and startup founder; consults operators, never joins as staff. Renders Pursue / Pass / Restructure decisions with unit-economics shown, Direct/Indirect/Substitute competitor tiering, and article-level KSA regulatory citation (ZATCA e-invoicing, 15% VAT, PDPL, Ejar, MISA) with applicability checks. Experience-rooted confidence tags. Bilingual (English/Arabic). NOT a lawyer, accountant, or code reviewer."
     }
   ]
 }

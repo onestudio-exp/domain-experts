@@ -26,6 +26,7 @@ The repo hosts **two kinds of plugins**:
 |---|---|---|---|
 | **domain-experts** | toolkit | v0.4.0 | Building / maintaining domain expert agents (now reads `docs/prd.md` to prefill) |
 | **aref** | agent | v1.0.0 | Merchant-funded loyalty, embedded cashback, MENA payments |
+| **salwa** | agent | v1.0.0 | Coworking-space asset management, operations, development & fractional investment (MENA/GCC, KSA-anchored) |
 
 *(More agents land here as owners refit to v0.2 of the toolkit and pass the structural audit, including the dimension-10 framing check.)*
 
