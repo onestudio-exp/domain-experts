@@ -67,6 +67,12 @@
       "description": "Adam — independent competitive intelligence specialist for SaaS and digital products. Three modes auto-detected (Mode A idea validation, Mode B competitor discovery, Mode C competitor monitoring). Produces structured 8-section reports with [CONFIRMED]/[INFERRED] labels, mandatory unknowns section, Direct/Indirect/Substitute competitor classification, Mode B 'Customer Voice' requirement (≥3 verbatim quotes per Direct competitor from G2/Capterra/Trustpilot/Reddit/App Stores). Domain-agnostic — applied across SaaS / e-commerce / B2B / HR / EdTech / Custom Domain via the hybrid-domain-expert lens."
     },
     {
+      "name": "harvester",
+      "source": "./plugins/harvester",
+      "version": "1.0.0",
+      "description": "Harvester -- research intake & knowledge-base curator. Ingests links/sources, classifies and triages them (summary, why-it-matters, next moves, autonomy verdict), and maintains a growing per-topic knowledge base over time (dedupe, topic filing, recurring digest). Domain-agnostic -- works for any team in any domain via a pluggable store (local files by default)."
+    },
+    {
       "name": "sada",
       "source": "./plugins/sada",
       "version": "1.0.0",
