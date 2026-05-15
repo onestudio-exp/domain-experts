@@ -811,6 +811,13 @@ After all answers captured:
 5. **Ask:** *"Save these 3 files? Or say `edit X` first."*
 6. **On `save`, write to disk.**
 
+#### Handoff — register in the hub
+
+The agent file is the source of truth. To put this expert in the OneStudio
+hub, follow `domain-experts/PLAYBOOK.md`. One `register_my_venture` call
+with `expert_spec` (the raw file texts) works for both a new venture and a
+pre-existing stub — idempotent, no admin tools, no hand-transcription.
+
 ## Refit mode — uplevel an existing agent
 
 When the user picks `refit` in Phase 0, follow these steps. The goal is to migrate an existing agent to fit framework practice and produce all 3 framework files (agent definition + KB scaffold + starter prompts).
