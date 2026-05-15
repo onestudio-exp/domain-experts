@@ -44,7 +44,15 @@ export class FileStore implements Store {
       if (!existsSync(itemsDir)) continue;
       for (const f of readdirSync(itemsDir)) {
         if (!f.endsWith(".json")) continue;
-        yield JSON.parse(readFileSync(join(itemsDir, f), "utf8"));
+        const path = join(itemsDir, f);
+        let parsed: HarvesterItem;
+        try {
+          parsed = JSON.parse(readFileSync(path, "utf8"));
+        } catch {
+          console.warn(`FileStore: skipping unreadable item file ${path}`);
+          continue;
+        }
+        yield parsed;
       }
     }
   }
@@ -70,6 +78,7 @@ export class FileStore implements Store {
     return null;
   }
 
+  // Invariant: an item's topic only changes via putItem; setFollowup writes back to the item's current topic dir.
   async setFollowup(id: string, f: Followup): Promise<void> {
     const it = await this.getItem(id);
     if (!it) throw new Error(`unknown item ${id}`);
