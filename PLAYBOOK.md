@@ -8,13 +8,15 @@ venture AND a pre-existing stub. Idempotent — safe to re-run.
 - `.claude/agents/<slug>.md` exists (domain-creator wrote it).
 - Optionally `.claude/agents/<slug>-knowledge/INDEX.md` and
   `examples/<slug>-starter-prompts.yaml`.
-- A OneStudio MCP token with `post:self` scope.
+- A OneStudio MCP token with `read` + `post:self` scope.
 
 ## Path A — greenfield (venture does not exist yet)
 
-1. Read the three files with the Read tool.
+1. Read the agent file (and the optional `<slug>-knowledge/INDEX.md` /
+   `<slug>-starter-prompts.yaml` if present) with the Read tool.
 2. Call `register_my_venture` with `venture.{slug,name,...}`, your
-   `portfolio_id` (default `studio`), and **`expert_spec`** = the raw file
+   `portfolio_id` (required — use `studio` as the recommended catch-all),
+   and **`expert_spec`** = the raw file
    texts. Do NOT hand-transcribe `name_ar`/`skills`/`model` — the hub
    parses them.
 3. Review the returned `venture.action` / `expert.action` and any
