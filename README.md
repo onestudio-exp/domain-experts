@@ -109,6 +109,65 @@ Updates ship per-agent. Bumping Aref to v1.1 doesn't touch any other agent. Cons
 
 ---
 
+## Dev mode (for contributors)
+
+The recommended way to extend the toolkit or any agent in this repo is to consume it as a **git submodule inside your venture project**. This lets you edit skills, templates, and agents while working inside the venture context (TaxFlow, Member Plus, Turif, etc.) and push improvements back upstream so every team benefits.
+
+### One-time setup (per venture)
+
+```
+# inside the venture's git root
+cd <venture>/.claude/plugins/
+git submodule add https://github.com/onestudio-exp/domain-experts.git domain-experts
+git commit -m "chore: add domain-experts as submodule for dev mode"
+
+# tell Claude Code to read from the submodule (not the GitHub cache)
+claude plugin marketplace remove domain-experts        # remove the cached source
+claude plugin marketplace add <venture>/.claude/plugins/domain-experts
+claude plugin install domain-experts@domain-experts
+```
+
+### Daily workflow
+
+The submodule ships with two helper scripts at `scripts/dev-sync.{ps1,sh}` that automate the install/uninstall cycle Claude Code requires when plugin files change:
+
+```
+.\scripts\dev-sync.ps1 sync     # reload the plugin from the submodule
+.\scripts\dev-sync.ps1 pull     # git pull + sync
+.\scripts\dev-sync.ps1 status   # submodule commit + local changes + unpushed
+.\scripts\dev-sync.ps1 help     # full doc
+```
+
+Typical loop:
+
+```
+1. Edit a file in plugins/domain-experts/skills/...   (from your venture's editor)
+2. .\scripts\dev-sync.ps1 sync                         (reload into Claude Code)
+3. Test by invoking the skill in Claude Code
+4. cd into the submodule -> git commit -> git push     (sends to onestudio-exp/domain-experts)
+5. In the venture root: git add <submodule-path>; git commit
+   (updates the submodule pointer so teammates pick up your version)
+```
+
+### Teammate sync (when a colleague pushes a plugin improvement)
+
+```
+git pull                                          # in your venture repo
+git submodule update --init --recursive           # pulls the new submodule commit
+.\scripts\dev-sync.ps1 sync                       # reload Claude Code
+```
+
+Now every agent created by your venture's `/domain-creator` uses the improved skill — the discovery from one team benefits all teams.
+
+### Why this pattern
+
+- **Plugin lives "inside" the venture** (filesystem) so the editor shows it next to project files — no multi-root workspace ceremony.
+- **Git ownership stays separate** — commits in the submodule go to `onestudio-exp/domain-experts`, not the venture's repo. The venture only commits the submodule pointer.
+- **Cross-platform** — no symlinks required.
+- **Cross-venture** — every venture has its own submodule; everyone pushes to the same upstream.
+
+---
+
 ## Status
 
 **Marketplace v0.3.0-dev** — restructured today from single-plugin to multi-plugin layout. Toolkit + Aref pilot live. The remaining 12 OneStudio agents will be added as their owners pass the structural audit.
