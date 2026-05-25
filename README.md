@@ -24,7 +24,7 @@ The repo hosts **two kinds of plugins**:
 
 | Plugin | Kind | Status | Use it for |
 |---|---|---|---|
-| **domain-experts** | toolkit | v0.4.0 | Building / maintaining domain expert agents (now reads `docs/prd.md` to prefill) |
+| **domain-experts** | toolkit | v0.5.0 | Building, maintaining, AND chatting with domain expert agents (PRD prefill + new `/domain-chat` browser UI via agent-kit) |
 | **aref** | agent | v1.0.0 | Merchant-funded loyalty, embedded cashback, MENA payments |
 | **salwa** | agent | v1.0.0 | Coworking-space asset management, operations, development & fractional investment (MENA/GCC, KSA-anchored) |
 
@@ -55,7 +55,7 @@ Then install only what you need:
 /reload-plugins
 ```
 
-After install, agents appear via the Agent tool (e.g. `subagent_type: aref`) or as direct slash commands. Toolkit skills appear as `/domain-experts:domain-creator`, `/domain-experts:domain-eval`, `/domain-experts:domain-capture`, `/domain-experts:domain-contribute`.
+After install, agents appear via the Agent tool (e.g. `subagent_type: aref`) or as direct slash commands. Toolkit skills appear as `/domain-experts:domain-creator`, `/domain-experts:domain-eval`, `/domain-experts:domain-capture`, `/domain-experts:domain-contribute`, and `/domain-experts:domain-chat` (opens a browser chat UI for any installed agent via [agent-kit](https://github.com/onestudio-exp/agent-kit) — no config, auto-discovers the persona, KB, and memory).
 
 ---
 
@@ -66,6 +66,24 @@ Each agent supports per-project state without overlap:
 - **Memory** — `memory: project` in the agent's frontmatter auto-creates `.claude/agent-memory/<slug>/MEMORY.md` in your project. Persists across sessions, scoped to the working dir.
 - **Project KB extension** — drop venture-specific knowledge under `.claude/agents/<slug>-knowledge/`. The agent reads project KB first, falls back to the plugin's bundled defaults.
 - **Project override** — to customize the agent itself, create `.claude/agents/<slug>.md` in your project. Claude Code uses your override instead of the plugin's canonical version.
+
+---
+
+## Chatting with an agent in the browser
+
+Sometimes you want a real chat UI — streaming chat, sessions, KB browser, memory CRUD, a workshop canvas — instead of Claude Code's text turns. We ship that too, via [agent-kit](https://github.com/onestudio-exp/agent-kit).
+
+```
+/domain-experts:domain-chat <slug>
+```
+
+What it does:
+
+1. Clones agent-kit into your project at `./agent-kit/`, gitignored (first run only).
+2. Installs deps, runs `npm run doctor`, starts the dev server on port 3737.
+3. Opens the browser at `http://localhost:3737/?agent=<slug>`.
+
+No config. agent-kit auto-discovers any persona at `.claude/agents/<slug>.md` (or under `plugins/<x>/agents/`), the matching `<slug>-knowledge/` KB folder, and creates a `<project>/.claude/agent-memory/<slug>/` folder for memory on first chat. Memory survives re-cloning agent-kit.
 
 ---
 

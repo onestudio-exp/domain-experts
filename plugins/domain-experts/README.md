@@ -1,8 +1,8 @@
 # domain-experts — A PM's guide
 
-A Claude Code plugin for **building, evaluating, and evolving** domain expert agents.
+A Claude Code plugin for **building, evaluating, evolving, and talking to** domain expert agents.
 
-Three skills, one reference agent (**Nala** — MENA/KSA Venture Builder expert).
+Five skills, one reference agent (**Nala** — MENA/KSA Venture Builder expert).
 
 ---
 
@@ -20,6 +20,17 @@ Every agent goes through the same four steps. Build it, prove it works, feed it 
    build it          prove it works      feed it evidence    push improvements
                                                              back to catalog
 ```
+
+**Plus a fifth, side-channel skill:**
+
+```
+┌──────────────┐
+│  /domain-    │   talk to the agent through a browser chat UI
+│   chat       │   (streaming chat, KB browser, memory CRUD, Workshop)
+└──────────────┘
+```
+
+Any time the user wants to *talk* to one of these agents — not via Claude Code's text turns but through a real chat surface, with the KB and memory visible alongside — run `/domain-chat`. It boots [agent-kit](https://github.com/onestudio-exp/agent-kit) locally (auto-clones into the current project, gitignored) and opens the browser at the right agent. **Zero config** — agent-kit auto-discovers the persona, KB, and memory.
 
 ---
 
@@ -201,6 +212,7 @@ If you already have a domain agent (Aref, Rushd, Wafaa, Ziad, Sada, Omar, etc.),
 | Teach the agent something new (a fact, a regulation, a framework) | `/domain-experts:domain-capture` |
 | Record a team decision the agent should remember across sessions | `/domain-experts:domain-capture` |
 | Push a local agent improvement back to the catalog as a PR | `/domain-experts:domain-contribute` |
+| Open a browser chat UI for an agent (agent-kit) | `/domain-experts:domain-chat` |
 
 ---
 
@@ -212,20 +224,26 @@ If you already have a domain agent (Aref, Rushd, Wafaa, Ziad, Sada, Omar, etc.),
 /reload-plugins
 ```
 
-Once installed, the four skills appear in any Claude Code session:
+Once installed, the five skills appear in any Claude Code session:
 
 - `/domain-experts:domain-creator`
 - `/domain-experts:domain-eval`
 - `/domain-experts:domain-capture`
 - `/domain-experts:domain-contribute`
+- `/domain-experts:domain-chat`
 
 ---
 
 ## Status
 
-All three skills complete. Reference agent (Nala) validated 11/11. Internal to OneStudio for now.
+All five skills complete. Reference agent (Nala) validated 11/11. Internal to OneStudio for now.
 
 ## Changelog
+
+**v0.5.0** *(this release)*
+- New skill: **`/domain-chat`** — opens a browser chat UI for a domain expert. Boots a local [agent-kit](https://github.com/onestudio-exp/agent-kit) install (clones it into the current project, gitignored, on first use), starts the dev server, and opens the browser at the right agent. Zero config — agent-kit auto-discovers the persona, KB, and memory from `.claude/agents/`.
+- README updates to reflect the new 5-skill surface.
+
 
 **v0.2.0** *(2026-05-08)*
 - Added 10th audit dimension: **Domain-vs-Project framing**. Refit now flags agents whose description leads with a product, whose body has code-level coupling (file paths / class names / commit hashes), or that lack a `## Comparable peers` section.

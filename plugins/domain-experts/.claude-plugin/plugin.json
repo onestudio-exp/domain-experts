@@ -1,7 +1,7 @@
 {
   "name": "domain-experts",
-  "version": "0.4.0",
-  "description": "Toolkit for building, evaluating, evolving, and contributing domain expert agents in Claude Code. Four skills (domain-creator, domain-eval, domain-capture, domain-contribute) plus Nala — a venture-building reference agent built using the toolkit. v0.4 adds a PRD-first path to domain-creator: point it at docs/prd.md and it proposes identity, domain, primary user, categories, reference implementation, and comparable peers — with strict domain-widening discipline so the agent is built around the WIDER category, never the specific product the PRD describes. Collapses the 10-turn interview to ~3 turns for PRD-bearing ventures.",
+  "version": "0.5.0",
+  "description": "Toolkit for building, evaluating, evolving, contributing, and CHATTING WITH domain expert agents in Claude Code. Five skills: domain-creator (build / uplevel), domain-eval (test), domain-capture (add knowledge), domain-contribute (push back), and domain-chat (open a browser chat UI for an agent via agent-kit). Plus Nala — a venture-building reference agent built using the toolkit. v0.5 adds /domain-chat: spawns a local agent-kit dev server (clones it into the project if absent, gitignored) and opens the browser at the right agent — auto-discovers persona, KB, and memory with zero config.",
   "author": {
     "name": "OneStudio"
   }
