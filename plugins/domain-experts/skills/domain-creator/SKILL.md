@@ -1,6 +1,6 @@
 ---
 name: domain-creator
-description: Build or uplevel a domain expert agent in Claude Code. Three entry paths — (1) CREATE from scratch: interview the user with ~10 short questions and produce a new agent definition, knowledge scaffold, and starter prompt set; (2) CREATE from a PRD: read the venture's PRD (e.g. `docs/prd.md`), propose answers for identity / domain / primary user / categories / reference implementation / comparable peers, collapsing the interview to ~3 turns — with strict domain-widening discipline so the agent is built around the WIDER category, never the specific product the PRD describes; (3) REFIT: read an existing agent file, audit it against the framework's 10 dimensions (incl. Domain-vs-Project framing — flags agents coupled to a single product instead of a category), advise the user which changes to apply, then overwrite the agent with the upleveled version plus a KB scaffold and starter prompts if missing. Most questions have a tested default the user can accept with one keystroke. Use when the user wants to create a NEW agent (from blank or from a PRD) OR uplevel an EXISTING one to fit domain-expert practice. Do not use for adding knowledge to an existing agent (that's domain-capture).
+description: Build or uplevel a domain expert agent in Claude Code. Three entry paths — (1) CREATE from scratch: interview the user with ~10 short questions and produce a new agent definition, knowledge scaffold, and starter prompt set; (2) CREATE with context-aware prefill: scan the venture for ALL useful context (PRD, README, CLAUDE.md, specs, plans, discovery docs — any markdown with strong signal density), let the user pick which files to merge, then propose answers for identity / domain / primary user / categories / reference implementation / comparable peers with per-field confidence and source citations — collapsing the interview to ~3 turns. Domain-widening enforced: the product described becomes the Reference Implementation, never the agent's identity; (3) REFIT: read an existing agent file, audit it against the framework's 10 dimensions (incl. Domain-vs-Project framing — flags agents coupled to a single product instead of a category), advise the user which changes to apply, then overwrite the agent with the upleveled version plus a KB scaffold and starter prompts if missing. Most questions have a tested default the user can accept with one keystroke. Use when the user wants to create a NEW agent (from blank or with context prefill) OR uplevel an EXISTING one to fit domain-expert practice. Do not use for adding knowledge to an existing agent (that's domain-capture).
 ---
 
 # /domain-creator
@@ -10,7 +10,7 @@ Build or uplevel a domain expert agent.
 Two modes, three entry paths:
 
 - **Create — blank** — interview the user from scratch, produce a new agent + KB scaffold + starter prompts.
-- **Create — from a PRD** *(new in v0.4)* — read the venture's PRD (`docs/prd.md` or user-supplied path), propose values for identity / domain / primary user / categories / reference implementation / comparable peers, let the user accept-or-edit each, then continue with output-schema questions only. **Domain-widening is enforced**: the product the PRD describes becomes the Reference Implementation, never the agent's identity — the agent is built around the wider *category*.
+- **Create — with context-aware prefill** *(v0.6: replaces the PRD-only path)* — scan the venture for ALL useful context (PRD, README, CLAUDE.md, specs, plans, discovery docs, vision docs — any markdown with strong signal density), rank candidates, let the user pick which files to merge, then propose values for identity / domain / primary user / categories / reference implementation / comparable peers with **per-field confidence** and **source citations**. The user accepts or edits each field, then continues with output-schema questions only. **Domain-widening is enforced**: the product described becomes the Reference Implementation, never the agent's identity — the agent is built around the wider *category*.
 - **Refit** — read an existing agent, audit it, apply framework changes, overwrite it (and add KB scaffold + starter prompts if they don't exist).
 
 All paths produce the same 3 outputs: `agents/<slug>.md`, `agents/<slug>-knowledge/README.md`, `examples/<slug>-starter-prompts.yaml`.
@@ -80,174 +80,255 @@ refit    — read an existing agent, audit it, apply framework changes
 
 → Type `new` or `refit`.
 
-If `new` → continue to **Phase 0.5 — PRD-aware prefill** (below).
+If `new` → continue to **Phase 0.5 — Context Discovery & Synthesis** (below).
 If `refit` → jump to **Refit mode** (after Phase 9).
 
 ---
 
-## Phase 0.5 — PRD-aware prefill *(new path, optional)*
+## Phase 0.5 — Context Discovery & Synthesis *(v0.6 — replaces PRD-only prefill)*
 
-Before launching the 10-turn interview, check whether the user has a PRD in the venture. A PRD is rich enough to propose answers for Phases 1–4 automatically — collapsing the interview to ~3 user turns. The user accepts the proposal as a single screen, or overrides individual fields.
+Before launching the 10-turn interview, scan the venture for ALL useful context — not just a PRD. A typical OneStudio venture has signal scattered across `README.md`, `CLAUDE.md`, `docs/`, `specs/`, `plans/`, and discovery notes. Reading multiple sources at once produces a far richer prefill than locking onto one file.
 
 This phase is **mode-gated to `new`**. If the user picked `refit` in Phase 0, skip directly to Refit mode.
 
-### Step 0.5.1 — Detect a PRD
+The flow:
 
-Try these paths in order. Stop at the first hit and remember the path:
+1. **Discover** candidate context files across the venture.
+2. **Rank** them by signal density.
+3. **Ask** the user which to read (all / top-N / pick / custom paths / skip).
+4. **Read + synthesize** — extract candidate values, each with confidence + source citations.
+5. **Enforce** domain-widening discipline.
+6. **Present** a single proposal screen with per-field confidence colors.
+7. **Resolve** — accept, edit, widen, narrow, verify, add source, or restart.
 
-```
-1. docs/prd.md
-2. docs/PRD.md
-3. prd.md           (repo root)
-4. docs/*.md        (glob — if exactly one match, offer it; else
-                     list candidates and ask which one)
-```
+### Step 0.5.1 — Discover context candidates
 
-If none of these exist: skip directly to **Phase 1**, no question asked. The user will fall through to the regular interview.
-
-### Step 0.5.2 — Ask once
-
-**Q0.5 — Prefill from your PRD?**
-
-I found a candidate PRD at `<path>`. I can read it and propose answers for identity, domain, primary user, primary work, and comparable peers — collapsing the interview to ~3 turns. You'll see every proposed value and can edit any of them.
+Run a multi-path scan. For each `*.md` file in these locations, capture name + line count + last-modified:
 
 ```
-yes        — read it, propose, then walk through edits
-different  — give me a different file path
-no         — skip the prefill, run the full interview
+Tier 1 (repo root):
+  README.md · CLAUDE.md · AGENTS.md · VISION.md · prd.md · PRD.md
+
+Tier 2 (common doc folders):
+  docs/*.md         (all, not just one)
+  specs/*.md
+  plans/*.md
+  discovery/*.md
+  .github/copilot-instructions.md
+
+Tier 3 (assistant context):
+  .claude/CLAUDE.md   (note: read-only context, not for extraction)
 ```
 
-→ Type `yes`, `different`, or `no`.
+Cap discovery at 20 candidates. If a folder contains > 8 markdown files, take only the 8 most-recently-modified.
 
-If `no` → jump to Phase 1.
-If `different` → ask for a path. Confirm it exists. Then proceed with `yes` semantics on that path.
-If `yes` → continue to Step 0.5.3.
+**If zero candidates exist:** skip directly to Phase 1 — there is nothing to prefill from. Don't ask Q0.5.
 
-### Step 0.5.3 — Read the PRD and extract candidate values
+### Step 0.5.2 — Rank by signal density
 
-Use the Read tool to load the file end-to-end. Then, reasoning carefully, extract candidate values for these fields:
+For each candidate, compute a score:
 
 ```
-slug                       kebab-case noun for the DOMAIN (NOT the product)
++ 3   filename contains: prd · vision · brief · spec · overview · architecture
++ 2   ≥ 5 markdown headings
++ 2   contains domain keywords (audience · user · scope · market · regulation ·
+       compliance · jurisdiction · stakeholder · workflow · feature)
++ 2   filename is CLAUDE.md (high-signal: project rules + decisions)
++ 1   ≥ 200 lines
++ 1   last modified within 30 days
+- 2   filename matches: CHANGELOG · LICENSE · CONTRIBUTING · CODE_OF_CONDUCT
+```
+
+Sort descending. Reject candidates with score < 2 (low signal). Keep top 10.
+
+### Step 0.5.3 — Present + ask once
+
+**Q0.5 — Read context from the venture?**
+
+Show the ranked list with star-rating (★ per 2 score points, max 5):
+
+```
+I found these context candidates (ranked by signal density):
+
+  [1] docs/prd.md                  ★★★★★  (PRD, 800 lines, 24 headings)
+  [2] CLAUDE.md                    ★★★★    (project rules, 400 lines)
+  [3] specs/00-foundation.md       ★★★★    (foundational spec, 600 lines)
+  [4] docs/architecture.md         ★★★     (architecture, 320 lines)
+  [5] README.md                    ★★       (readme, 180 lines)
+
+How should I read?
+
+  all       — read everything and synthesize (best quality, slowest)
+  top-3     — read the top 3 only (balanced — recommended default)
+  top-5     — read the top 5
+  pick N,M  — list comma-separated indices (e.g. "1,2,4")
+  custom    — give me a path I haven't discovered
+  skip      — run the full interview, no prefill
+```
+
+→ Type one option.
+
+If user types `custom`, ask for one path, verify it exists, append it to the list, and re-show this prompt.
+
+If user types `skip` → jump to Phase 1.
+
+Otherwise → continue to Step 0.5.4 with the selected set.
+
+### Step 0.5.4 — Read + synthesize
+
+Use the Read tool to load each selected file end-to-end. While reading, build an in-memory candidate map for each prefill field. **A single field may draw evidence from multiple files** — record every source.
+
+Fields to extract:
+
+```
+slug                       kebab-case noun for the DOMAIN (NOT a product name)
 display_name               proper-case domain name
-display_name_ar            optional, only if PRD has Arabic content
-domain_one_liner           the WIDER category, never the product itself
-geo_scope                  if PRD mentions a geography (MENA, KSA, GCC...)
-bilingual + languages      if PRD is bilingual or mentions a non-English audience
-primary_user               role + seniority (from PRD's user / customer / audience section)
-user_context               what they're doing (from PRD's "use case" or "scenarios")
+display_name_ar            optional — only if any source contains Arabic
+domain_one_liner           the WIDER category, never a specific product
+geo_scope                  any geography mentioned (MENA, KSA, GCC, …)
+bilingual + languages      true if any source is bilingual or names a non-English audience
+primary_user               role + seniority (from user/audience/customer sections)
+user_context               what they're doing (from use cases / scenarios)
 example_question           a real question that user would bring to the agent
-primary_categories         1–3 categories from Phase 4's canonical list, derived
-                           from the PRD's "what we're building" framing
-reference_implementation   the venture/product the PRD describes (object: name, role, note)
+primary_categories         1–3 categories from Phase 4's canonical list
+reference_implementation   the venture/product described in the sources (name, role, note)
 comparable_peers           3–7 named peer companies in the same category
+out_of_scope_hints         any "we won't do X" or "out of scope" language (for Phase 7)
 ```
 
-For each extracted value, also record a short *source* — either a quoted phrase from the PRD ("L.12: 'merchant-funded cashback for MENA SMBs'") or `(derived)` if you inferred it. The source is shown to the user in the proposal so they can verify your reading.
+For each extracted value, attach **confidence + sources[]**:
 
-### Step 0.5.4 — Enforce domain widening *(critical)*
+```yaml
+domain_one_liner:
+  value: "merchant-funded loyalty in MENA, focused on retention economics"
+  confidence: high              # high | medium | low
+  sources:
+    - file: docs/prd.md
+      lines: "4-12"
+      quote: "We help MENA retailers fund cashback…"
+    - file: CLAUDE.md
+      lines: "§1"
+      quote: "Loyalty platform serving regional brands"
+  derived: false                # true if no direct quote; LLM inferred
+```
 
-A PRD almost always describes ONE specific product. The agent's domain MUST be the wider category, never the product itself. Apply this discipline **before showing the proposal**:
+**Confidence rules:**
+
+- **high** — value extracted nearly verbatim from a quoted phrase in at least one source.
+- **medium** — value synthesized across multiple sources, no single direct quote.
+- **low** — value guessed or inferred without clear textual evidence (e.g. peers list with no source mentioning competitors).
+
+### Step 0.5.5 — Enforce domain widening *(critical — unchanged from v0.5)*
+
+The sources almost always describe ONE specific product. The agent's domain MUST be the wider category, never the product itself. Apply these checks **before showing the proposal**:
 
 **Examples — required widening:**
 
 ```
-PRD describes "Member Plus" (loyalty platform)
+Sources describe "Member Plus" (loyalty platform)
   ✗ domain: "Member Plus expert"
   ✓ domain: "merchant-funded loyalty in MENA"
   → Reference implementation: Member Plus
   → Peers: Bilt, Rakuten, Entertainer, Collinson, Sprive
 
-PRD describes "RevXAI Auditor" (AI code reviewer for vibe-coded apps)
+Sources describe "RevXAI Auditor" (AI code reviewer)
   ✗ domain: "RevXAI expert"
   ✓ domain: "AI-assisted code review for rapid-prototype apps"
   → Reference implementation: RevXAI Auditor
   → Peers: Snyk, SonarQube, CodeRabbit, GreptileAI, DeepCode
 
-PRD describes "WhatsApp Hero" (WhatsApp marketing for MENA SMBs)
-  ✗ domain: "WhatsApp Hero expert"
-  ✓ domain: "WhatsApp business marketing for MENA SMBs"
-  → Reference implementation: WhatsApp Hero
-  → Peers: Wati, Gallabox, AiSensy, Twilio, Meta's official BSPs
-
-PRD describes "Turif" (one-tap onboarding for KSA banks)
-  ✗ domain: "Turif expert"
-  ✓ domain: "Saudi banking onboarding UX & Vision/Mada compliance"
-  → Reference implementation: Turif
-  → Peers: Tahweel, STC Pay, urpay, Hala, Lean, Tarabut
+Sources describe "TaxFlow" (bilingual GCC tax practice platform)
+  ✗ domain: "TaxFlow expert"
+  ✓ domain: "GCC tax compliance across VAT, CT, and Excise"
+  → Reference implementation: TaxFlow
+  → Peers: PwC ME, Deloitte ME, EY ME, KPMG ME, BDO ME
 ```
 
-**Auto-check before showing the proposal:**
+**Auto-checks (run before presenting):**
 
-- `slug` MUST NOT contain the PRD's product name.
+- `slug` MUST NOT contain a product name from any source.
 - `domain_one_liner` MUST NOT begin with `for <ProductName>` or `<ProductName> expert`.
-- `domain_one_liner` MUST describe a body of knowledge — a market, regulatory regime, product practice, or research domain — that applies to **multiple companies**.
-- `comparable_peers` MUST list **≥3 named companies/products** that aren't the PRD's subject.
+- `domain_one_liner` MUST describe a body of knowledge applicable to **multiple companies**.
+- `comparable_peers` MUST list **≥3 named companies/products** that aren't the venture's subject.
 
-If any check fails, **fix it before showing the user**. Don't show a draft you'd have to apologize for.
+If any check fails, **fix it silently before showing the user**. Don't show a draft you'd have to apologize for. Demote the field's confidence to `medium` after a domain-widening fix (the value is now LLM-synthesized, not directly extracted).
 
-If you genuinely cannot widen the framing (the PRD is for something so unique that no peers exist), that's a strong signal the work isn't a *domain* — it's a *project*. Surface this to the user explicitly:
+**Project-detection fallback:** if no peers can be found, the work is likely a *project*, not a *domain*. Surface explicitly:
 
-> "I can't find a wider category for this — the PRD reads as one specific product without peers. A project-PM agent is a legitimate ask, but it's NOT what this skill produces. Want me to (a) push you to articulate the wider domain anyway, or (b) bail and recommend a generic Claude Code subagent with your CLAUDE.md as context?"
+> "I can't find a wider category for this — the sources read as one specific product without peers. A project-PM agent is a legitimate ask, but it's NOT what this skill produces. Want me to (a) push you to articulate the wider domain anyway, or (b) bail and recommend a generic Claude Code subagent with your CLAUDE.md as context?"
 
-### Step 0.5.5 — Present the proposal
+### Step 0.5.6 — Present the proposal
 
-Show **one compact screen** with every proposed value and its source. Use a table.
+Show **one compact screen** with confidence colors. Use 🟢 (high), 🟡 (medium), 🔴 (low) markers.
 
 ```
-**Proposed framing from your PRD** (`<path>`)
+**Proposed framing** — synthesized from N sources
 
-  Field               Proposed                                       Source
-  ─────────────────   ───────────────────────────────────────────    ──────
-  Slug                merchant-loyalty-mena                          (derived)
-  Display name        Merchant Loyalty (MENA)
-  Domain              merchant-funded loyalty in MENA, focused on    L.4-12
-                      retention economics and embedded cashback
-  Geo / language      MENA, bilingual English/Arabic                 L.18
-  Primary user        Founders/PMs at MENA fintech ventures          L.22
-  User context        Deciding between in-house loyalty engine and   L.24-28
-                      partnering with a vendor
-  Example question    "Should we build the loyalty engine in-house   (derived from
-                      or partner with Bilt?"                          PRD framing)
-  Primary categories  decision_support, competitive_intel             (derived)
-  Reference impl.     Member Plus (the PRD's product)                 Title
-  Comparable peers    Bilt, Rakuten, Entertainer, Collinson, Sprive   (derived)
+  Field               Proposed                                       Conf.   Source
+  ─────────────────   ───────────────────────────────────────────    ────    ──────
+  Slug                gcc-tax-compliance                             🟢      derived
+  Display name        GCC Tax Compliance · امتثال ضريبي خليجي         🟢      PRD title
+  Domain              GCC tax compliance across VAT, CT, Excise        🟢      PRD §1, CLAUDE.md §1
+  Geo / language      GCC, bilingual EN/AR                              🟢      PRD §2, CLAUDE.md §1
+  Primary user        Tax advisors serving GCC clients                  🟡      derived from PRD §3
+  User context        Filing VAT returns + advising on CT obligations   🟡      PRD §5–7
+  Example question    "How do I treat reverse-charge VAT on imports     🟡      derived
+                      between UAE and KSA?"
+  Primary categories  regulatory_compliance, reference_lookup           🟢      PRD §1, §5
+  Reference impl.     TaxFlow                                           🟢      PRD title
+  Comparable peers    PwC ME, Deloitte ME, EY ME, KPMG ME, BDO ME       🔴      no source — guessed
+  Out-of-scope hints  zakat (refused), personal tax advice              🟢      CLAUDE.md §3
 
-**Notice:** the PRD describes one specific product. I framed the agent
-around the WIDER category so any team building in this space can use it.
-The product becomes the Reference Implementation, not the agent's
-identity.
+**Notice:** sources describe one specific venture (TaxFlow). I framed the
+agent around the WIDER category (GCC tax compliance) so any team in the
+same space can use it. The venture becomes the Reference Implementation,
+not the agent's identity.
+
+⚠ Fields marked 🔴 need your review — I had no direct source for them.
+   Run `verify-peers` to do a web search for stronger peer candidates.
 
 Does this framing fit?
 
-  yes        — accept all, jump to Phase 5 (output schemas)
-  edit N     — accept most, edit field N
-  too-narrow — push the framing wider (I'll propose a broader domain)
-  too-wide   — pull the framing tighter (I'll propose a narrower domain)
-  restart    — drop the prefill, run the full interview from Phase 1
+  yes               — accept all, jump to Phase 5 (output schemas)
+  edit N            — edit field N
+  verify-peers      — run web search to propose better peers (uses Firecrawl/Tavily)
+  show-source N     — show full quoted evidence for field N
+  add-source PATH   — feed me another file, re-synthesize
+  too-narrow        — propose a broader domain framing
+  too-wide          — propose a narrower domain framing
+  restart           — drop the prefill, run the full interview from Phase 1
 ```
 
 → Type one option.
 
-### Step 0.5.6 — Resolve the choice
+### Step 0.5.7 — Resolve the choice
 
-- **`yes`** → Capture every proposed value into the running answers. Mark each as `prefilled-from-PRD` in the running summary (so the user sees later which fields came from the PRD vs. were typed). Jump to **Phase 5 — Output schemas**.
+- **`yes`** → capture every proposed value into the running answers, preserving each value's `confidence` and `sources[]` metadata. Mark each field's `origin` as `prefilled` in the running summary (so the user sees later which came from sources vs. typed vs. default). Jump to **Phase 5 — Output schemas**.
 
-- **`edit N`** → Ask for the new value for that field only. Update the running answers. Re-display the table and ask again. Loop until the user is satisfied or types `yes`.
+- **`edit N`** → ask for the new value for that field only. Update the running answers; set `origin: typed` and `confidence: high` (user-authored is authoritative). Re-display the table. Loop until the user types `yes`.
 
-- **`too-narrow`** → Acknowledge. Re-extract with a wider lens (think category-of-categories — e.g. "loyalty in MENA" → "retention & lifecycle economics for MENA fintech"). Re-run the auto-checks. Show the new proposal.
+- **`verify-peers`** → use the available MCP web-search tool (Firecrawl `firecrawl_search` or Tavily) with a query derived from `domain_one_liner` + `geo_scope` (e.g. `"GCC tax compliance firms" comparable peers`). Propose 5–8 candidates with one-line descriptions. Ask the user to pick 3–7. Update `comparable_peers` with `confidence: high` and `sources: [<URL>...]`. Re-display the table. **Do not fabricate peers** — if web search is unavailable, say so and ask the user to provide names.
 
-- **`too-wide`** → Acknowledge. Tighten the framing toward the actual specialty (e.g. "MENA fintech" → "merchant-funded loyalty in MENA"). Re-run the auto-checks. Show the new proposal.
+- **`show-source N`** → print the full quoted evidence for field N (file + lines + quote). Re-display the table after.
 
-- **`restart`** → Drop the prefill entirely. Continue to Phase 1.
+- **`add-source PATH`** → verify the path exists, append it to the read set, re-run Step 0.5.4 (synthesize) and Step 0.5.5 (widen). Re-display.
+
+- **`too-narrow`** → re-extract with a wider lens (e.g. "GCC tax compliance" → "MENA regulatory & tax practice"). Re-run auto-checks. Re-display.
+
+- **`too-wide`** → tighten the framing toward the actual specialty (e.g. "MENA fintech" → "merchant-funded loyalty in MENA"). Re-run auto-checks. Re-display.
+
+- **`restart`** → drop the prefill entirely. Continue to Phase 1.
 
 ### Anti-patterns in Phase 0.5
 
-- **Don't ever take the product name as the domain.** The product is the Reference Implementation. If you find yourself proposing it, stop and widen.
-- **Don't skip the auto-checks.** They exist because LLM extraction will sometimes slip the product into the domain field. The checks catch it.
-- **Don't show the proposal if `comparable_peers` is empty.** That's the strongest single signal the framing is too narrow. Widen first, then show.
-- **Don't ask 5 questions to verify the PRD.** One question (Q0.5), then one proposal screen. The user should see your read of the PRD as a complete artifact, not a half-built scaffold.
-- **Don't lose the user's overrides.** Once they `edit N`, that field is theirs — don't re-propose it on the next re-display.
+- **Don't lock onto one file when more is available.** Always present the ranked list and let the user pick scope.
+- **Don't fabricate sources.** If a field is `low` confidence (no source), label it that way — don't manufacture a citation.
+- **Don't ever take a product name as the domain.** The product is the Reference Implementation. If you find yourself proposing it, stop and widen.
+- **Don't skip the auto-checks.** They exist because LLM extraction will sometimes slip the product into the domain field.
+- **Don't show the proposal if `comparable_peers` is empty.** That's the strongest single signal the framing is too narrow. Either widen first, or run `verify-peers` proactively before showing.
+- **Don't ask 5 questions to verify the discovery.** One question (Q0.5 list selection), one synthesis pass, one proposal screen.
+- **Don't lose the user's overrides.** Once they `edit N`, that field is theirs (`origin: typed`) — don't re-propose it on re-display, even after `add-source`.
+- **Don't ignore confidence.** The 🔴 markers tell the user where to focus review. If you proceed without them, the value of confidence collapses.
 
 ---
 
