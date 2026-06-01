@@ -1,0 +1,44 @@
+---
+agent_slug: {{agent_slug}}
+schema_version: 1
+last_built: {{created_at}}
+categories:
+{{#each categories}}
+  - {{this}}
+{{/each}}
+seed_counts:
+{{#each categories}}
+  {{this}}: 0
+{{/each}}
+---
+
+# {{display_name}} — Knowledge Base Index
+
+This file is the manifest for `{{agent_slug}}`'s knowledge base. It is
+machine-read by the OneStudio hub to surface what the agent knows.
+
+## How this stays accurate
+
+- **Do not hand-edit the frontmatter.** `domain-capture` maintains
+  `last_built` and `seed_counts` automatically on every KB write.
+- **Every KB file must carry a `Source:` line.** Entries without sources
+  are flagged `[UNVERIFIED]` at runtime.
+- **Re-verify quarterly.** Stale files (no `last_verified` bump in 90 days)
+  are highlighted by `/domain-eval`.
+
+## Categories in this KB
+
+{{#each categories}}
+- **{{this}}/** — see folder README for the seeding convention.
+{{/each}}
+
+## Adding new knowledge
+
+Use `/domain-capture` rather than editing files by hand:
+
+```
+/domain-capture {{agent_slug}}
+```
+
+The skill will prompt for the claim + source, validate against the agent's
+current view, and write the entry in the right place.

@@ -13,7 +13,7 @@ Two modes, three entry paths:
 - **Create — with context-aware prefill** *(v0.6: replaces the PRD-only path)* — scan the venture for ALL useful context (PRD, README, CLAUDE.md, specs, plans, discovery docs, vision docs — any markdown with strong signal density), rank candidates, let the user pick which files to merge, then propose values for identity / domain / primary user / categories / reference implementation / comparable peers with **per-field confidence** and **source citations**. The user accepts or edits each field, then continues with output-schema questions only. **Domain-widening is enforced**: the product described becomes the Reference Implementation, never the agent's identity — the agent is built around the wider *category*.
 - **Refit** — read an existing agent, audit it, apply framework changes, overwrite it (and add KB scaffold + starter prompts if they don't exist).
 
-All paths produce the same 3 outputs: `agents/<slug>.md`, `agents/<slug>-knowledge/README.md`, `examples/<slug>-starter-prompts.yaml`.
+All paths produce the same output set: `agents/<slug>.md`, `agents/<slug>-knowledge/{INDEX.md, README.md, <category>/<seed-stub>.md}`, `examples/<slug>-starter-prompts.yaml`. The KB scaffold (v0.6+) ships an indexable `INDEX.md` manifest plus per-category seed stubs so the agent is usable immediately after creation.
 
 ## When to invoke
 
@@ -730,18 +730,24 @@ Capture: `explainer_structure`.
 What knowledge does the agent need that ISN'T in code or live external sources? Pick all that apply.
 
 ```
-1. Regulations and statutes
-2. Industry frameworks and methodologies
-3. Market data and benchmarks
-4. Cultural / linguistic context
-5. Vendor / competitor playbooks
-6. Personal experience anchored to a community
-7. None — the agent reasons from prompt context only
+1. regulations         — Regulations and statutes
+2. frameworks          — Industry frameworks and methodologies
+3. market-data         — Market data and benchmarks
+4. cultural-context    — Cultural / linguistic context
+5. vendor-playbooks    — Vendor / competitor playbooks
+6. experience          — Personal experience anchored to a community
+7. none                — The agent reasons from prompt context only
 ```
+
+The keywords on the right are the **canonical folder names** — Phase 9
+emits one folder per picked category, plus seeded stubs for any category
+that has a template in `templates/kb/`. Do not invent new names; if the
+agent needs a category outside this list, mention it now so the toolkit
+can be extended.
 
 → Type the numbers, or `all` / `none`.
 
-Capture: `kb_categories`.
+Capture: `kb_categories` (list of canonical folder names).
 
 **Q6b — Live source access** *(skip if Q6 = none)*
 
@@ -880,17 +886,37 @@ After all answers captured:
 
 1. **Show running summary.** Compact table of every captured answer. Mark which fields used the default vs. were overridden.
 2. **Ask:** *"Look right? Type `go` to generate the files, or call out edits."*
-3. **On `go`, produce 3 files** (do NOT write to disk yet):
+3. **On `go`, produce the file set** (do NOT write to disk yet):
    - `agents/<slug>.md` — agent definition (use `references/agent-template.md`)
-   - `agents/<slug>-knowledge/README.md` — KB scaffold (skip if `kb_categories` = none)
    - `examples/<slug>-starter-prompts.yaml` — 5–12 starter prompts (1–2 per claimed category + 2–3 refusal tests)
+   - **If `kb_categories` ≠ `none`, build the KB scaffold:**
+     - `agents/<slug>-knowledge/INDEX.md` — render `templates/kb/INDEX.md.tmpl`
+       with `{{agent_slug}}`, `{{display_name}}`, `{{created_at}}`, and the
+       resolved `{{categories}}` list. Initialize every `seed_counts[<cat>]` to `0`.
+     - `agents/<slug>-knowledge/README.md` — brief human-readable orientation
+       (one paragraph + "see INDEX.md for the manifest").
+     - For each picked category, create the folder `agents/<slug>-knowledge/<cat>/`.
+     - For each picked category that has a matching template under
+       `templates/kb/<cat>/*.md.tmpl`, render every template into the folder
+       (substituting `{{agent_slug}}`, `{{display_name}}`, `{{created_at}}`).
+       Currently shipped templates:
+       ```
+       templates/kb/cultural-context/glossary.md.tmpl
+       templates/kb/regulations/overview.md.tmpl
+       ```
+     - Categories without a shipped template (`frameworks`, `market-data`,
+       `vendor-playbooks`, `experience`) get the folder only — no stub file.
    - Emit `name_ar:` and `categories:` in frontmatter per `domain-experts/CONTRACT.md`.
      `categories` = the exact canonical slugs picked in Phase 4. These are how the
      OneStudio hub maps the agent losslessly — a missing/wrong category silently
      drops a skill from the hub.
-4. **Show the generated files inline.**
-5. **Ask:** *"Save these 3 files? Or say `edit X` first."*
-6. **On `save`, write to disk.**
+4. **Show the generated files inline.** For KB stubs, show the rendered
+   path tree; show the full body of `INDEX.md` and any seed stubs.
+5. **Validate `INDEX.md` before save.** Parse its frontmatter as YAML;
+   if parsing fails, abort and surface the error — do not write a broken
+   manifest the hub can't read.
+6. **Ask:** *"Save these files? Or say `edit X` first."*
+7. **On `save`, write to disk.**
 
 #### Handoff — register in the hub
 
@@ -1208,12 +1234,14 @@ When a user picks an override or `custom`, these are the empirical patterns obse
 
 ## Output assembly
 
-Both modes produce the same 3 files using the same template — only the destination paths and overwrite behavior differ.
+Both modes produce the same file set using the same templates — only the destination paths and overwrite behavior differ.
 
 | File | Create mode destination | Refit mode destination |
 |---|---|---|
 | `<slug>.md` | `agents/<slug>.md` (new) | `<existing_path>` (overwrite) |
+| `<slug>-knowledge/INDEX.md` | `agents/<slug>-knowledge/INDEX.md` (new) | same path (create only if missing — `domain-capture` then maintains it) |
 | `<slug>-knowledge/README.md` | `agents/<slug>-knowledge/README.md` (new) | same path next to existing agent (create only if missing) |
+| `<slug>-knowledge/<cat>/<stub>.md` | seed-stub per category that has a template under `templates/kb/<cat>/` | same path (create only if missing) |
 | `<slug>-starter-prompts.yaml` | `examples/<slug>-starter-prompts.yaml` (new) | same path (merge if exists) |
 
 Read `references/agent-template.md` once before generating. Fill in placeholders from captured answers.

@@ -148,13 +148,34 @@ CORRECTION → .claude/agent-memory/<slug>/feedback_<topic>.md
 <optional 2-4 lines of context>
 ```
 
-3. Write to disk. Confirm:
+3. Write to disk.
+
+4. **Update the KB manifest** *(RULE type only — applies to KB writes, not memory writes)*:
+
+   Look for `<kb_dir>/INDEX.md` (walks up from the written file). If found:
+   - Parse the YAML frontmatter.
+   - Set `last_built: <today's ISO date>`.
+   - Increment `seed_counts[<subdir>]` by 1 (create the key if absent —
+     this can happen when the user adds a category folder that wasn't
+     declared during creation).
+   - Preserve every other frontmatter key untouched (round-trip the YAML).
+   - Rewrite the file.
+
+   If `INDEX.md` is **absent** (pre-v0.6 agent, scaffolded before this
+   skill shipped INDEX.md): emit one line of warn-and-continue —
+   `(no INDEX.md; skipping manifest update — run /domain-creator refit to add one)`
+   — and proceed. Never block the capture on a missing manifest.
+
+5. Confirm:
 
 ```
 ✓ Captured to <path>.
   Index updated: MEMORY.md (+1 entry).
+  KB manifest: INDEX.md last_built bumped · seed_counts[<subdir>] +1.
   Agent picks this up on next session.
 ```
+
+(Omit the `KB manifest` line for non-RULE types or when INDEX.md was absent.)
 
 ## Anti-patterns
 
@@ -165,3 +186,5 @@ CORRECTION → .claude/agent-memory/<slug>/feedback_<topic>.md
 - **Don't write before the user confirms.** `save` or `keep` is the only trigger.
 - **Don't bloat MEMORY.md.** One line per index entry, ~150 chars max, pointing to the typed file when more detail is needed.
 - **Don't dump full documents.** Capture the CLAIM + SOURCE pointer, not the source's full content.
+- **Don't skip the INDEX.md bump on RULE writes.** The hub depends on `last_built` + `seed_counts` to surface what the agent knows; stale manifest = invisible knowledge.
+- **Don't hard-fail when INDEX.md is missing.** Pre-v0.6 agents have no manifest; warn and continue rather than blocking the capture. Suggest `/domain-creator refit` to backfill.
