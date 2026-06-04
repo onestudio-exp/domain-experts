@@ -48,26 +48,25 @@ Builds a brand-new agent from ~10 short questions. Most have one-keystroke defau
 It produced three things:
 
 - **The agent itself** — Nala's role, rules, and refusals
-- **A knowledge base scaffold** — empty folders organized by topic (regulations, frameworks, market data, cultural context, comparable studios) ready to be filled in over time
-- **A set of starter prompts** — 11 example questions the agent should be able to answer well, used later for testing
+- **A knowledge base** — an indexed scaffold (INDEX.md + per-topic folders: regulations, frameworks, market-data, cultural-context, …), seeded and — when a persona is chosen — populated by the knowledge-harvest Workflow with cited frameworks + an official-sources index
+- **A set of starter prompts** — example questions the agent should answer well (incl. persona-fidelity + fabricated-quote refusal tests), used later for testing
 
-### Have a PRD? Start from it *(new in v0.4)*
+### It reads your venture and prefills the interview
 
-If your venture already has `docs/prd.md`, the skill detects it automatically and offers to **prefill the interview from the PRD**. You'll get a single screen with proposed values for identity, domain, primary user, work categories, reference implementation, and comparable peers — each annotated with the line in the PRD it came from. Accept all, edit individual fields, or restart fresh.
+The skill opens with **context discovery**: it auto-scans the venture for *all* high-signal
+docs (PRD, README, CLAUDE.md, specs, plans), reads the top-ranked ones **silently** (no
+"which files?" question), and proposes a framing — domain, primary user, work categories,
+reference implementation, comparable peers — each tagged with confidence and the source line
+it came from. You confirm or edit on one screen; the interview collapses to ~3 turns.
 
-```
-Q0   — new or refit? > new
-Q0.5 — I found docs/prd.md. Prefill from it? > yes
+### It can build the agent in homage to a real expert
 
-(skill reads the PRD, proposes 8 fields with sources)
-
-Does this framing fit?
-  yes        — accept all, jump to output schemas
-  edit N     — accept most, edit field N
-  too-narrow — push wider
-  too-wide   — pull tighter
-  restart    — drop the prefill, run the full interview
-```
+After the domain is locked, the skill searches (bilingually, as a Workflow) for **3
+influential real figures** in that domain and proposes them in a comparison table with a
+recommendation. Pick one and the agent is built in **homage** — first-person voice, in that
+figure's school, named after them — grounded in their documented work, never fabricating
+quotes. Or skip to an abstract expert. Then a second Workflow **harvests knowledge** from the
+figure's own work + the domain's official/academic sources into a cited KB.
 
 **Domain-widening is enforced.** A PRD usually describes one specific product. The skill *never* takes the product name as the agent's domain — instead it widens to the *category* the product lives in, and parks the product as the **Reference Implementation**. So a PRD titled "Member Plus" doesn't produce a "Member Plus expert"; it produces a "merchant-funded loyalty in MENA" expert with Member Plus as one example among many (Bilt, Rakuten, Entertainer, Collinson, Sprive). This is the discipline that keeps the catalog reusable — the agent any team building in this space can install, not a project agent painted as a domain expert.
 
@@ -218,19 +217,25 @@ If you already have a domain agent (Aref, Rushd, Wafaa, Ziad, Sada, Omar, etc.),
 
 ## Install
 
+Two paths (full detail + the Windows note in the [catalog README](../../README.md#install--30-seconds)):
+
+**A) Developer (clone + setup)** — the clone is your dev copy; edit, `git pull` to update, PR to share:
+
+```bash
+git clone https://github.com/onestudio-exp/domain-experts.git ~/.claude/skills/domain-experts \
+  && cd ~/.claude/skills/domain-experts && ./setup
 ```
-/plugin marketplace add /path/to/domain-experts
+→ skills appear flat: `/domain-creator`, `/domain-eval`, `/domain-capture`, `/domain-contribute`, `/domain-chat`.
+
+**B) Consumer (plugin marketplace)**:
+
+```
+/plugin marketplace add onestudio-exp/domain-experts
 /plugin install domain-experts@domain-experts
-/reload-plugins
 ```
+→ skills appear namespaced: `/domain-experts:domain-creator`, etc.
 
-Once installed, the five skills appear in any Claude Code session:
-
-- `/domain-experts:domain-creator`
-- `/domain-experts:domain-eval`
-- `/domain-experts:domain-capture`
-- `/domain-experts:domain-contribute`
-- `/domain-experts:domain-chat`
+> Examples below use the **B** namespaced form. If you installed via **A**, drop the `domain-experts:` prefix (e.g. `/domain-creator`).
 
 ---
 
@@ -240,7 +245,16 @@ All five skills complete. Reference agent (Nala) validated 11/11. Internal to On
 
 ## Changelog
 
-**v0.5.0** *(this release)*
+**Unreleased** *(domain-creator overhaul)*
+- **Context discovery** replaces PRD-only prefill: auto-scans + silently reads the venture's high-signal docs (no file-picking question); proposes a professional domain label.
+- **Persona homage flow**: interview reordered to domain → persona → identity; a Workflow finds 3 real domain figures (comparison table + recommendation); the agent is named after and built in homage to the chosen figure (first-person, cited, no fabricated quotes).
+- **Knowledge harvest (Workflow)**: deep bilingual search + extraction of the figure's works + the domain's official/academic canon into a cited KB, with a 3-tier source gate.
+- **Refit parity**: audit grew to **11 dimensions** (adds Persona) and now offers the knowledge harvest; KB scaffold matches create mode.
+- **Live source reframed**: default live source is the official domain sources (WebFetch), not the project's code — a domain expert, not a product auditor (spine-level change).
+- **Presentation**: data screens render as markdown tables (RTL-friendly) instead of ASCII code blocks.
+- **Distribution**: gstack-style `clone + ./setup` install (skills into `~/.claude/skills/`) alongside the plugin marketplace; `bin/team-init` for consumer auto-provisioning.
+
+**v0.5.0**
 - New skill: **`/domain-chat`** — opens a browser chat UI for a domain expert. Boots a local [agent-kit](https://github.com/onestudio-exp/agent-kit) install (clones it into the current project, gitignored, on first use), starts the dev server, and opens the browser at the right agent. Zero config — agent-kit auto-discovers the persona, KB, and memory from `.claude/agents/`.
 - README updates to reflect the new 5-skill surface.
 
