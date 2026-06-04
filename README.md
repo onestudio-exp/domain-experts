@@ -32,30 +32,52 @@ The repo hosts **two kinds of plugins**:
 
 ---
 
-## Install
+## Install — 30 seconds
 
-Add the marketplace once:
+Two paths. Pick by whether you'll also *improve* the toolkit.
 
-```
-/plugin marketplace add onestudio-exp/domain-experts
-```
+### A) Developer (or consumer = developer) — clone + `setup`
 
-Then install only what you need:
+The clone **is** the install: you run the skills, edit them, `git pull` to update, and
+`git push` / PR to share — all from one directory. This is the recommended path while the
+toolkit is actively evolving.
 
-```
-# The toolkit (only if you're building agents)
-/plugin install domain-experts@domain-experts
-
-# A domain expert agent
-/plugin install aref@domain-experts
-
-# Multiple in one go
-/plugin install aref@domain-experts <other-agent>@domain-experts
-
-/reload-plugins
+```bash
+git clone https://github.com/onestudio-exp/domain-experts.git ~/.claude/skills/domain-experts \
+  && cd ~/.claude/skills/domain-experts && ./setup
 ```
 
-After install, agents appear via the Agent tool (e.g. `subagent_type: aref`) or as direct slash commands. Toolkit skills appear as `/domain-experts:domain-creator`, `/domain-experts:domain-eval`, `/domain-experts:domain-capture`, `/domain-experts:domain-contribute`, and `/domain-experts:domain-chat` (opens a browser chat UI for any installed agent via [agent-kit](https://github.com/onestudio-exp/agent-kit) — no config, auto-discovers the persona, KB, and memory).
+`setup` registers the toolkit skills into `~/.claude/skills/`, so they appear as
+flat slash commands: **`/domain-creator`**, `/domain-eval`, `/domain-capture`,
+`/domain-contribute`, `/domain-chat`.
+
+- **Live edits** require symlink support. macOS/Linux: automatic. **Windows: turn on
+  Developer Mode** (Settings → Privacy & security → For developers), then `./setup --link`.
+  Without it, `setup` copies (works, but re-run `./setup` after each edit).
+- **Update:** `git -C ~/.claude/skills/domain-experts pull && ~/.claude/skills/domain-experts/setup`
+- **Remove:** `./setup --uninstall`
+- Flags: `--prefix` (namespace as `domain-experts-<skill>`) · `--local` (install into
+  `./.claude/skills` of the current project) · `--status`.
+
+### B) Pure consumer (team auto-provision) — committed settings, official plugin system
+
+For teammates who only *use* the toolkit (never edit it), bootstrap a project once so
+everyone who opens it gets the plugin auto-installed and auto-updated — no manual commands,
+no vendored files:
+
+```bash
+# from inside your project repo:
+~/.claude/skills/domain-experts/bin/team-init required \
+  && git add .claude/settings.json && git commit -m "require domain-experts toolkit"
+```
+
+This writes `.claude/settings.json` registering the `onestudio-exp/domain-experts`
+marketplace (`autoUpdate: true`) and enabling the plugin. On a teammate's first trusted
+open, Claude Code prompts them to add the marketplace + enable the plugin, then tracks the
+repo each session. (Via the plugin system, skills are namespaced `/domain-experts:domain-creator`.)
+
+Pre-built domain expert agents (aref, salwa, …) still install per-need:
+`/plugin install aref@domain-experts`.
 
 ---
 

@@ -1,0 +1,127 @@
+#!/usr/bin/env bash
+# domain-experts setup — register the toolkit skills with Claude Code.
+#
+# Mirrors the gstack model: the clone IS the install. This script links each
+# toolkit skill into ~/.claude/skills/ so Claude Code discovers it as a
+# top-level skill (e.g. /domain-creator). On symlink-capable systems the link
+# is live — edit the clone, changes take effect immediately. On Windows without
+# Developer Mode, ln -s silently copies, so re-run ./setup after edits (or turn
+# on Developer Mode for live symlinks).
+#
+# Usage:
+#   ./setup                 register skills into ~/.claude/skills (live if symlinks work)
+#   ./setup --prefix        register as domain-experts-<skill> instead of flat <skill>
+#   ./setup --local         register into ./.claude/skills (project scope) instead of ~
+#   ./setup --link          require live symlinks; fail if the OS can't (Windows Dev Mode off)
+#   ./setup --uninstall     remove everything this script installed
+#   ./setup --status        show install mode + where skills resolve
+set -uo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
+SKILLS_SRC="$REPO_ROOT/plugins/domain-experts/skills"
+
+if [ ! -d "$SKILLS_SRC" ]; then
+  echo "ERROR: run this from the domain-experts repo root (no $SKILLS_SRC)." >&2
+  exit 1
+fi
+
+# ─── flags ───────────────────────────────────────────────────
+PREFIX=""
+DEST_BASE="$HOME/.claude"
+ACTION="install"
+FORCE_LINK=0
+for arg in "$@"; do
+  case "$arg" in
+    --prefix)    PREFIX="domain-experts-" ;;
+    --local)     DEST_BASE="$(pwd)/.claude" ;;
+    --link)      FORCE_LINK=1 ;;
+    --uninstall) ACTION="uninstall" ;;
+    --status)    ACTION="status" ;;
+    -h|--help)   sed -n '2,19p' "$0"; exit 0 ;;
+    *)           echo "Unknown flag: $arg" >&2; exit 1 ;;
+  esac
+done
+
+DEST_SKILLS="$DEST_BASE/skills"
+MANIFEST="$DEST_SKILLS/.domain-experts-manifest"
+
+# ─── detect symlink capability once (gstack Windows-fallback rule) ───
+detect_symlink() {
+  local t; t="$(mktemp -d)"
+  echo x > "$t/s"
+  ln -s "$t/s" "$t/l" 2>/dev/null
+  if [ -L "$t/l" ]; then SYMLINK_OK=1; else SYMLINK_OK=0; fi
+  rm -rf "$t"
+}
+
+# link the whole skill dir (so SKILL.md + references/ + templates/ all resolve),
+# symlink when possible, else copy.
+link_or_copy() {
+  local src="$1" dst="$2"
+  rm -rf "$dst" 2>/dev/null
+  if [ "$SYMLINK_OK" -eq 1 ]; then
+    ln -s "$src" "$dst"
+  else
+    cp -R "$src" "$dst"
+  fi
+}
+
+list_skills() { find "$SKILLS_SRC" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort; }
+
+cmd_install() {
+  detect_symlink
+  if [ "$FORCE_LINK" -eq 1 ] && [ "$SYMLINK_OK" -eq 0 ]; then
+    echo "ERROR: --link requires live symlinks, but this OS can't create them here." >&2
+    echo "  Windows: enable Developer Mode (Settings → Privacy & security → For developers)," >&2
+    echo "  then re-run. Or drop --link to install in copy mode (re-run ./setup after edits)." >&2
+    exit 1
+  fi
+  mkdir -p "$DEST_SKILLS"
+  : > "$MANIFEST"
+  local n=0
+  while IFS= read -r skill; do
+    local name="${PREFIX}${skill}"
+    local dst="$DEST_SKILLS/$name"
+    link_or_copy "$SKILLS_SRC/$skill" "$dst"
+    echo "$name" >> "$MANIFEST"
+    n=$((n+1))
+    printf "  %-28s %s\n" "/$name" "$([ "$SYMLINK_OK" -eq 1 ] && echo '→ linked (live)' || echo '⇒ copied (re-run after edits)')"
+  done < <(list_skills)
+
+  echo ""
+  echo "OK — registered $n skill(s) into $DEST_SKILLS"
+  if [ "$SYMLINK_OK" -eq 1 ]; then
+    echo "Live mode: edit the clone, changes apply on the next Claude Code session."
+  else
+    echo "Copy mode (Windows without Developer Mode): edits to the clone are NOT live."
+    echo "  → turn on Windows Developer Mode for live symlinks, OR re-run ./setup after edits."
+  fi
+  echo "Update later:  git -C \"$REPO_ROOT\" pull && \"$REPO_ROOT/setup\"${PREFIX:+ --prefix}"
+}
+
+cmd_uninstall() {
+  if [ ! -f "$MANIFEST" ]; then echo "Nothing to uninstall (no manifest at $MANIFEST)."; exit 0; fi
+  local n=0
+  while IFS= read -r name; do
+    [ -z "$name" ] && continue
+    rm -rf "$DEST_SKILLS/$name" && { echo "  removed /$name"; n=$((n+1)); }
+  done < "$MANIFEST"
+  rm -f "$MANIFEST"
+  echo "OK — removed $n skill(s) from $DEST_SKILLS"
+}
+
+cmd_status() {
+  echo "repo:        $REPO_ROOT"
+  echo "commit:      $(git -C "$REPO_ROOT" log -1 --oneline 2>/dev/null || echo '(not a git repo)')"
+  echo "dest:        $DEST_SKILLS"
+  detect_symlink
+  echo "link mode:   $([ "$SYMLINK_OK" -eq 1 ] && echo 'symlink (live)' || echo 'copy (re-run after edits)')"
+  echo "installed:"
+  if [ -f "$MANIFEST" ]; then sed 's/^/  \//' "$MANIFEST"; else echo "  (none — run ./setup)"; fi
+}
+
+case "$ACTION" in
+  install)   cmd_install ;;
+  uninstall) cmd_uninstall ;;
+  status)    cmd_status ;;
+esac
