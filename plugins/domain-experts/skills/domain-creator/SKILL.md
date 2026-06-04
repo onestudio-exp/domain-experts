@@ -67,6 +67,20 @@ custom   — write your own
 
 Questions without a meaningful default (slug, user, out-of-scope) skip the Default block.
 
+**Presentation: tables for data, code blocks for shapes.** Render a screen as a
+**markdown table** whenever the content is tabular data the user reads to choose or
+confirm — option lists with descriptions, the prefill proposal, persona candidates, the
+schema group, identity confirmation. Tables stay readable and render correctly in
+Arabic / RTL, which monospace ASCII inside a code block does not.
+
+Keep a **code block** only when the content is genuinely monospace by nature:
+- the embedded workflow script · file-tree diagrams · derivation pseudo-logic (if/else)
+- example *agent output* shapes · the literal `**Q… / Default / Override**` meta-format above
+
+Rule of thumb: if the user is **picking a row**, it's a table. If you're **showing a
+template or a shape**, it's a code block. Surround `category_slugs`, `keywords`, and
+field names in tables with backticks so they read as the literal tokens they are.
+
 ## Phase 0 — Mode detection
 
 **Q0 — New or refit?**
@@ -301,48 +315,44 @@ If any check fails, **fix it silently before showing the user**. Don't show a dr
 
 ### Step 0.5.6 — Present the proposal
 
-Show **one compact screen** with confidence colors. Use 🟢 (high), 🟡 (medium), 🔴 (low) markers.
+Show **one compact screen** as a **markdown table** with confidence colors
+(🟢 high · 🟡 medium · 🔴 low). Example:
 
-```
-**Proposed framing** — synthesized from N sources
+> **Proposed framing** — synthesized from N sources
 
-  Field               Proposed                                       Conf.   Source
-  ─────────────────   ───────────────────────────────────────────    ────    ──────
-  Domain              GCC tax compliance across VAT, CT, Excise        🟢      PRD §1, CLAUDE.md §1
-  Geo / language      GCC, bilingual EN/AR                              🟢      PRD §2, CLAUDE.md §1
-  Primary user        Tax advisors serving GCC clients                  🟡      derived from PRD §3
-  User context        Filing VAT returns + advising on CT obligations   🟡      PRD §5–7
-  Example question    "How do I treat reverse-charge VAT on imports     🟡      derived
-                      between UAE and KSA?"
-  Primary categories  regulatory_compliance, reference_lookup           🟢      PRD §1, §5
-  Reference impl.     TaxFlow                                           🟢      PRD title
-  Comparable peers    PwC ME, Deloitte ME, EY ME, KPMG ME, BDO ME       🔴      no source — guessed
-  Out-of-scope hints  zakat (refused), personal tax advice              🟢      CLAUDE.md §3
-  Knowledge folders   regulations, cultural-context                     🟡      derived from source type
+| # | Field | Proposed | Conf. | Source |
+|---|---|---|---|---|
+| 1 | Domain | GCC tax compliance across VAT, CT, Excise | 🟢 | PRD §1, CLAUDE.md §1 |
+| 2 | Geo / language | GCC, bilingual EN/AR | 🟢 | PRD §2, CLAUDE.md §1 |
+| 3 | Primary user | Tax advisors serving GCC clients | 🟡 | derived from PRD §3 |
+| 4 | User context | Filing VAT returns + advising on CT obligations | 🟡 | PRD §5–7 |
+| 5 | Example question | "How to treat reverse-charge VAT on UAE↔KSA imports?" | 🟡 | derived |
+| 6 | Primary categories | `regulatory_compliance`, `reference_lookup` | 🟢 | PRD §1, §5 |
+| 7 | Reference impl. | TaxFlow | 🟢 | PRD title |
+| 8 | Comparable peers | PwC ME, Deloitte ME, EY ME, KPMG ME, BDO ME | 🔴 | no source — guessed |
+| 9 | Out-of-scope hints | zakat (refused), personal tax advice | 🟢 | CLAUDE.md §3 |
+| 10 | Knowledge folders | `regulations`, `cultural-context` | 🟡 | derived from source type |
 
-**Notice:** sources describe one specific venture (TaxFlow). I framed the
-agent around the WIDER category (GCC tax compliance) so any team in the
-same space can use it. The venture becomes the Reference Implementation,
-not the agent's identity.
+> **Notice:** sources describe one specific venture (TaxFlow). The agent is framed
+> around the WIDER category so any team in the space can use it — the venture is the
+> Reference Implementation, not the agent's identity.
+>
+> **The name is NOT decided here.** `slug` + display name are set in **Phase 2
+> (Identity)**, derived from the **persona** chosen in Phase 1.5 — that's why there's no
+> Slug row. Fields marked 🔴 need review (no direct source) — `verify-peers` web-searches
+> for stronger peers.
 
-**The agent's name is NOT decided here.** The `slug` + display name are set in
-**Phase 2 (Identity)** — derived from the **persona** you choose in Phase 1.5. That's
-why no Slug row appears above.
+Then the options:
 
-⚠ Fields marked 🔴 need your review — I had no direct source for them.
-   Run `verify-peers` to do a web search for stronger peer candidates.
-
-Does this framing fit?
-
-  yes               — accept all → Phase 1.5 (Persona) → Phase 2 (Identity) → Phase 5
-  edit N            — edit field N
-  verify-peers      — run web search to propose better peers (uses Firecrawl/Tavily)
-  show-source N     — show full quoted evidence for field N
-  add-source PATH   — feed me another file, re-synthesize
-  too-narrow        — propose a broader domain framing
-  too-wide          — propose a narrower domain framing
-  restart           — drop the prefill, run the full interview from Phase 1
-```
+| Type | Action |
+|---|---|
+| `yes` | accept all → Phase 1.5 (Persona) → Phase 2 (Identity) → Phase 5 |
+| `edit N` | edit field N |
+| `verify-peers` | web-search for better peers (Firecrawl / Tavily) |
+| `show-source N` | show full quoted evidence for field N |
+| `add-source PATH` | feed another file, re-synthesize |
+| `too-narrow` / `too-wide` | broaden / tighten the domain framing |
+| `restart` | drop the prefill, run the full interview from Phase 1 |
 
 → Type one option.
 
@@ -514,29 +524,27 @@ whole agent.
 
 #### Step B — Present 3 candidates
 
-One card per candidate, with a confidence marker (🟢 high / 🟡 medium / 🔴 low):
+Present the three as a **markdown table**, one row each, with a confidence marker
+(🟢 high · 🟡 medium · 🔴 low). Example:
 
-```
-**Persona candidates** — influential figures in <domain>
+> **Persona candidates** — influential figures in `<domain>`
 
-  [1] <Name> (<الاسم بالعربية>)                                  🟢
-      Why influential — <one line: what they're known for>
-      Signature — <frameworks / concepts / books they're known for>
-      Era — living public figure | legacy        Fit — <why they suit this agent>
-      Sources — <2–3 URLs>
+| # | Figure | Conf. | Why influential · signature | Era | Sources |
+|---|---|---|---|---|---|
+| 1 | `<Name>` (`<الاسم>`) | 🟢 | what they're known for · key frameworks/books | living / legacy | 2–3 URLs |
+| 2 | … | 🟡 | … | … | … |
+| 3 | … | 🟡 | … | … | … |
 
-  [2] ...                                                         🟡
-  [3] ...                                                         🟡
+> This persona is a **HOMAGE** — the agent reasons in the figure's style and school,
+> grounded in their documented work. It never attributes invented quotes to them.
 
-This persona is a HOMAGE — the agent reasons in the figure's style and school,
-grounded in their documented work. It never attributes invented quotes to them.
-
-  pick N      — embody this figure
-  custom      — name your own figure (+ links / notes); I'll verify and build it
-  composite   — blend the three into one "school-of" archetype (broader, de-risked)
-  abstract    — no real figure; a generated domain voice (skip persona)
-  verify N    — deep-dive + corroborate a candidate before choosing
-```
+| Type | Action |
+|---|---|
+| `pick N` | embody this figure |
+| `custom` | name your own figure (+ links / notes); I'll verify and build it |
+| `composite` | blend the three into one "school-of" archetype (broader, de-risked) |
+| `abstract` | no real figure; a generated domain voice (skip persona) |
+| `verify N` | deep-dive + corroborate a candidate before choosing |
 
 → Type one option.
 
@@ -666,23 +674,25 @@ human glance. Capture: `user_role`, `user_context`, `example_question`.
 
 **Q4 — Categories of work**
 
-Pick 1–3 categories. Primary first.
+Pick 1–3 categories, primary first. When the sources/domain imply a default, present it
+pre-selected with a reasoned one-liner (the user confirms with one keystroke).
 
-```
-1. decision_support      — structured verdict with reasoning
-2. reference_lookup      — cited answers to domain questions
-3. structured_review     — audit an artifact, return categorized findings
-4. competitive_intel     — profile competitors, comparables
-5. regulatory_compliance — apply named regulations
-6. handoff_partner       — structured briefs for other agents/humans
-7. educational_explainer — teach domain concepts
-```
+| # | Category | What it does |
+|---|---|---|
+| 1 | `decision_support` | structured verdict with reasoning |
+| 2 | `reference_lookup` | cited answers to domain questions |
+| 3 | `structured_review` | audit an artifact, return categorized findings |
+| 4 | `competitive_intel` | profile competitors, comparables |
+| 5 | `regulatory_compliance` | apply named regulations |
+| 6 | `handoff_partner` | structured briefs for other agents/humans |
+| 7 | `educational_explainer` | teach domain concepts |
 
-These slugs are also the CONTRACT category vocabulary — they are emitted
-verbatim into the agent frontmatter `categories:` list and become the hub's
-`agents.skills`. Do not invent new slugs.
+These slugs are the CONTRACT category vocabulary — emitted verbatim into the agent
+frontmatter `categories:` list and become the hub's `agents.skills`. Do not invent new
+slugs. This is the one high-stakes structural turn: it gates the spine schemas the agent
+inherits and its hub mapping, so it is confirmed (never silently guessed).
 
-→ Type the numbers. Primary first.
+→ Type the numbers, primary first (e.g. `3 5 7`).
 
 If user picks more than 3, gently note: *"That's broad. Most agents focus on 1–3. Want to mark a primary and use defaults for the rest?"*
 
@@ -967,17 +977,17 @@ else derive from the domain one-liner + categories:
 ```
 
 The keywords are the **canonical folder names** (below) — Phase 9 emits one folder per
-derived category. Do not invent new names. The reference picker list:
+derived category. Do not invent new names. Reference list:
 
-```
-1. regulations         — Regulations and statutes
-2. frameworks          — Industry frameworks and methodologies
-3. market-data         — Market data and benchmarks
-4. cultural-context    — Cultural / linguistic context
-5. vendor-playbooks    — Vendor / competitor playbooks
-6. experience          — Personal experience anchored to a community
-7. none                — The agent reasons from prompt context only
-```
+| # | Folder | Holds |
+|---|---|---|
+| 1 | `regulations` | regulations and statutes |
+| 2 | `frameworks` | industry frameworks and methodologies |
+| 3 | `market-data` | market data and benchmarks |
+| 4 | `cultural-context` | cultural / linguistic context |
+| 5 | `vendor-playbooks` | vendor / competitor playbooks |
+| 6 | `experience` | personal experience anchored to a community |
+| 7 | `none` | the agent reasons from prompt context only |
 
 Phase 9 emits one folder per derived category, plus seeded stubs for any category that
 has a template in `templates/kb/`. If the derivation yields nothing (a pure
@@ -1206,37 +1216,40 @@ After the few asked questions (domain framing · categories · persona) are capt
 **everything else is derived**. Phase 9 is the single place the user reviews and
 corrects all of it — one screen instead of one turn per field.
 
-1. **Show the consolidated review.** A compact table with every field, each tagged by
-   origin: `[asked]` · `[derived]` · `[prefilled]` · `[spine]`. The derived rows are
-   the whole point — they were inferred, not asked, so the user scans and corrects
-   them here in one place:
+1. **Show the consolidated review** as a **markdown table** — every field with its value
+   and an **Origin** tag (`[asked]` · `[derived]` · `[prefilled]` · `[spine]`). The
+   derived rows are the whole point — they were inferred, not asked, so the user scans
+   and corrects them here in one place:
 
-   ```
-   Identity        Saudi Residential Property Marketing · تسويق العقارات السكنية   [derived]
-   Domain          residential real-estate marketing in KSA                       [asked]
-   Geo / language  KSA · EN primary, AR on signal                                 [asked]
-   Reference impl  Dar Listings (test venture)                                    [asked]
-   Comparable peers Aqar · Bayut KSA · Wasalt · Roshn · Retal                     [asked]
-   Primary user    marketing lead at a Saudi brokerage/developer                  [derived]
-   Example question "Snapchat+TikTok launch, or portals first?"                   [derived]
-   Categories      decision_support · competitive_intel · reference_lookup        [asked]
-   Out of scope    legal · mortgage advice · valuation · building code            [derived]
-   KB categories   market-data · cultural-context · vendor-playbooks              [derived]
-   Live source     no (no repo to read)                                           [derived]
-   Memory          project                                                        [derived]
-   Pressure-test   ON (has decision_support)                                      [derived ← cats]
-   Anti-fab        spine floor                                                    [spine]
+   | Field | Value | Origin |
+   |---|---|---|
+   | Identity | Saudi Residential Property Marketing · تسويق العقارات السكنية | `[derived]` |
+   | Domain | residential real-estate marketing in KSA | `[asked]` |
+   | Geo / language | KSA · EN primary, AR on signal | `[asked]` |
+   | Reference impl | Dar Listings (test venture) | `[asked]` |
+   | Comparable peers | Aqar · Bayut KSA · Wasalt · Roshn · Retal | `[asked]` |
+   | Primary user | marketing lead at a Saudi brokerage/developer | `[derived]` |
+   | Example question | "Snapchat+TikTok launch, or portals first?" | `[derived]` |
+   | Categories | `decision_support` · `competitive_intel` · `reference_lookup` | `[asked]` |
+   | Out of scope | legal · mortgage advice · valuation · building code | `[derived]` |
+   | KB categories | `market-data` · `cultural-context` · `vendor-playbooks` | `[derived]` |
+   | Live source | no (no repo to read) | `[derived]` |
+   | Memory | project | `[derived]` |
+   | Pressure-test | ON (has `decision_support`) | `[derived ← cats]` |
+   | Anti-fab | spine floor | `[spine]` |
 
-   Output schemas (inherited from spine — silent)
-     Decision schema   adaptive: Verdict · Why (+ Risks/Conditions)   [spine]
-     Confidence vocab  [VERIFIED] / [UNVERIFIED] / [NEEDS-RESEARCH]    [spine]
-     Review schema     🔴 Blockers · 🟡 Friction · 🟢 Wins · ❓ · 🚏    [spine]
-     Verdict vocab     Launch / Adjust / Hold                          [derived ← domain]
-   ```
+   **Output schemas** (inherited from spine — silent; show only for claimed categories):
 
-   Show only rows that apply (e.g. the schema rows for claimed categories only; the
-   `Reference impl` row only if one exists). Every `[derived]` row is editable in one
-   line — this is what replaces the ~5 interview turns those fields used to cost.
+   | Schema | Value | Origin |
+   |---|---|---|
+   | Decision schema | adaptive: Verdict · Why (+ Risks/Conditions) | `[spine]` |
+   | Confidence vocab | `[VERIFIED]` / `[UNVERIFIED]` / `[NEEDS-RESEARCH]` | `[spine]` |
+   | Review schema | 🔴 Blockers · 🟡 Friction · 🟢 Wins · ❓ · 🚏 | `[spine]` |
+   | Verdict vocab | Launch / Adjust / Hold | `[derived ← domain]` |
+
+   Show only rows that apply (schema rows for claimed categories only; the `Reference
+   impl` row only if one exists). Every `[derived]` row is editable in one line — this is
+   what replaces the ~5 interview turns those fields used to cost.
 2. **Ask:** *"Look right? Type `go` to generate, or `edit <field>` to change any row
    (e.g. `edit user`, `edit out-of-scope`, `edit verdict-vocab`, `edit pressure-test`)."*
    On any `edit <field>`, capture the new value with `origin: typed` (user-authored is
