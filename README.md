@@ -8,7 +8,7 @@ OneStudio's catalog of domain expert agents — packaged as a Claude Code multi-
 domain-experts/
 ├── .claude-plugin/marketplace.json    # one entry per plugin
 ├── plugins/
-│   ├── domain-experts/                # the toolkit (4 skills + Nala)
+│   ├── domain-experts/                # the toolkit (5 skills + Nala)
 │   │   └── README.md                  # toolkit usage guide
 │   ├── aref/                          # loyalty / embedded fintech
 │   └── ... (more agents land here as owners ship)
@@ -22,13 +22,26 @@ The repo hosts **two kinds of plugins**:
 
 ## Available plugins
 
-| Plugin | Kind | Status | Use it for |
-|---|---|---|---|
-| **domain-experts** | toolkit | v0.5.0 | Building, maintaining, AND chatting with domain expert agents (PRD prefill + new `/domain-chat` browser UI via agent-kit) |
-| **aref** | agent | v1.0.0 | Merchant-funded loyalty, embedded cashback, MENA payments |
-| **salwa** | agent | v1.0.0 | Coworking-space asset management, operations, development & fractional investment (MENA/GCC, KSA-anchored) |
+**1 toolkit + 15 domain expert agents** (see [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json) for the authoritative list + descriptions).
 
-*(More agents land here as owners refit to v0.2 of the toolkit and pass the structural audit, including the dimension-10 framing check.)*
+| Plugin | Kind | Use it for |
+|---|---|---|
+| **domain-experts** | toolkit (v0.5.0) | Build / refit / evaluate / extend / chat-with domain expert agents (5 skills + Nala) |
+| **aref** | agent | Merchant-funded loyalty, embedded cashback, MENA payments |
+| **wafaa** | agent | GCC corporate gifting governance |
+| **fekri** | agent | Iraqi K-12 education |
+| **shaheen** | agent | Qatar economy |
+| **merchant-advocate** | agent | MENA merchant end-user advocacy / UX pressure-testing |
+| **membership** | agent | Loyalty & subscription commerce |
+| **omar** | agent | WhatsApp Business marketing for KSA Salla merchants |
+| **rushd** | agent | E-commerce cashback / wallet loyalty (Saudi / Salla) |
+| **adam** | agent | SaaS competitive intelligence |
+| **harvester** | agent | Research intake & knowledge-base curation |
+| **sada** | agent | Employee advocacy & internal-comms platforms |
+| **abo-lijan** | agent | Election intelligence & polling methodology |
+| **sales-marketing** | agent | GCC/MENA B2B revenue (CRO-level) |
+| **ziad** | agent | Diplomatic / OSINT intelligence analysis |
+| **salwa** | agent | Coworking-space asset management (MENA/GCC, KSA-anchored) |
 
 ---
 
@@ -79,6 +92,17 @@ repo each session. (Via the plugin system, skills are namespaced `/domain-expert
 Pre-built domain expert agents (aref, salwa, …) still install per-need:
 `/plugin install aref@domain-experts`.
 
+### Which invocation do I type?
+
+Same skills, name depends on how you installed:
+
+| Install path | Invoke as |
+|---|---|
+| **A** clone + `./setup` (skills) | `/domain-creator`, `/domain-eval`, `/domain-capture`, `/domain-contribute`, `/domain-chat` |
+| **B** plugin (marketplace) | `/domain-experts:domain-creator`, … (namespaced) |
+
+Examples elsewhere in this doc use the **B** namespaced form; if you installed via **A**, drop the `domain-experts:` prefix.
+
 ---
 
 ## Per-project memory and KB
@@ -111,10 +135,23 @@ No config. agent-kit auto-discovers any persona at `.claude/agents/<slug>.md` (o
 
 ## Contributing improvements back
 
+### Improving the toolkit itself (the skills)
+
+If you installed via **path A** (clone + `./setup`), the clone IS your dev copy — improve the skills in place:
+
+1. `cd ~/.claude/skills/domain-experts && git checkout -b feat/<change>`
+2. Edit `plugins/domain-experts/skills/<skill>/SKILL.md` (or `spine/SPINE.md`).
+3. Test live. On Windows without Developer Mode, re-run `./setup` after each edit to refresh the copy.
+4. `git push` and open a PR to `onestudio-exp/domain-experts:main`. After merge, everyone gets it on their next `git pull && ./setup` (or auto-update for plugin consumers).
+
+The installed plugin cache is **never** edited for development — always work from a clone.
+
+### Improving an agent (the persona / KB)
+
 Owners and consumers discover improvements while using agents on real work. Path of least friction:
 
 1. In your venture's project, edit `.claude/agents/<slug>.md` (the override). Test live.
-2. Run `/domain-experts:domain-contribute` — it detects the override, diffs against this catalog, asks "what changed and why", opens a PR here.
+2. Run `domain-contribute` — it detects the override, diffs against this catalog, asks "what changed and why", opens a PR here.
 3. After merge, delete the override; your project pulls the new canonical version.
 
 You stay in your venture's working dir. **No clone, no nav-to-subdir.**
@@ -123,8 +160,8 @@ You stay in your venture's working dir. **No clone, no nav-to-subdir.**
 
 ## For agent owners — adding your agent to this catalog
 
-1. Refit your agent with `/domain-experts:domain-creator → refit`. Pass the v0.2 audit (incl. dimension 10 — domain-vs-project framing).
-2. Run `/domain-experts:domain-eval`. Confirm PASS.
+1. Refit your agent with `domain-creator → refit`. Pass the 11-dimension audit (incl. dimension 10 — domain-vs-project framing — and dimension 11 — persona homage).
+2. Run `domain-eval`. Confirm PASS.
 3. Drop your plugin under `plugins/<slug>/`:
    ```
    plugins/<slug>/
@@ -151,6 +188,6 @@ Updates ship per-agent. Bumping Aref to v1.1 doesn't touch any other agent. Cons
 
 ## Status
 
-**Marketplace v0.3.0-dev** — restructured today from single-plugin to multi-plugin layout. Toolkit + Aref pilot live. The remaining 12 OneStudio agents will be added as their owners pass the structural audit.
+**Marketplace v1.0.0** — full portfolio shipped: the toolkit (5 skills + Nala) + 15 domain expert agents. Two install paths live: gstack-style clone + `./setup` (skills) and the official plugin marketplace (`/plugin install …@domain-experts`). The toolkit's `domain-creator` runs an 11-dimension refit audit (incl. persona homage) and workflow-driven persona discovery + knowledge harvest.
 
 See [`plugins/domain-experts/README.md`](plugins/domain-experts/README.md) for the toolkit's usage guide and lifecycle docs.
