@@ -513,9 +513,9 @@ out across angles**. MENA/Arabic figures are badly under-indexed in English-only
    "<domain> most-followed / influencers"      + award / ranking / "top 50" lists
    "people behind <comparable peer>"           (reuse the Phase 2 peers)
    ```
-2. Use the available web-search tool (firecrawl `firecrawl_search` / Tavily /
-   `WebSearch`). Run the angles **concurrently** (parallel calls), each blind to the
-   others — a multi-modal sweep, so no single search angle becomes the bottleneck.
+2. Run the angles as **parallel agents in the Workflow below** (each blind to the others
+   — a multi-modal sweep), using the available web-search tool (firecrawl
+   `firecrawl_search` / Tavily / `WebSearch`). No single angle becomes the bottleneck.
 3. **Dedup** by normalized name; reconcile transliteration variants
    (`Abo El Magd` ↔ `أبو المجد`).
 4. **Disambiguate collisions** — confirm the candidate is the figure in *this* domain
@@ -542,9 +542,54 @@ out across angles**. MENA/Arabic figures are badly under-indexed in English-only
      profile), used as the fallback shown when `personal_link = none`.
    Never invent a profile URL — an unverified social link is worse than `none`.
 
-If web search is unavailable, say so plainly and ask the user to name a figure
-(→ Step C `custom`). **Never fabricate a candidate** — a made-up "expert" poisons the
-whole agent.
+**Run it as a Workflow** (same pattern as Q6d — two phases: find candidates, then a
+dedicated presence pass). The skill executes this at Phase 1.5 — fill `<domain>`,
+`<geo>`, `<primary_lang>`:
+
+```js
+export const meta = {
+  name: 'persona-discovery',
+  description: "Find 3 diverse domain figures, then hunt each one's personal link",
+  phases: [{ title: 'Candidates' }, { title: 'PresencePass' }],
+}
+
+const DOMAIN = '<domain>', GEO = '<geo>', LANG = '<primary_lang>'
+
+phase('Candidates')
+const angles = [   // topic angles, bilingual — find WHO the figures are
+  `Most influential figures in "${DOMAIN}" (${GEO}). Search ${LANG} AND English. Real named public people + why-influential + domain fit + influence level.`,
+  `أبرز خبراء ورواد "${DOMAIN}" — أسماء حقيقية مع سبب التأثير.`,
+  `best-known authors / speakers / institutions behind "${DOMAIN}".`,
+]
+const raw = await parallel(angles.map((q, i) => () =>
+  agent(q + ' Use web search. Real public figures only. JSON.', { phase: 'Candidates', schema: CAND_SCHEMA })))
+
+const top3 = (await agent(   // dedup transliterations, pick 3 DIVERSE (different schools/eras/angles)
+  `Pick the TOP 3 DIVERSE real figures for "${DOMAIN}" from these lists; dedup name variants. ${JSON.stringify(raw.filter(Boolean))}`,
+  { phase: 'Candidates', schema: CAND_SCHEMA })).candidates.slice(0, 3)
+
+phase('PresencePass')   // dedicated by-name hunt for each finalist's OWN page
+const presence = await parallel(top3.map(c => () =>
+  agent(
+    `Digital-presence hunt for the real person "${c.name_en}" (${c.name_ar}) in "${DOMAIN}". Search BY NAME (EN+${LANG}):
+       "${c.name_en}" official site OR YouTube OR X OR LinkedIn OR Instagram
+     Return personal_link (their OWN verified page, or "none" if none found — do NOT guess),
+     personal_platform, and about_link (best page ABOUT them). NEVER invent a URL; reject
+     same-name different-person profiles explicitly.`,
+    { phase: 'PresencePass', schema: PRESENCE_SCHEMA })))
+
+return top3.map((c, i) => ({ ...c, presence: presence[i] }))
+// CAND_SCHEMA: {candidates:[{name_en,name_ar,why,domain_fit,influence}]}
+// PRESENCE_SCHEMA: {name, personal_link, personal_platform, about_link, notes}
+```
+
+This is the same two-phase shape that, in testing, correctly rejected same-name
+impostor profiles (a novelist, a general, a doctor) and returned honest `none` for
+print-era academics rather than guessing.
+
+If web search / the Workflow is unavailable, say so plainly and ask the user to name a
+figure (→ Step C `custom`). **Never fabricate a candidate** — a made-up "expert" poisons
+the whole agent.
 
 #### Step B — Present 3 candidates *(comparison table + narrative + your recommendation)*
 
@@ -571,6 +616,18 @@ link. Confidence marker (🟢 high · 🟡 medium · 🔴 low) sits with the nam
 | `personal_link` found | 🔗 [`<platform>`](url) — the figure's own page (top priority) |
 | only `about_link` found | [`<source>`](url) `(about)` — tag it so the user knows it's *about* them, not theirs |
 | neither | `none found` ⚠️ — honest, never an invented URL |
+
+**When ALL three personal links are `none`** (common for classical academics / pre-social-web
+figures), add one context line under the table so `none` reads as *fact about the field*,
+not a search failure:
+
+> ℹ️ These are classical scholars with no personal digital presence — the links above are
+> publisher / institution pages *about* them. The Q6d harvest will draw on their published
+> works, not social channels.
+
+This is itself a useful signal: a domain whose figures are all print-era academics
+harvests differently (books, journals) than one with living digital influencers
+(channels, talks).
 
 **② Narrative details** — one short line per figure *under* the table for the things too
 long for a cell (key works, the homage's source depth, any caveat). Example shape:
