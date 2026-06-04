@@ -527,23 +527,46 @@ out across angles**. MENA/Arabic figures are badly under-indexed in English-only
    individuals.
 7. Pick the **top 3 DIVERSE** candidates — different schools / eras / angles, not three
    clones of one niche.
+8. For each finalist, capture a **link** for the table's last column — **top priority is
+   the figure's own social/personal page** (their channel, official site, verified
+   profile); else the best info page about them (publisher/institution bio, reputable
+   profile). Record it now so Step B's Link column is never empty.
 
 If web search is unavailable, say so plainly and ask the user to name a figure
 (→ Step C `custom`). **Never fabricate a candidate** — a made-up "expert" poisons the
 whole agent.
 
-#### Step B — Present 3 candidates
+#### Step B — Present 3 candidates *(comparison table + narrative + your recommendation)*
 
-Present the three as a **markdown table**, one row each, with a confidence marker
-(🟢 high · 🟡 medium · 🔴 low). Example:
+Do **not** show three separate cards — cards describe each figure in isolation; the user
+needs to **compare**. Present three layers, in this order:
+
+**① The comparison table** — 6 tight columns, each axis measured across all three so they
+line up. Keep cells to a few words (compatibility rule); the last column is the figure's
+link. Confidence marker (🟢 high · 🟡 medium · 🔴 low) sits with the name.
 
 > **Persona candidates** — influential figures in `<domain>`
 
-| # | Figure | Conf. | Why influential · signature | Era | Sources |
+| # | Figure | Influence | Domain fit | Source depth | Link |
 |---|---|---|---|---|---|
-| 1 | `<Name>` (`<الاسم>`) | 🟢 | what they're known for · key frameworks/books | living / legacy | 2–3 URLs |
-| 2 | … | 🟡 | … | … | … |
-| 3 | … | 🟡 | … | … | … |
+| 1 | `<Name>` 🟢 | high / canonical / legendary | exact / core / partial | rich / thin | [link](url) |
+| 2 | … 🟡 | … | … | … | [link](url) |
+| 3 | … 🟡 | … | … | … | [link](url) |
+
+**Link column — priority order** (pick the highest available):
+1. the figure's **own social / personal page** (their channel, official site, verified
+   profile) — **top priority**, it's the most first-party;
+2. else any page with substantive info about them (publisher page, institution bio,
+   reputable profile). Never leave the cell empty — if truly nothing, write `no page found`.
+
+**② Narrative details** — one short line per figure *under* the table for the things too
+long for a cell (key works, the homage's source depth, any caveat). Example shape:
+`- **#1 <name>** — <key works / institution> · <era + risk note> · <extra source URLs>`.
+
+**③ Your recommendation** — a single `💡` line after the details. This is the expert's job
+(the skill pressure-tests by default): recommend ONE, say **why** it fits the domain's
+core, then **when to pick another** — never a forced pick. Shape:
+`> 💡 **I recommend #N <name>** — <why it maps to the venture's core / strongest harvest>. · **Pick #M** if <condition>. · **Or `composite`** for <blend>.`
 
 > This persona is a **HOMAGE** — the agent reasons in the figure's style and school,
 > grounded in their documented work. It never attributes invented quotes to them.
