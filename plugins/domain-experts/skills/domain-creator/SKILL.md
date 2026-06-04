@@ -95,11 +95,13 @@ The flow:
 
 1. **Discover** candidate context files across the venture.
 2. **Rank** them by signal density.
-3. **Ask** the user which to read (all / top-N / pick / custom paths / skip).
-4. **Read + synthesize** — extract candidate values, each with confidence + source citations.
-5. **Enforce** domain-widening discipline.
-6. **Present** a single proposal screen with per-field confidence colors.
-7. **Resolve** — accept, edit, widen, narrow, verify, add source, or restart.
+3. **Read + synthesize automatically** — read the top-ranked files **silently, without
+   asking the user which to read**. The job here is just to pull a clean, professional
+   domain label (and the other prefill fields) out of whatever's on disk. Don't make
+   the user curate a file list.
+4. **Enforce** domain-widening discipline + professional domain-label convention.
+5. **Present** a single proposal screen with per-field confidence colors.
+6. **Resolve** — accept, edit, widen, narrow, verify, add source, or restart.
 
 ### Step 0.5.1 — Discover context candidates
 
@@ -122,7 +124,7 @@ Tier 3 (assistant context):
 
 Cap discovery at 20 candidates. If a folder contains > 8 markdown files, take only the 8 most-recently-modified.
 
-**If zero candidates exist:** skip directly to Phase 1 — there is nothing to prefill from. Don't ask Q0.5.
+**If zero candidates exist:** skip directly to Phase 1 — there is nothing to read or prefill from.
 
 ### Step 0.5.2 — Rank by signal density
 
@@ -141,50 +143,40 @@ For each candidate, compute a score:
 
 Sort descending. Reject candidates with score < 2 (low signal). Keep top 10.
 
-### Step 0.5.3 — Present + ask once
+### Step 0.5.3 — Auto-read (no question)
 
-**Q0.5 — Read context from the venture?**
-
-Show the ranked list with star-rating (★ per 2 score points, max 5):
+**Do not ask the user which files to read.** Reading the venture's own docs is a
+no-risk action — just do it. Take the **top 5** ranked candidates (or all of them if
+fewer than 5) and read them silently in Step 0.5.4. The whole point of this step is to
+mine an accurate, professional **domain label** plus the other prefill fields — the
+user shouldn't have to curate a reading list to get that.
 
 ```
-I found these context candidates (ranked by signal density):
-
-  [1] docs/prd.md                  ★★★★★  (PRD, 800 lines, 24 headings)
-  [2] CLAUDE.md                    ★★★★    (project rules, 400 lines)
-  [3] specs/00-foundation.md       ★★★★    (foundational spec, 600 lines)
-  [4] docs/architecture.md         ★★★     (architecture, 320 lines)
-  [5] README.md                    ★★       (readme, 180 lines)
-
-How should I read?
-
-  all       — read everything and synthesize (best quality, slowest)
-  top-3     — read the top 3 only (balanced — recommended default)
-  top-5     — read the top 5
-  pick N,M  — list comma-separated indices (e.g. "1,2,4")
-  custom    — give me a path I haven't discovered
-  skip      — run the full interview, no prefill
+(silent) Reading the 5 highest-signal docs to draft your domain framing…
 ```
 
-→ Type one option.
+A one-line progress note is fine; a file-selection menu is not. The user's review
+happens **once**, on the proposal screen (Step 0.5.6) — where they can `add-source` a
+path the scan missed. Don't add a confirmation gate before reading.
 
-If user types `custom`, ask for one path, verify it exists, append it to the list, and re-show this prompt.
-
-If user types `skip` → jump to Phase 1.
-
-Otherwise → continue to Step 0.5.4 with the selected set.
+**If zero candidates exist** (already handled in Step 0.5.1) → jump to Phase 1 and run
+the blank interview.
 
 ### Step 0.5.4 — Read + synthesize
 
-Use the Read tool to load each selected file end-to-end. While reading, build an in-memory candidate map for each prefill field. **A single field may draw evidence from multiple files** — record every source.
+Use the Read tool to load each of the top-ranked files end-to-end (no user prompt — see Step 0.5.3). While reading, build an in-memory candidate map for each prefill field. **A single field may draw evidence from multiple files** — record every source.
 
 Fields to extract:
 
 ```
-slug                       kebab-case noun for the DOMAIN (NOT a product name)
-display_name               proper-case domain name
-display_name_ar            optional — only if any source contains Arabic
-domain_one_liner           the WIDER category, never a specific product
+(no slug / display_name)   The agent's identity is NOT extracted here. It is set in
+                           Phase 2 — derived from the persona (Phase 1.5), or from the
+                           domain if `abstract`. Do NOT show a Slug or Display-name
+                           row on the proposal screen.
+domain_one_liner           the WIDER category, never a specific product — phrased with
+                           the PROFESSIONAL DOMAIN-LABEL CONVENTION (see Step 0.5.5).
+                           A named practice band + geography-as-modifier + sub-topics,
+                           NOT a whole sector + a whole region.
 geo_scope                  any geography mentioned (MENA, KSA, GCC, …)
 bilingual + languages      true if any source is bilingual or names a non-English audience
 primary_user               role + seniority (from user/audience/customer sections)
@@ -193,7 +185,13 @@ example_question           a real question that user would bring to the agent
 primary_categories         1–3 categories from Phase 4's canonical list
 reference_implementation   the venture/product described in the sources (name, role, note)
 comparable_peers           3–7 named peer companies in the same category
-out_of_scope_hints         any "we won't do X" or "out of scope" language (for Phase 7)
+out_of_scope_hints         any "we won't do X" or "out of scope" language (prefills Phase 7 Q7)
+kb_categories_guess        likely KB folders from source type, mapped to Phase 6's
+                           canonical list (regulations · frameworks · market-data ·
+                           cultural-context · vendor-playbooks · experience).
+                           e.g. compliance/statute sources → regulations;
+                           bilingual/glossary sources → cultural-context.
+                           (prefills Phase 6 Q6)
 ```
 
 For each extracted value, attach **confidence + sources[]**:
@@ -218,11 +216,55 @@ domain_one_liner:
 - **medium** — value synthesized across multiple sources, no single direct quote.
 - **low** — value guessed or inferred without clear textual evidence (e.g. peers list with no source mentioning competitors).
 
-### Step 0.5.5 — Enforce domain widening *(critical — unchanged from v0.5)*
+### Step 0.5.5 — Enforce domain widening + professional domain-label convention
 
 The sources almost always describe ONE specific product. The agent's domain MUST be the wider category, never the product itself. Apply these checks **before showing the proposal**:
 
-**Examples — required widening:**
+**Professional domain-label convention** *(how the existing catalog names domains —
+match it):*
+
+The label is what feeds the persona search and the agent's `# Your domain` section, so
+it must read like the catalog, not like a casual phrase. The catalog pattern is:
+
+```
+[senior · independent] expert {on | in | for} <named practice band>
+  <geography as a MODIFIER, glued to the practice>
+  : <2–4 scoping sub-topics>
+
+Real examples from the catalog:
+  ✓ "merchant-funded loyalty, embedded cashback, retention economics" (Aref)
+  ✓ "Iraqi K-12 education: curriculum G6-G12, Wazari exams"            (Fekri)
+  ✓ "GCC corporate gifting governance: anti-bribery, GAP…"            (Wafaa)
+  ✓ "Qatar's economy: hydrocarbons, financial system, policy"         (Shaheen)
+```
+
+Three rules that separate a professional label from a flat one:
+
+1. **Practice band, not a whole sector.** Narrow the field to a named sub-discipline.
+   `"education"` → `"K-12 education policy"`. `"economy"` → `"macroeconomy & energy
+   policy"`. The narrower and more named, the more professional.
+2. **Geography is a coherent modifier, not the headline.** Use the smallest unit where
+   the expertise genuinely differentiates — usually one country, or a real regulatory
+   bloc (GCC). Avoid sprawling units like "the Arab world" unless the domain is truly
+   homogeneous across it.
+3. **Append 2–4 sub-topics** (the colon list). This is what makes the scope auditable.
+
+```
+✗ too flat   "education expert in Saudi Arabia"
+✓ pro        "K-12 education policy expert for Saudi Arabia: curriculum, assessment,
+              Tatweer reforms, teacher pipeline"
+
+✗ too flat   "economy expert in the Arab world"
+✓ pro        "GCC macroeconomy & energy-policy expert: fiscal balance, diversification,
+              sovereign funds, hydrocarbon transition"
+
+✓ already pro "GCC tax-compliance expert across VAT, Corporate Tax & Excise"
+```
+
+Render the label bilingually when the domain is bilingual (e.g.
+`خبير الامتثال الضريبي الخليجي · GCC tax-compliance expert`).
+
+**Domain-widening examples — required widening:**
 
 ```
 Sources describe "Member Plus" (loyalty platform)
@@ -266,8 +308,6 @@ Show **one compact screen** with confidence colors. Use 🟢 (high), 🟡 (mediu
 
   Field               Proposed                                       Conf.   Source
   ─────────────────   ───────────────────────────────────────────    ────    ──────
-  Slug                gcc-tax-compliance                             🟢      derived
-  Display name        GCC Tax Compliance · امتثال ضريبي خليجي         🟢      PRD title
   Domain              GCC tax compliance across VAT, CT, Excise        🟢      PRD §1, CLAUDE.md §1
   Geo / language      GCC, bilingual EN/AR                              🟢      PRD §2, CLAUDE.md §1
   Primary user        Tax advisors serving GCC clients                  🟡      derived from PRD §3
@@ -278,18 +318,23 @@ Show **one compact screen** with confidence colors. Use 🟢 (high), 🟡 (mediu
   Reference impl.     TaxFlow                                           🟢      PRD title
   Comparable peers    PwC ME, Deloitte ME, EY ME, KPMG ME, BDO ME       🔴      no source — guessed
   Out-of-scope hints  zakat (refused), personal tax advice              🟢      CLAUDE.md §3
+  Knowledge folders   regulations, cultural-context                     🟡      derived from source type
 
 **Notice:** sources describe one specific venture (TaxFlow). I framed the
 agent around the WIDER category (GCC tax compliance) so any team in the
 same space can use it. The venture becomes the Reference Implementation,
 not the agent's identity.
 
+**The agent's name is NOT decided here.** The `slug` + display name are set in
+**Phase 2 (Identity)** — derived from the **persona** you choose in Phase 1.5. That's
+why no Slug row appears above.
+
 ⚠ Fields marked 🔴 need your review — I had no direct source for them.
    Run `verify-peers` to do a web search for stronger peer candidates.
 
 Does this framing fit?
 
-  yes               — accept all, jump to Phase 5 (output schemas)
+  yes               — accept all → Phase 1.5 (Persona) → Phase 2 (Identity) → Phase 5
   edit N            — edit field N
   verify-peers      — run web search to propose better peers (uses Firecrawl/Tavily)
   show-source N     — show full quoted evidence for field N
@@ -303,7 +348,7 @@ Does this framing fit?
 
 ### Step 0.5.7 — Resolve the choice
 
-- **`yes`** → capture every proposed value into the running answers, preserving each value's `confidence` and `sources[]` metadata. Mark each field's `origin` as `prefilled` in the running summary (so the user sees later which came from sources vs. typed vs. default). Jump to **Phase 5 — Output schemas**.
+- **`yes`** → capture every proposed value into the running answers, preserving each value's `confidence` and `sources[]` metadata. Mark each field's `origin` as `prefilled` in the running summary (so the user sees later which came from sources vs. typed vs. default). This covers Phases 1–4 **plus** the Phase 6 `kb_categories` guess and the Phase 7 `out_of_scope` hints — so those two later questions become **confirm-only** (shown with the prefilled value as the default). The domain is now locked (the proposed `slug` is **provisional** — it will be finalized in Phase 2 from the persona), so run **Phase 1.5 — Persona Discovery** next, then **Phase 2 — Identity** (derive/confirm the name), then **Phase 5 — Output schemas**, then continue 6 → 7 → 8 → 9, confirming the prefilled Phase 6/7 values in one keystroke each.
 
 - **`edit N`** → ask for the new value for that field only. Update the running answers; set `origin: typed` and `confidence: high` (user-authored is authoritative). Re-display the table. Loop until the user types `yes`.
 
@@ -334,148 +379,286 @@ Does this framing fit?
 
 ## Create mode — the 9-phase interview
 
-### Phase 1 — Identity
+### Phase 1 — Domain framing *(runs first — the persona search and the agent's name both key off it)*
 
-**Q1 — Slug + display name**
+> **Order note (v0.7):** the domain comes **before** identity now. The agent's
+> name is no longer invented from scratch — it is **derived from the persona**
+> chosen in Phase 1.5 (which itself needs the domain to search). So the first
+> three phases run: **1 Domain → 1.5 Persona → 2 Identity.**
 
-What's the slug (lowercase, snake_case) and display name (proper case)? Add a non-English display name only if the domain is bilingual.
+> **Prefill reuse:** if the user accepted a Phase 0.5 proposal, `domain_one_liner`,
+> `geo_scope` / `bilingual`, `reference_implementation`, and `comparable_peers`
+> are already captured. **Do not re-ask the domain screen.** Go straight to
+> **Phase 1.5 (Persona)**. Only run the screen below when there was no prefill
+> (blank create, or the user typed `restart`).
+
+**Q1 — Domain framing** *(one screen, five parts)*
+
+Ask all five parts together. The user answers in one message. This screen sets the
+agent's **domain spine** and seeds the persona search that follows.
 
 ```
-Examples:  slug: tax-advisor    display: Tax Advisor
-           slug: pricing-pro    display: Pricing Pro
-           slug: nala           display: Nala         ar: نالا
+**1 · Domain or project?**  (framing gate)
+
+  domain   — a body of knowledge that applies to many companies
+             (e.g., "merchant-funded loyalty in MENA", "GCC corporate
+              gifting governance", "Iraqi K-12 education").
+             Reference companies are EXAMPLES, not the agent's identity.
+  project  — a single product, codebase, or venture's PM work.
+             (e.g., "Member Plus product manager", "RevXAI auditor").
+
+**2 · Domain in one sentence**
+
+  Shapes:  [market/regulatory] expert for [geography]
+           [product practice] expert for [audience]
+           [research domain] expert for [user]
+
+**3 · Geography + language**   (default: monolingual English)
+  bilingual — name primary language + one to switch to on user signal
+
+**4 · Reference implementation**   (optional — type "none")
+  Name / Role / Note — the one venture where this domain is applied today,
+  framed as ONE example, never the agent's identity.
+
+**5 · Comparable peers**   (3–7 names — REQUIRED)
+  Named companies/products/programs in the same category. Examples:
+    loyalty / cashback  →  Bilt, Rakuten, Entertainer, Collinson, Sprive
+    K-12 education       →  IB, Cambridge, AERO, regional curricula bodies
+    WhatsApp marketing   →  Wati, Gallabox, AiSensy, Twilio, Meta BSPs
 ```
 
-→ Type slug + display name (and optional Arabic name).
+→ Answer parts 1–5 in one message (part 4 may be `none`).
+
+**Resolution rules — apply in order after the user answers:**
+
+1. **Framing gate.** If part 1 = `project`: **stop.** This skill is scoped to
+   domain experts, not project agents. A project PM agent is legitimate but a
+   different shape — use a generic Claude Code subagent with the project's
+   CLAUDE.md as context. Re-invoke only when the work can be framed as a *domain*
+   of which the project is one example.
+
+2. **Reusability test.** Would another company in this same domain — not the
+   user's venture — also benefit? If no, the framing is too narrow → ask once to
+   widen part 2 before continuing.
+
+3. **Anti-pattern auto-flag (part 2).** If the sentence leads with
+   `for <ProductName>` or `<ProductName> expert`, or names a single venture as the
+   agent's purpose → reframe; the venture belongs under part 4, not part 2.
+
+4. **Bilingual smart-default.** If part 2 names a non-English geography and the
+   user left part 3 blank, default to bilingual and confirm in the running line.
+
+5. **Peers are mandatory.** If part 5 is empty, push back once: "Without
+   comparables, the agent has no category to reason against. List 3 — even rough
+   peers." If still empty after that one pushback, the work is actually a
+   *project* — **return to part 1** and re-evaluate. Don't accept an empty list;
+   the agent's own eval (cross-venture applicability) fails without peers.
+
+Capture: `framing` (must = `domain`), `domain_one_liner`, `geo_scope`,
+`bilingual`, `languages`, `primary_language`, `reference_implementation`
+(object or null), `comparable_peers` (non-empty list).
+
+---
+
+### Phase 1.5 — Persona Discovery *(embody a real domain figure — and name the agent after them)*
+
+An agent lands harder when it carries the voice of a real, influential expert in the
+domain — a **homage** to that person's school of thought, frameworks, and style. This
+is **inspired-by tribute, never quote-attribution**: the agent thinks and behaves
+*like* the figure, grounded in their documented body of work; it does **not** claim
+"X said Y" or invent their record.
+
+**This phase drives the agent's identity.** When the user picks a figure here, the
+next phase (2 Identity) derives the agent's `slug` and display name **from that
+figure's name** — not from the domain. The persona *is* the agent.
+
+This phase is **mode-gated to `new`**, runs **right after the domain is locked** (via
+Phase 0.5 prefill or the Phase 1 screen) and **feeds Phase 2 (Identity)**. It **always
+proposes 3 candidates**; the user may pick one, supply their own, blend a composite, or
+skip to an abstract expert (in which case Phase 2 falls back to a domain-derived name).
+
+#### Step A — Search (bilingual · multi-angle · anti-miss)
+
+The whole value of this phase dies if the search misses well-known figures. Two rules
+prevent that: **search in BOTH the domain's primary language AND English**, and **fan
+out across angles**. MENA/Arabic figures are badly under-indexed in English-only search
+— an English-only sweep would miss "صلاح أبو المجد" entirely.
+
+1. Derive **5–6 query angles** from `domain_one_liner` + `geo_scope`. Render each in
+   the domain's primary language **and** English:
+   ```
+   "<domain> thought leaders / experts"        · "خبراء / رواد <المجال>"
+   "best-known <domain> author / speaker"      · "أشهر مؤلّفي / مدرّبي <المجال>"
+   "top <domain> figures in <geo>"             · "أبرز شخصيات <المجال> في <المنطقة>"
+   "<domain> most-followed / influencers"      + award / ranking / "top 50" lists
+   "people behind <comparable peer>"           (reuse the Phase 2 peers)
+   ```
+2. Use the available web-search tool (firecrawl `firecrawl_search` / Tavily /
+   `WebSearch`). Run the angles **concurrently** (parallel calls), each blind to the
+   others — a multi-modal sweep, so no single search angle becomes the bottleneck.
+3. **Dedup** by normalized name; reconcile transliteration variants
+   (`Abo El Magd` ↔ `أبو المجد`).
+4. **Disambiguate collisions** — confirm the candidate is the figure in *this* domain
+   (e.g., Salah Abo El Magd the leadership trainer ≠ Ahmed Kamal Abo El Magd).
+5. **Rank** by influence signals corroborated across **≥2 independent sources**:
+   cross-platform following, books/publications, media presence, leadership of known
+   orgs, recency of activity.
+6. **Filter** to recognized **public** figures in this domain; drop private
+   individuals.
+7. Pick the **top 3 DIVERSE** candidates — different schools / eras / angles, not three
+   clones of one niche.
+
+If web search is unavailable, say so plainly and ask the user to name a figure
+(→ Step C `custom`). **Never fabricate a candidate** — a made-up "expert" poisons the
+whole agent.
+
+#### Step B — Present 3 candidates
+
+One card per candidate, with a confidence marker (🟢 high / 🟡 medium / 🔴 low):
+
+```
+**Persona candidates** — influential figures in <domain>
+
+  [1] <Name> (<الاسم بالعربية>)                                  🟢
+      Why influential — <one line: what they're known for>
+      Signature — <frameworks / concepts / books they're known for>
+      Era — living public figure | legacy        Fit — <why they suit this agent>
+      Sources — <2–3 URLs>
+
+  [2] ...                                                         🟡
+  [3] ...                                                         🟡
+
+This persona is a HOMAGE — the agent reasons in the figure's style and school,
+grounded in their documented work. It never attributes invented quotes to them.
+
+  pick N      — embody this figure
+  custom      — name your own figure (+ links / notes); I'll verify and build it
+  composite   — blend the three into one "school-of" archetype (broader, de-risked)
+  abstract    — no real figure; a generated domain voice (skip persona)
+  verify N    — deep-dive + corroborate a candidate before choosing
+```
+
+→ Type one option.
+
+#### Step C — Resolve
+
+- **`pick N`** → build the persona profile from that figure (Step D).
+- **`custom`** → user names a figure + optional links/notes. Verify via search (don't
+  trust a single unsourced claim), then build the profile. If the named person is a
+  **private individual** (not a public domain figure), decline and offer `composite` or
+  `abstract` instead.
+- **`composite`** → blend the 3 (or a named set) into a **school-of archetype**. The
+  profile cites all contributors. The agent's name becomes the archetype, not any one
+  person.
+- **`abstract`** → no real persona. The agent uses a generated domain voice (the
+  pre-persona behaviour). Capture `persona_kind = abstract` and continue to Phase 2
+  (Identity), which will then derive the name from the **domain** instead of a figure.
+- **`verify N`** → deep-dive one candidate (more searches, corroborate signals),
+  re-display the card set.
+
+#### Step D — Build the persona profile (cited)
+
+Extract from the chosen figure's **documented** body of work — each item with a source:
+
+```
+Signature frameworks / models   the figure is known for
+Core concepts & vocabulary      their idioms, recurring terms
+Communication style & tone      how they speak / write / structure ideas
+Recurring themes & stances      positions evident across their work (cited)
+Scope edges                     what they are NOT an authority on
+```
+
+Write it to `agents/<slug>-knowledge/persona/<figure-slug>-profile.md`. **Phase 1.5
+owns this `persona/` folder** — it is **not** one of the canonical Phase-6 KB
+categories, so do not add `persona` to the Q6 list or invent a new canonical slug.
+
+#### The tribute contract *(baked into the generated agent — see template)*
+
+- **One-time disclosure** at identity: "A domain expert inspired, in homage, by
+  *<name>*'s body of work — not *<name>*, and not speaking for them."
+- Speaks **first-person, confidently, in the figure's manner**; reasons in their style
+  about new questions. **No per-message hedging** — the disclosure is stated once.
+- **Grounded** in the figure's documented work (the cited profile drives the voice).
+- **Floor (thin, non-intrusive):** never fabricate a specific quote, statistic, date,
+  or publication and present it as the figure's actual record; never put a
+  controversial or defamatory position in their mouth. This is the existing
+  anti-fabrication rule, extended to the persona.
+
+Capture: `persona_kind` (`real` | `composite` | `abstract`), `persona_name`,
+`persona_name_ar`, `persona_voice` (style summary), `persona_sources[]`,
+`persona_profile_path`.
+
+---
+
+### Phase 2 — Identity *(derived from the persona — this is the agent's name)*
+
+By now the domain (Phase 1) and the persona (Phase 1.5) are known. Identity is no
+longer invented from scratch — it **follows the persona choice**.
+
+**If a figure was chosen (`persona_kind` = `real` or `composite`):**
+
+Derive the identity from the figure's name and show it for one-tap confirmation —
+don't ask from a blank field:
+
+```
+**Q2 — Confirm identity** (derived from your persona)
+
+  slug          salah-abo-elmagd          ← kebab of the figure's name
+  display_name  Salah Abo El Magd
+  name_ar       صلاح أبو المجد              ← if the figure has an Arabic name
+
+  confirm   — take these
+  edit      — change slug / display name / Arabic name
+```
+
+Derivation rules:
+- `slug` = kebab-case of the figure's common name (ASCII; transliterate Arabic).
+- `display_name` = the figure's full name in the domain's primary script.
+- `name_ar` = the figure's Arabic name when one exists; omit otherwise.
+- For a `composite`, derive from the **archetype label** set in Phase 1.5
+  (e.g. `gcc-loyalty-school`), not from any single contributor's name.
+- This **overrides** any provisional slug proposed on the Phase 0.5 screen.
+
+**If `abstract` was chosen:**
+
+Fall back to the pre-persona behaviour — ask for slug + display name, or generate them
+from the domain:
+
+```
+**Q2 — Slug + display name**
+
+What's the slug (kebab-case) and display name? Add an Arabic display name only if the
+domain is bilingual.
+
+  Examples:  slug: tax-advisor    display: Tax Advisor
+             slug: pricing-pro    display: Pricing Pro
+```
+
+→ Type / confirm slug + display name (and optional Arabic name).
 
 Capture: `slug`, `display_name`, `display_name_ar`.
 
 ---
 
-### Phase 2 — Domain
+### Phase 3 — User *(auto-derive + confirm in Phase 9 — not a blank turn)*
 
-**Q2.0 — Domain or project?** *(framing gate — must be answered first)*
+**Q3 — Primary user** *(derive from the domain; don't ask blank)*
 
-Is this an agent for a DOMAIN, or for ONE specific product / venture?
-
-```
-domain   — a body of knowledge that applies to many companies
-           (e.g., "merchant-funded loyalty in MENA", "GCC corporate
-            gifting governance", "Iraqi K-12 education").
-           Reference companies are EXAMPLES, not the agent's identity.
-
-project  — a single product, codebase, or venture's PM work.
-           (e.g., "the WhatsApp-Hero Laravel app PM", "Member Plus
-            product manager", "RevXAI codebase auditor").
-```
-
-→ Type `domain` or `project`.
-
-If `project`: stop. This skill is scoped to **domain experts**, not project agents. A project PM agent is legitimate but is a different shape — use a generic Claude Code subagent with the project's CLAUDE.md as context. Re-invoke this skill only if you can describe the work as a *domain* of which the project is one example.
-
-If `domain`: capture `framing = domain` and continue. The rest of the skill assumes domain framing — every later section (description, Reference implementation, Comparable peers) reinforces it.
-
-Capture: `framing` (must equal `domain` to proceed).
-
----
-
-**Q2 — Domain in one sentence**
-
-Describe the agent's domain in one sentence.
+Do **not** ask from blank. The primary user is strongly inferable from the domain
+(e.g. "residential real-estate marketing in KSA" → a marketing lead at a Saudi
+brokerage/developer). Derive all three:
 
 ```
-Three useful shapes:
-  [market/regulatory] expert for [geography]
-  [product practice] expert for [audience]
-  [research domain] expert for [user]
+if Phase 0.5 prefilled user fields  → use them
+else derive from domain_one_liner + geo_scope:
+  Role:     <the obvious practitioner role + seniority for this domain>
+  Context:  <what they're doing day-to-day>
+  Example:  <a realistic question they'd bring — this anchors the agent's voice>
 ```
 
-**The reusability test:** would another company building in this same domain — not your venture — also benefit from this agent? If no, the framing is too narrow. Widen it.
-
-**Anti-pattern (auto-flag):**
-- Description leads with `for <ProductName>` or `<ProductName> expert` → reframe.
-- Description names a single venture as the agent's purpose → reframe; the venture goes under "Reference implementation" later, not in the description.
-
-→ Write one sentence.
-
-Capture: `domain_one_liner`.
-
-**Q2b — Geographic + language scope** *(skip if Q2 already implies it)*
-
-If Q2 mentions a non-English geography, smart-default to bilingual and confirm. Otherwise ask:
-
-**✨ Default — monolingual English**
-
-*Most agents work in one language. Add bilingual only when the domain demands it.*
-
-**Override:**
-
-```
-bilingual   — pick primary language + one to switch to on user signal
-custom      — describe your own setup
-```
-
-→ Type `default`, `bilingual`, or `custom`.
-
-Capture: `geo_scope`, `bilingual` (bool), `languages`, `primary_language`.
-
-**Q2c — Reference implementation** *(optional but recommended)*
-
-Is there a venture or product where this domain expert is currently being applied? It will appear in the agent under a `## Reference implementation` section — framed as one example, not the agent's identity.
-
-```
-Format:
-  Name:     <venture / product>
-  Role:     <how the agent serves it — e.g., "advises the team's
-            decisions" / "reviews PRDs" / "benchmarks competitors">
-  Note:     <one line clarifying that this is one example, not the
-            agent's identity>
-```
-
-→ Fill in, or type `none`.
-
-Capture: `reference_implementation` (object or null).
-
-**Q2d — Comparable peers / category benchmarks**
-
-List 3–7 peer companies, products, or programs that operate in the same domain. These appear in the agent under `## Comparable peers` and signal that the agent reasons about a *category*, not one product.
-
-```
-Examples by domain:
-  loyalty / cashback     →  Bilt, Rakuten, Entertainer, Collinson, Sprive
-  K-12 education         →  IB, Cambridge, AERO, regional curricula bodies
-  GCC gifting governance →  Wrap, Snappy, Reachdesk, Sendoso, regional vendors
-  WhatsApp marketing     →  Wati, Gallabox, AiSensy, Twilio, Meta's own BSPs
-```
-
-If the user can't list any: that's a strong signal the agent is project-coupled, not a domain expert. Push back once: "Without comparables, the agent has no category to reason against. List 3 — even rough peers."
-
-If still no peers after that one pushback: **return to Q2.0**. The user thought they had a domain but the inability to name 3 peers means it's actually a project. Re-evaluate. Don't paper over it by accepting an empty list — the agent's own eval (cross-venture applicability) will fail without peers, and downstream users will see a hollow shell.
-
-→ List 3–7 names.
-
-Capture: `comparable_peers` (list, must be non-empty to proceed).
-
----
-
-### Phase 3 — User
-
-**Q3 — Primary user**
-
-Who's the primary user? Their role, what they're doing, and one example question they'd bring.
-
-```
-Format:
-  Role:     <role + seniority>
-  Context:  <what they're doing>
-  Example:  <a real question they'd ask>
-```
-
-→ Fill in all three.
-
-Capture: `user_role`, `user_context`, `example_question`.
-
-If they skip the example, ask again — the example anchors the agent's voice.
+Surface all three read-only in the Phase 9 summary. The **example question** especially
+must be shown for confirmation — it anchors the voice, so it's the one most worth a
+human glance. Capture: `user_role`, `user_context`, `example_question`.
 
 ---
 
@@ -507,9 +690,51 @@ Capture: `primary_categories`.
 
 ---
 
-### Phase 5 — Output schemas (branched on Phase 4)
+### Phase 5 — Output schemas *(NOT a question — silent spine inheritance + one auto-derived field)*
 
-For EACH primary category in the answer, ask the relevant schema question. Skip categories not chosen.
+**Do NOT show a schema screen. Do NOT ask anything here.** Phase 5 is no longer an
+interview turn. A question only earns a turn when its answer (a) varies meaningfully
+across agents AND (b) the system can't infer it well. Run the schema fields through
+that test:
+
+```
+Decision schema  (Verdict · Why + risks-when-needed)   →  doesn't vary   → SPINE, silent
+Confidence vocab ([VERIFIED]/[UNVERIFIED]/[NEEDS-…])    →  doesn't vary   → SPINE, silent
+Review schema    (🔴🟡🟢❓🚏)                            →  doesn't vary   → SPINE, silent
+Verdict vocabulary (the decision WORDS)                →  varies, but inferable → AUTO-DERIVE
+```
+
+Portfolio evidence that only the verdict *words* vary (the shapes don't):
+`membership → Go/Go-with-conditions/No-Go` · `rushd → Yes/No/Needs-adjustment` ·
+`nala → Invest/Hold/Pivot/Kill` · `salwa → Pursue/Pass/Restructure`.
+
+**What Phase 5 actually does (no user turn):**
+
+1. **Schema shapes → spine, silent.** For each category claimed in Phase 4, the agent
+   inherits the matching `schema_*` fragment from `domain-experts/spine/SPINE.md`
+   verbatim (Phase 9 injects it). Mark every claimed category `schema_origin: spine`.
+   Capture nothing. Ask nothing.
+2. **Verdict vocabulary → auto-derive** (only if `decision_support` is claimed). From
+   `domain_one_liner` + `primary_categories`, propose 3–5 domain-fit decision words
+   using Q5a's catalog as a guide (e.g. real-estate marketing → `Launch / Adjust /
+   Hold`; investment → `Invest / Hold / Pivot / Kill`). Store as `verdict_vocab` with
+   `origin: derived`. **Do not interrupt the interview to confirm it** — it surfaces
+   read-only in the Phase 9 summary, where the user can override it in one line.
+
+So Phase 5 costs **zero** forced turns: the invariant shapes are inherited silently,
+and the one genuinely domain-variable field (verdict words) is derived, not asked.
+
+**Override paths (no mid-interview screen):**
+
+- The user can change the derived verdict words at the Phase 9 summary (`edit
+  verdict-vocab`). That flips it to `schema_origin: override` for `decision_support`.
+- A user who explicitly wants to reshape a schema body (rare; expert move) can say so
+  at Phase 9 — only then walk the relevant Q5a–Q5h override menu and capture a delta
+  override. Absent that, every shape stays spine-inherited.
+
+The Q5a–Q5h blocks below are the **catalog** the auto-derivation and the optional
+Phase-9 override draw from — default content + override menus. They are reference,
+**not a question sequence, and not a screen shown during the interview.**
 
 #### Q5a — Verdict vocabulary *(if `decision_support` claimed)*
 
@@ -723,11 +948,26 @@ Capture: `explainer_structure`.
 
 ---
 
-### Phase 6 — Knowledge
+### Phase 6 — Knowledge *(DERIVED + confirmed in Phase 9 — not a blank turn)*
 
-**Q6 — Knowledge categories**
+**Q6 — Knowledge categories** *(auto-derive from the domain; never ask from blank)*
 
-What knowledge does the agent need that ISN'T in code or live external sources? Pick all that apply.
+Do **not** present a blank picker. Derive `kb_categories` from the domain + source
+types, then surface the proposal read-only in the Phase 9 summary for one-line edit:
+
+```
+if kb_categories_guess was captured in Phase 0.5  → use it
+else derive from the domain one-liner + categories:
+  regulated / statute / compliance domain   → regulations
+  bilingual / dialect / culture-heavy domain → cultural-context
+  competitor / vendor / platform domain      → vendor-playbooks
+  benchmark / pricing / market domain         → market-data
+  methodology / playbook domain               → frameworks
+  practitioner-experience domain              → experience
+```
+
+The keywords are the **canonical folder names** (below) — Phase 9 emits one folder per
+derived category. Do not invent new names. The reference picker list:
 
 ```
 1. regulations         — Regulations and statutes
@@ -739,103 +979,87 @@ What knowledge does the agent need that ISN'T in code or live external sources? 
 7. none                — The agent reasons from prompt context only
 ```
 
-The keywords on the right are the **canonical folder names** — Phase 9
-emits one folder per picked category, plus seeded stubs for any category
-that has a template in `templates/kb/`. Do not invent new names; if the
-agent needs a category outside this list, mention it now so the toolkit
-can be extended.
+Phase 9 emits one folder per derived category, plus seeded stubs for any category that
+has a template in `templates/kb/`. If the derivation yields nothing (a pure
+prompt-context agent), set `kb_categories = none`.
 
-→ Type the numbers, or `all` / `none`.
+Capture: `kb_categories` (list of canonical folder names) — **derived, surfaced in the
+Phase 9 summary, not asked as a blank turn.**
 
-Capture: `kb_categories` (list of canonical folder names).
+**Q6b — Live source access** *(DERIVED — not asked)*
 
-**Q6b — Live source access** *(skip if Q6 = none)*
-
-Should the agent read live source files at runtime?
-
-**✨ Default — yes**
+Do **not** ask. Portfolio evidence: only ~7/16 agents read live source, and it tracks
+exactly one thing — whether the agent is embedded in a codebase/venture it can read.
+So derive it:
 
 ```
-Live source = real files the agent reads at runtime via Read/Glob/Grep.
-KB = static reference material (regulations, frameworks, playbooks).
-Never copy live source into the KB. The agent reads it live.
+reference_implementation present (a repo/venture the agent applies to)
+        → live_source_access = true,  live_source_paths = [TBD]  (or prefill paths)
+otherwise (pure reference / web / research domain)
+        → live_source_access = false
 ```
 
-*Static snapshots go stale. Live reads stay current.*
+Surface the derived value read-only in the Phase 9 summary; the user can flip it
+there in one line. Capture: `live_source_access` (bool), `live_source_paths`.
 
-**Override:**
+*(Why derived, not defaulted-yes: a blanket "yes" was wrong — most domain experts —
+ziad, abo-lijan, fekri — have no live source to read. Presence of a reference
+implementation is the real signal.)*
 
-```
-no  — the agent uses KB only, no live source
-```
+**Q6c — Memory scope** *(SILENT DEFAULT — not asked)*
 
-→ Type `default` or `no`.
-
-If `default`, ask for one path or accept `TBD`.
-
-Capture: `live_source_access` (bool), `live_source_paths` (list, OK to be `TBD`).
-
-**Q6c — Memory scope**
-
-Should the agent remember things across sessions?
-
-**✨ Default — yes, project scope**
+Do **not** ask. Portfolio evidence: **15/15 agents = `project`** — zero variance. The
+mechanics already live in the spine (`memory_mechanics`). So set silently:
 
 ```
-Path:    .claude/agent-memory/<slug>/MEMORY.md
-Scope:   project (committed to the team's repo)
-Loading: CC injects the first 200 lines into the agent's prompt at session start.
+memory_enabled = true ,  memory_scope = project
 ```
 
-*Project = team-shared memory. The team's institutional knowledge travels with the codebase.*
-
-**Override:**
-
-```
-user   — ~/.claude/agent-memory/<slug>/MEMORY.md   (cross-project, single-user)
-local  — .claude/agent-memory-local/<slug>/        (project-scoped, NOT committed)
-none   — stateless agent, every session starts fresh
-```
-
-→ Type `default`, `user`, `local`, or `none`.
-
-Capture: `memory_enabled`, `memory_scope`.
+Surface it read-only in the Phase 9 summary; honor `user` / `local` / `none` **only**
+if the user explicitly asks there. Capture: `memory_enabled`, `memory_scope`.
 
 ---
 
 ### Phase 7 — Hard rules
 
-**Q7 — Out of scope**
+**Q7 — Out of scope** *(auto-derive from the domain; confirm in Phase 9 — not a blank turn)*
 
-What does the agent refuse to advise on, or redirect?
+Do **not** ask from blank. The refusal set is highly inferable from the domain — the
+portfolio shows the same shapes every time ("NOT a journalist/coder/UI", adjacent
+regulated specialties). Derive 2–4 items, then surface read-only in the Phase 9
+summary for one-line add/remove:
 
 ```
-Common shapes:
-  • Adjacent specialist domains (legal, tax, regulated specialties)
+if out_of_scope_hints was captured in Phase 0.5  → use it
+else derive from these shapes against the domain:
+  • Adjacent specialist domains (legal, tax, finance, regulated specialties next door)
   • Implementation work (code, design, copywriting)
   • Decisions belonging to other roles
   • Out-of-domain questions
 ```
 
-→ List 2–4 things.
+Confirmation matters here: a wrong refusal is high-cost, so the Phase 9 summary always
+shows the derived list for the user to correct. Capture: `out_of_scope`.
 
-Capture: `out_of_scope`.
+**Q7b — Anti-fabrication rule** *(strengthening above the spine floor)*
 
-**Q7b — Anti-fabrication rule**
+Every agent already inherits the **anti-fabrication floor** from
+`domain-experts/spine/SPINE.md` (`anti_fabrication_floor`): never fabricate a quote,
+statistic, date, or publication; cite a source per empirical claim; flag uncertainty
+rather than guess. **You do not need to ask about the floor — it is always in
+force.** This question only asks whether THIS agent strengthens beyond it.
 
-How does the agent prevent fabrication?
-
-**✨ Default — hybrid**
+**✨ Default — floor only (the hybrid floor is enough)**
 
 ```
-Empirical claims (numbers, facts, dates)        →  ≥2 independent sources
-Methodology references (frameworks, playbooks)  →  1 source + confidence tag
-Internal team decisions (in agent's memory)     →  no external citation needed
+Accept the spine floor as-is. No per-agent strengthening line is emitted.
+(The floor already requires ≥1 source per empirical claim + uncertainty tagging.)
 ```
 
-*Empirical fabrication causes the most damage. Internal decisions are the team's own ground truth.*
+*Most agents need nothing beyond the floor. Pick a strengthening below only when the
+domain is high-stakes enough to justify a harder bar (e.g. regulated tax/medical/legal).*
 
-**Override:**
+**Strengthen to:**
 
 ```
 two-source   — every empirical claim needs ≥2 sources, no exceptions
@@ -845,48 +1069,97 @@ strict       — no claims without citation, period
 custom       — write your own
 ```
 
-→ Type `default`, a keyword, or `custom`.
+→ Type `default` (floor only), a keyword, or `custom`.
 
-Capture: `anti_fabrication_rule`.
+Capture: `anti_fabrication_rule`. On `default`, set it to the sentinel `floor` —
+Phase 9 then emits the spine floor with **no** extra strengthening line. Any other
+value emits the floor PLUS a "Beyond the floor, you hold yourself to: …" line.
 
 ---
 
-### Phase 8 — Behavior
+### Phase 8 — Behavior *(DERIVED — not asked)*
 
-**Q8 — Pressure-testing default**
+**Q8 — Pressure-testing posture** *(derive from Phase 4 categories)*
 
-When the user brings a proposal, should the agent challenge it by default?
-
-**✨ Default — yes**
-
-```
-The agent challenges weak assumptions, surfaces risks,
-and refuses to validate thin reasoning.
-Disagreement is stated directly.
-```
-
-*A domain expert agent earns its keep by adding a lens the user didn't have.*
-
-**Override:**
+Do **not** ask. Portfolio evidence confirms the posture tracks the categories, not the
+user's taste: decision/review agents pressure-test (salwa, rushd, nala, membership,
+sada…), while reference/educational/intake agents stay responsive (fekri, shaheen,
+harvester). So derive:
 
 ```
-wait-until-asked  — responsive consultant. Raise risks only when material.
-                    Use for reference-only or explainer-only agents.
+primary_categories includes decision_support OR structured_review
+        → pressure_test_default = true   (challenge weak assumptions, state disagreement)
+otherwise (reference_lookup / educational_explainer / handoff only)
+        → pressure_test_default = false  (responsive consultant; raise risks only when material)
 ```
 
-→ Type `default` or `wait-until-asked`.
+Surface the derived posture read-only in the Phase 9 summary; the user can flip it
+there in one line. Capture: `pressure_test_default`.
 
-Capture: `pressure_test_default`.
+*(A blanket "yes" was nearly right but wrong for ~3 agents — the category signal is
+exact, so derive rather than default.)*
 
 ---
 
 ### Phase 9 — Confirm and generate
 
-After all answers captured:
+After the few asked questions (domain framing · categories · persona) are captured,
+**everything else is derived**. Phase 9 is the single place the user reviews and
+corrects all of it — one screen instead of one turn per field.
 
-1. **Show running summary.** Compact table of every captured answer. Mark which fields used the default vs. were overridden.
-2. **Ask:** *"Look right? Type `go` to generate the files, or call out edits."*
+1. **Show the consolidated review.** A compact table with every field, each tagged by
+   origin: `[asked]` · `[derived]` · `[prefilled]` · `[spine]`. The derived rows are
+   the whole point — they were inferred, not asked, so the user scans and corrects
+   them here in one place:
+
+   ```
+   Identity        Saudi Residential Property Marketing · تسويق العقارات السكنية   [derived]
+   Domain          residential real-estate marketing in KSA                       [asked]
+   Geo / language  KSA · EN primary, AR on signal                                 [asked]
+   Reference impl  Dar Listings (test venture)                                    [asked]
+   Comparable peers Aqar · Bayut KSA · Wasalt · Roshn · Retal                     [asked]
+   Primary user    marketing lead at a Saudi brokerage/developer                  [derived]
+   Example question "Snapchat+TikTok launch, or portals first?"                   [derived]
+   Categories      decision_support · competitive_intel · reference_lookup        [asked]
+   Out of scope    legal · mortgage advice · valuation · building code            [derived]
+   KB categories   market-data · cultural-context · vendor-playbooks              [derived]
+   Live source     no (no repo to read)                                           [derived]
+   Memory          project                                                        [derived]
+   Pressure-test   ON (has decision_support)                                      [derived ← cats]
+   Anti-fab        spine floor                                                    [spine]
+
+   Output schemas (inherited from spine — silent)
+     Decision schema   adaptive: Verdict · Why (+ Risks/Conditions)   [spine]
+     Confidence vocab  [VERIFIED] / [UNVERIFIED] / [NEEDS-RESEARCH]    [spine]
+     Review schema     🔴 Blockers · 🟡 Friction · 🟢 Wins · ❓ · 🚏    [spine]
+     Verdict vocab     Launch / Adjust / Hold                          [derived ← domain]
+   ```
+
+   Show only rows that apply (e.g. the schema rows for claimed categories only; the
+   `Reference impl` row only if one exists). Every `[derived]` row is editable in one
+   line — this is what replaces the ~5 interview turns those fields used to cost.
+2. **Ask:** *"Look right? Type `go` to generate, or `edit <field>` to change any row
+   (e.g. `edit user`, `edit out-of-scope`, `edit verdict-vocab`, `edit pressure-test`)."*
+   On any `edit <field>`, capture the new value with `origin: typed` (user-authored is
+   authoritative — it overrides the derived value), re-show the summary, loop until
+   `go`. For `edit verdict-vocab`, also set `decision_support`'s `schema_origin:
+   override`. A deeper schema-shape reshape is an expert move — honor it via the
+   Q5a–Q5h override menus only if explicitly asked.
 3. **On `go`, produce the file set** (do NOT write to disk yet):
+   - **Read the spine first.** Load `domain-experts/spine/SPINE.md` and follow its
+     "Composition rules". The agent file is *compiled* = template delta + spine
+     fragments. For every `{{spine:<name>}}` marker in the template, inject the
+     matching fragment, wrapping each injected region in the output with
+     `<!-- BEGIN SPINE (generated — do not edit) -->` … `<!-- END SPINE -->`. Fill
+     the fragment placeholders that carry delta values (`{{slug}}` in
+     `memory_mechanics`; `{{primary_language}}`/`{{other_language}}` in
+     `bilingual_mechanics`; `{{verdict_vocab}}` in `schema_decision_support` ← the
+     Phase-5 derived words / Phase-9 override / fallback `Go / Go-with-conditions /
+     No-Go`). Inject a `schema_*` fragment for every category claimed
+     in Phase 4 whose `schema_origin` is `spine`; for any `schema_origin: override`,
+     render that one section from the captured override instead. Emit the
+     `anti_fabrication_floor` fragment always; emit the extra "Beyond the floor…"
+     line only when `anti_fabrication_rule` ≠ the sentinel `floor`.
    - `agents/<slug>.md` — agent definition (use `references/agent-template.md`)
    - `examples/<slug>-starter-prompts.yaml` — 5–12 starter prompts (1–2 per claimed category + 2–3 refusal tests)
    - **If `kb_categories` ≠ `none`, build the KB scaffold:**
@@ -906,10 +1179,21 @@ After all answers captured:
        ```
      - Categories without a shipped template (`frameworks`, `market-data`,
        `vendor-playbooks`, `experience`) get the folder only — no stub file.
-   - Emit `name_ar:` and `categories:` in frontmatter per `domain-experts/CONTRACT.md`.
-     `categories` = the exact canonical slugs picked in Phase 4. These are how the
-     OneStudio hub maps the agent losslessly — a missing/wrong category silently
-     drops a skill from the hub.
+   - **If `persona_kind` ≠ `abstract`, emit the persona artifacts (Phase 1.5):**
+     - `agents/<slug>-knowledge/persona/<figure-slug>-profile.md` — the cited
+       persona profile from Step D (signature frameworks · core concepts &
+       vocabulary · communication style · recurring stances · scope edges — each
+       line with a source). This `persona/` folder is owned by Phase 1.5 and is
+       **not** added to `categories:` or the Q6 list.
+     - Include the `persona:` frontmatter block and the `# Who you are` homage
+       paragraph from the template. Render the homage contract **verbatim** — do
+       not soften or drop the "one line you never cross" sentence.
+   - Emit `name_ar:`, `categories:`, and `spine_version:` in frontmatter per
+     `domain-experts/CONTRACT.md`. `categories` = the exact canonical slugs picked in
+     Phase 4 (a missing/wrong category silently drops a skill from the hub).
+     `spine_version` = the `spine_version` from the spine's frontmatter you just
+     read — it records which spine this agent was compiled against, so refit can flag
+     it when the spine advances.
 4. **Show the generated files inline.** For KB stubs, show the rendered
    path tree; show the full body of `INDEX.md` and any seed stubs.
 5. **Validate `INDEX.md` before save.** Parse its frontmatter as YAML;
@@ -1206,7 +1490,7 @@ On `save`, write all 3 files. The agent .md goes to `existing_path` (overwrite).
 - **Don't recreate KB if it already exists.** The user may have populated it. Refit only ADDS the scaffold if missing; never overwrites existing KB files.
 - **Don't overwrite an existing prompts file blindly.** Real-usage prompts are gold. Merge, don't replace.
 - **Don't pretend the audit is complete when parsing failed.** If the existing agent's structure is ambiguous (e.g., no headers at all), surface that explicitly: "I couldn't reliably detect X — treating as missing. Confirm or override."
-- **Don't paper over project-coupling.** If dimension 10 fires hard (multiple code-level references, "Operating Persona" subtitle, missing Comparables, lead-with-product description), the agent is structurally a project agent — refit alone won't fix it. Tell the user: "This needs a substantive reframe, not a patch. Re-answer Phase 2 (domain framing) and Q2c–d (reference implementation + comparable peers) — I'll regenerate the body around the new framing instead of patching the old one."
+- **Don't paper over project-coupling.** If dimension 10 fires hard (multiple code-level references, "Operating Persona" subtitle, missing Comparables, lead-with-product description), the agent is structurally a project agent — refit alone won't fix it. Tell the user: "This needs a substantive reframe, not a patch. Re-answer the Phase 2 domain-framing screen (parts 1–5: domain sentence + reference implementation + comparable peers) — I'll regenerate the body around the new framing instead of patching the old one."
 
 ---
 
@@ -1244,7 +1528,20 @@ Both modes produce the same file set using the same templates — only the desti
 | `<slug>-knowledge/<cat>/<stub>.md` | seed-stub per category that has a template under `templates/kb/<cat>/` | same path (create only if missing) |
 | `<slug>-starter-prompts.yaml` | `examples/<slug>-starter-prompts.yaml` (new) | same path (merge if exists) |
 
-Read `references/agent-template.md` once before generating. Fill in placeholders from captured answers.
+Read `references/agent-template.md` AND `domain-experts/spine/SPINE.md` once before
+generating. The agent file is **compiled** from two layers: the template carries the
+**delta** (this agent's identity, domain, peers, user, out-of-scope, KB, persona) and
+`{{spine:<name>}}` references; the spine carries the **invariant** prose every agent
+shares (operating principles, anti-fabrication floor, citation discipline,
+peers/reference framing, memory + bilingual mechanics, persona tribute contract, and
+the schema catalog). Fill template placeholders from captured answers; resolve
+`{{spine:*}}` markers per the spine's "Composition rules". Stamp the spine's
+`spine_version` into the agent frontmatter.
+
+Why this split: the shared rules live in **one** file. Fix the spine once and every
+agent picks up the fix on its next recompile — no drift across the portfolio's many
+agents. (Recompiling existing agents onto a newer spine is a refit concern, out of
+scope for create mode.)
 
 For sections that depend on Phase 4 choices (e.g., the agent only includes a "Decision schema" section if it claimed `decision_support`), conditionally include or omit those sections.
 
@@ -1268,9 +1565,40 @@ prompts:
       <why this should be refused>
 ```
 
+### Persona starter prompts *(when `persona_kind` is not `abstract`)*
+
+Add **two persona tests** to `examples/<slug>-starter-prompts.yaml`:
+
+```yaml
+  - id: persona-fidelity-001
+    category: persona_fidelity
+    consumer: for_human
+    text: |
+      <a NEW in-domain question the figure never addressed — checks the agent
+       reasons in their voice and school without breaking character>
+  - id: refusal-persona-001
+    category: refusal_test
+    consumer: for_human
+    expects_refusal: true
+    text: |
+      Give me the exact words <figure> used about <topic> in their book/talk.
+    notes: |
+      Baits a fabricated quote. The agent must decline to invent a specific
+      quote/stat/date and present it as the figure's actual record — homage,
+      not impersonation-for-deception (the "one line you never cross").
+```
+
 ## Anti-patterns
 
-- **Don't ask 30 questions.** Defaults exist so the user can accept with one keystroke. Total interview should be ~10 user turns (or ~3 turns via Phase 0.5 PRD prefill).
+- **Ask only what determines quality and can't be inferred.** A field earns an
+  interview turn only when its answer (a) varies meaningfully across agents AND (b) the
+  system can't infer it well. Everything else is **derived** (and surfaced in the Phase
+  9 review for one-line correction) or **inherited from the spine** (silent). The only
+  genuinely asked turns are: **domain framing** (Phase 2), **categories** (Phase 4), and
+  the **persona pick** (Phase 2.5). Identity, primary user, KB categories, out-of-scope,
+  live-source, memory scope, pressure-test posture, and all output schemas are derived
+  or spine — never blank questions. Target: **~2–3 forced turns + one consolidated Phase
+  9 review**, not a 10-question march.
 - **Don't take a PRD's product name as the domain.** A PRD describes one product; the agent's domain is the wider *category* that product lives in. The product is always the Reference Implementation, never the agent's identity. The auto-checks in Phase 0.5 enforce this — don't bypass them.
 - **Don't reference source agents by name.** Patterns are named by shape, not author.
 - **Don't force defaults that don't fit.** Defaults are recommended, not imposed.
