@@ -1,6 +1,6 @@
 ---
 name: domain-creator
-description: Build or uplevel a domain expert agent in Claude Code. Three entry paths — (1) CREATE from scratch: interview the user with ~10 short questions and produce a new agent definition, knowledge scaffold, and starter prompt set; (2) CREATE with context-aware prefill: scan the venture for ALL useful context (PRD, README, CLAUDE.md, specs, plans, discovery docs — any markdown with strong signal density), let the user pick which files to merge, then propose answers for identity / domain / primary user / categories / reference implementation / comparable peers with per-field confidence and source citations — collapsing the interview to ~3 turns. Domain-widening enforced: the product described becomes the Reference Implementation, never the agent's identity; (3) REFIT: read an existing agent file, audit it against the framework's 10 dimensions (incl. Domain-vs-Project framing — flags agents coupled to a single product instead of a category), advise the user which changes to apply, then overwrite the agent with the upleveled version plus a KB scaffold and starter prompts if missing. Most questions have a tested default the user can accept with one keystroke. Use when the user wants to create a NEW agent (from blank or with context prefill) OR uplevel an EXISTING one to fit domain-expert practice. Do not use for adding knowledge to an existing agent (that's domain-capture).
+description: Build or uplevel a domain expert agent in Claude Code. Three entry paths — (1) CREATE from scratch: interview the user with ~10 short questions and produce a new agent definition, knowledge scaffold, and starter prompt set; (2) CREATE with context-aware prefill: scan the venture for ALL useful context (PRD, README, CLAUDE.md, specs, plans, discovery docs — any markdown with strong signal density), auto-read the highest-signal docs (no file-picking question), then propose answers for domain / primary user / categories / reference implementation / comparable peers with per-field confidence and source citations — collapsing the interview to ~3 turns. Domain-widening enforced: the product described becomes the Reference Implementation, never the agent's identity; (3) REFIT: read an existing agent file, audit it against the framework's 11 dimensions (incl. Domain-vs-Project framing — flags agents coupled to a single product — and Persona homage — offers to rebuild an abstract agent in homage to a real domain figure), advise the user which changes to apply, then overwrite the agent with the upleveled version plus a KB scaffold and starter prompts if missing. Most questions have a tested default the user can accept with one keystroke. Use when the user wants to create a NEW agent (from blank or with context prefill) OR uplevel an EXISTING one to fit domain-expert practice. Do not use for adding knowledge to an existing agent (that's domain-capture).
 ---
 
 # /domain-creator
@@ -1350,7 +1350,7 @@ Also probe for sibling artifacts (used in audit):
 
 ### Step R2 — Run the audit
 
-Read the file. Parse YAML frontmatter and body. For each of these 10 dimensions, classify:
+Read the file. Parse YAML frontmatter and body. For each of these **11 dimensions**, classify:
 
 - ✓ **aligned** — present and matches framework
 - ⚠ **partial** — present but doesn't match the recommended pattern
@@ -1360,11 +1360,16 @@ Dimensions:
 
 ```
  1. Identity            slug · display_name · bilingual display name (frontmatter)
- 2. Domain              one-liner · geo + language scope
+ 2. Domain              one-liner · geo + language scope ·
+                        PROFESSIONAL DOMAIN-LABEL CONVENTION (named practice band +
+                        geography-as-modifier + sub-topics — see Phase 0.5 Step 0.5.5)
  3. Primary user        role · context · example question
  4. Categories          declared canonical categories (decision_support, etc.)
  5. Output schemas      verdict vocab · response sections · confidence vocab · review schema · etc.
- 6. Knowledge           KB structure · live source · memory scope
+ 6. Knowledge           KB structure · live source · memory scope ·
+                        HARVESTED KNOWLEDGE (is frameworks/ populated with cited domain
+                        canon? is there a sources/official-sources.md live index? — the
+                        Phase 6 Q6d harvest). A KB with empty folders = ✗ on this sub-check.
  7. Hard rules          out of scope · anti-fabrication
  8. Behavior            pressure-test default
  9. Tools / model       frontmatter tools · model · memory: scope
@@ -1372,7 +1377,13 @@ Dimensions:
                         Reference implementation framed as one example ·
                         Comparable peers section listed ·
                         no code-level coupling in body
-+ KB scaffold           does agents/<slug>-knowledge/ exist
+11. Persona            is the agent built in homage to a real domain figure? (see
+                        auto-checks G–I below). An agent with NO persona is NOT a defect
+                        — `abstract` is valid. Flag only INCONSISTENT persona handling:
+                        a figure named in the body but no `persona:` frontmatter block,
+                        a persona with no cited works/profile, or a missing homage
+                        disclosure / fabricated-quote guard.
++ KB scaffold           does agents/<slug>-knowledge/ exist (with INDEX.md manifest)
 + Starter prompts       does examples/<slug>-starter-prompts.yaml exist
 ```
 
@@ -1417,7 +1428,34 @@ F. Multi-purpose role
    to domain experts only."
 ```
 
-If the agent has zero issues across A–F: ✓ aligned. Otherwise enumerate findings in the audit report (see format below) so the user knows exactly which lines triggered each flag.
+If the agent has zero issues across A–F: dimension 10 is ✓ aligned. Otherwise enumerate findings in the audit report (see format below) so the user knows exactly which lines triggered each flag.
+
+**Dimension 11 — Persona auto-checks (structural):**
+
+A missing persona is **not** a defect — `abstract` agents are valid and common. These
+checks fire only on **inconsistent** persona handling, or to **offer** the homage
+upgrade. Run all three.
+
+```
+G. Persona declared but incomplete
+   if frontmatter has a `persona:` block OR the body says "homage / inspired by
+   <Name>" — verify the full contract is present:
+     · `# Who you are` carries the homage paragraph (first-person + one-time disclosure)
+     · the "one line you never cross" (no fabricated quote/stat as the figure's record)
+     · a cited profile at <slug>-knowledge/persona/<figure>-profile.md
+   → ⚠ for each missing piece. "persona declared but the homage contract is partial."
+
+H. Figure named in body but no persona block
+   if a real person's name appears as the agent's identity/voice in the first 30 lines
+   but there is NO `persona:` frontmatter block → ⚠ "the agent already speaks as a real
+   figure but isn't declared as a homage persona; formalize it (frontmatter + contract)."
+
+I. Abstract agent — offer (do not flag)
+   if no persona signal at all → dimension 11 is ✓ (valid abstract agent). Surface a
+   single non-blocking OFFER in the report: "This agent is abstract. Want to rebuild it
+   in homage to a real domain figure? (runs Phase 1.5 persona discovery)." Never auto-add
+   a persona — it changes the agent's identity, so it's the user's explicit call.
+```
 
 **Audit report format:**
 
@@ -1451,7 +1489,9 @@ If the agent has zero issues across A–F: ✓ aligned. Otherwise enumerate find
 6. Knowledge
    ✗ no KB structure
    ✗ no memory declared
-   → Recommend: add memory: project + KB scaffold dir
+   ⚠ KB folders exist but empty — no harvested frameworks, no sources/ index
+   → Recommend: add memory: project + KB scaffold dir + run the Phase 6 Q6d
+     knowledge-harvest workflow to populate frameworks/ + sources/official-sources.md
 
 7. Hard rules
    ⚠ out-of-scope present in body, not formalized
@@ -1473,10 +1513,18 @@ If the agent has zero issues across A–F: ✓ aligned. Otherwise enumerate find
       + Comparable peers sections; abstract code-level references to category
       terms.
 
+11. Persona
+    ✓ abstract agent (valid) — no real-figure persona declared
+    💡 OFFER: rebuild in homage to a real domain figure? (runs Phase 1.5 discovery)
+    [or, when inconsistent:]
+    ⚠ body speaks as "Salah Abo El Magd" but no `persona:` frontmatter block
+    ⚠ persona declared but no cited profile + no fabricated-quote guard
+    → Recommend: formalize the homage contract (frontmatter + disclosure + profile)
+
 ──────────────────────────────────────────────
 
 Sibling files:
-   ✗ KB scaffold missing       → will create agents/<slug>-knowledge/
+   ✗ KB scaffold missing       → will create agents/<slug>-knowledge/ (with INDEX.md)
    ✗ Starter prompts missing   → will generate from claimed categories
 ```
 
@@ -1484,7 +1532,17 @@ Sibling files:
 
 After the audit, walk the user through each recommended change INDIVIDUALLY. Same one-question-per-turn pattern as create mode. Same `default-with-WHY` template. Same single-keystroke acceptance.
 
-**For each recommended change in the audit** (in order: dimensions 1–9, then sibling files), ask ONE question:
+**For each recommended change in the audit** (in order: dimensions 1–11, then sibling files), ask ONE question. Two dimensions are handled specially:
+
+- **Dimension 11 (Persona)** — present it as an **offer**, not a routine change, because
+  adopting a real-figure persona changes the agent's identity (and may rename it). If the
+  user accepts, run **Phase 1.5 Persona Discovery** inline (search → 3 candidates → pick /
+  custom / composite), then fold the result into the rewrite. If they decline, the agent
+  stays abstract — no change.
+- **Dimension 6 harvest** — if the user accepts populating the KB, run the **Phase 6 Q6d
+  knowledge-harvest workflow** inline and write its outputs into the rewrite's KB.
+
+For all other dimensions, ask ONE question:
 
 ```
 **Change <N> of <total>: <short title>**
@@ -1545,9 +1603,11 @@ Produce all 3 framework outputs, even if some already exist:
 - Merge: existing aligned values + accepted changes from R3 + new values from R4.
 - Preserve any custom body content from the existing agent that doesn't map to a framework section by appending under `## Custom additions` near the end of the file. Don't silently drop content.
 
-**File 2 — KB scaffold** *(create only if missing)*
-- If `agents/<slug>-knowledge/` doesn't exist, generate `README.md` + 5 subdirectories (`regulations/`, `frameworks/`, `market-data/`, `cultural-context/`, `vendor-playbooks/`) — same structure as create mode.
-- If it already exists, leave the existing structure alone.
+**File 2 — KB scaffold** *(create only if missing; match the canonical Phase 9 scaffold — do NOT use a different shape for refit)*
+- If `agents/<slug>-knowledge/` doesn't exist, generate the **same scaffold as create mode** (Phase 9): an indexable `INDEX.md` manifest + `README.md` + one folder per *derived* canonical category (from `regulations`, `frameworks`, `market-data`, `cultural-context`, `vendor-playbooks`, `experience`), plus the seed stubs for any category that has a template under `templates/kb/`.
+- If the user accepted **dimension 11 (persona)**, also create `persona/` with the cited `<figure>-profile.md`.
+- If the user accepted the **dimension 6 harvest**, also create `sources/official-sources.md` (live index) and populate `frameworks/` from the Q6d workflow output.
+- If the KB already exists, leave existing files alone — only ADD missing pieces (never overwrite populated KB; `domain-capture` owns ongoing maintenance).
 
 **File 3 — starter prompts** *(create or extend)*
 - If `examples/<slug>-starter-prompts.yaml` doesn't exist, generate from claimed categories: 1–2 prompts per category + 2–3 refusal tests.
@@ -1590,6 +1650,9 @@ On `save`, write all 3 files. The agent .md goes to `existing_path` (overwrite).
 - **Don't overwrite an existing prompts file blindly.** Real-usage prompts are gold. Merge, don't replace.
 - **Don't pretend the audit is complete when parsing failed.** If the existing agent's structure is ambiguous (e.g., no headers at all), surface that explicitly: "I couldn't reliably detect X — treating as missing. Confirm or override."
 - **Don't paper over project-coupling.** If dimension 10 fires hard (multiple code-level references, "Operating Persona" subtitle, missing Comparables, lead-with-product description), the agent is structurally a project agent — refit alone won't fix it. Tell the user: "This needs a substantive reframe, not a patch. Re-answer the Phase 2 domain-framing screen (parts 1–5: domain sentence + reference implementation + comparable peers) — I'll regenerate the body around the new framing instead of patching the old one."
+- **Don't auto-add a persona.** Dimension 11 is an *offer*, never an automatic change — adopting a real figure rewrites the agent's identity (and may rename it). Only run Phase 1.5 if the user explicitly accepts. An `abstract` agent passing every other dimension is fully aligned.
+- **Don't scaffold the KB with the old 5-folder shape.** Refit must emit the **same** canonical scaffold as create mode (INDEX.md manifest + derived category folders incl. `experience/`, + `persona/`/`sources/` when those features are accepted) — not a divergent layout. A refit that produces a different KB shape than create is a drift bug.
+- **Don't fabricate harvested knowledge to fill an empty KB.** If the user accepts the dimension-6 harvest, run the real Q6d workflow — never hand-write frameworks/sources from memory. Empty stays empty until evidence exists.
 
 ---
 

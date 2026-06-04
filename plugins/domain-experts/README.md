@@ -183,7 +183,7 @@ If you already have a domain agent (Aref, Rushd, Wafaa, Ziad, Sada, Omar, etc.),
 **What it does, in plain language:**
 
 1. Reads your existing agent.
-2. Compares it against **10 dimensions** every domain agent should meet — clear decision format, verdict vocabulary, confidence labelling, refusal rules, knowledge base, and (new in v0.2) **domain-vs-project framing** — i.e. you reason about a domain, not act as a PM for one product.
+2. Compares it against **11 dimensions** every domain agent should meet — clear decision format, verdict vocabulary, confidence labelling, refusal rules, knowledge base, **domain-vs-project framing** (you reason about a domain, not act as a PM for one product), and **persona homage** (offers to rebuild an abstract agent in homage to a real domain figure — first-person voice, cited works, no fabricated quotes).
 3. Walks you through each gap **one at a time**, showing you *what's there now → what it should be → why it matters*.
 4. You accept, edit, or skip each suggestion independently.
 5. At the end, the agent file is upgraded and any missing scaffolding (knowledge base folders, starter prompts) is created for you.
