@@ -1018,6 +1018,105 @@ memory_enabled = true ,  memory_scope = project
 Surface it read-only in the Phase 9 summary; honor `user` / `local` / `none` **only**
 if the user explicitly asks there. Capture: `memory_enabled`, `memory_scope`.
 
+**Q6d — Knowledge harvest** *(workflow-driven deep search + extraction — the heart of a credible agent)*
+
+This is what lifts the agent from *sounding like* the expert to *reasoning from* the
+expert's knowledge and the domain's authoritative canon. Run it whenever
+`kb_categories ≠ none`. It is a **deep search + extraction at creation time**, executed
+as a **parallel Workflow** — sequential search would take far too long.
+
+**Source policy (strict — quality over coverage).** Only three tiers may enter the KB;
+everything else is rejected. The definition of "official" **adapts to the domain type**
+— a single rigid definition fails across domains:
+
+```
+Tier E — the figure's own work      books · official site · channel · their org
+                                     (only when persona_kind != abstract)
+Tier O — official domain sources     authorities / ministries / regulators / standards
+                                     bodies — ADAPTS TO DOMAIN:
+                                       regulatory / tax → FTA · ZATCA · GAZT
+                                       education        → ministry · curriculum bodies
+                                       economy          → central banks · IMF · sovereign funds
+                                       a person's field → the figure's institution + peers' official sites
+Tier A — academic / canonical        known publishers · standard reference books · papers · universities
+REJECTED                             personal blogs · reposts · authorless pages · SEO farms · forums
+```
+
+**Two registers of output — never blur them:**
+
+```
+→ PERMANENT (written into KB):  frameworks · models · methodologies · concepts ·
+   principles — EXTRACTED in our own words with a citation (book/chapter · author · year).
+   Never copy text verbatim (copyright + the anti-fabrication rule).
+→ LIVE INDEX (URLs only, not text):  official sites + pages that update (rates, rosters,
+   news). Stored as URL + what's there + when to read it. The agent reads them live via
+   WebFetch at question time — never frozen as stale text.
+```
+
+**Quality gate per source:** tag each `[official]` / `[academic]` / `[figure-source]`;
+reject anything outside the three tiers; any empirical claim (a number / date) needs
+**≥2 independent** tier-O/A sources.
+
+**Run it as a Workflow** (bilingual · multi-angle · parallel). The skill executes this
+script at Phase 6 — fill `<figure>`, `<domain>`, `<geo>`, `<primary_lang>`:
+
+```js
+export const meta = {
+  name: 'persona-knowledge-harvest',
+  description: "Harvest a figure's works + the domain's official/academic canon into KB",
+  phases: [{ title: 'Search' }, { title: 'Gate+Extract' }],
+}
+
+const FIGURE = '<figure>', DOMAIN = '<domain>', GEO = '<geo>', LANG = '<primary_lang>'
+
+const tierE = FIGURE ? [   // figure's own work — skipped if abstract
+  `Find ${FIGURE}'s published books and articles (search in ${LANG} AND English). Their official site / channel / org only. Return title, url, year.`,
+  `Document ${FIGURE}'s signature frameworks/concepts AS STATED IN THEIR OWN WORK. Cite the book/talk. Do not invent.`,
+] : []
+const tierO = [            // official — definition adapts to the domain
+  `Identify the OFFICIAL authorities / regulators / ministries / standards bodies for "${DOMAIN}" in ${GEO}. Official domains only. Names + URLs.`,
+  `For "${DOMAIN}" in ${GEO}, list authoritative official pages that UPDATE over time (rates, rosters, news) — these are for LIVE reading, not copying.`,
+]
+const tierA = [            // academic / canonical
+  `List the canonical / standard reference books and academic frameworks for "${DOMAIN}" from known publishers / universities. No blogs, no SEO content.`,
+]
+
+phase('Search')
+const found = await parallel(
+  [...tierE, ...tierO, ...tierA].map(q => () =>
+    agent(q + ' Use web search. Reject blogs/reposts/authorless/SEO. Return JSON.',
+          { phase: 'Search', schema: SEARCH_SCHEMA })))   // {sources:[{title,url,tier,why}], frameworks:[{name,summary,citation}]}
+
+phase('Gate+Extract')
+const result = await agent(
+  `Quality-gate these candidates for the "${DOMAIN}" knowledge base. ACCEPT ONLY
+   official, academic, or the figure's own sources — reject blogs/reposts/authorless/SEO.
+   Tag each [official]/[academic]/[figure-source]. SEPARATE permanent knowledge
+   (frameworks/concepts — re-express in our words + citation, never verbatim) from LIVE
+   sources (URLs that update — keep as an index only). Require >=2 independent sources
+   for any number/date. Candidates: ${JSON.stringify(found.filter(Boolean))}`,
+  { phase: 'Gate+Extract', schema: GATE_SCHEMA })  // {frameworks:[...], figure_works:[...], official_sources:[...], rejected:[...]}
+
+return result
+```
+
+**Cost cap:** ≤ 4 parallel research agents per tier, ≤ 12 total; stop a tier early once
+it has 5 accepted sources. **Log what was dropped** — silent truncation reads as full
+coverage.
+
+Then write the outputs:
+
+```
+agents/<slug>-knowledge/
+  persona/<figure>-works.md        ← figure's books/articles + EXTRACTED frameworks (cited)
+  frameworks/<topic>.md            ← canonical domain frameworks (cited, in our words)
+  sources/official-sources.md      ← LIVE index of official/authoritative URLs + trust tags
+```
+
+Capture: `harvested_frameworks[]`, `figure_works[]`, `official_sources[]` — each with a
+trust tag + citation/URL. The `sources/` and `persona/` folders are owned by this phase;
+they are not added to the canonical `categories:` list.
+
 ---
 
 ### Phase 7 — Hard rules
