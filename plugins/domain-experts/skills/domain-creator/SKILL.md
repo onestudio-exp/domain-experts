@@ -81,6 +81,16 @@ Rule of thumb: if the user is **picking a row**, it's a table. If you're **showi
 template or a shape**, it's a code block. Surround `category_slugs`, `keywords`, and
 field names in tables with backticks so they read as the literal tokens they are.
 
+**Cross-surface compatibility (terminal vs GUI).** Tables render as real grids in the
+VS Code extension, desktop, and web; in the raw CLI they show as plain `| … |` text with
+no column alignment. Keep tables degrading gracefully on both:
+- **≤ 4–5 columns**, short cells (a few words). Long prose belongs in a sentence under
+  the table, not in a cell.
+- Put the **identifier the user types** (`#`, keyword, slug) in the **first column** so
+  it's findable even unaligned.
+- This also fixes Arabic/RTL — ASCII alignment inside a code block breaks under RTL in
+  *every* surface, including the terminal; a short table stays line-readable.
+
 ## Phase 0 — Mode detection
 
 **Q0 — New or refit?**
@@ -608,16 +618,15 @@ longer invented from scratch — it **follows the persona choice**.
 Derive the identity from the figure's name and show it for one-tap confirmation —
 don't ask from a blank field:
 
-```
-**Q2 — Confirm identity** (derived from your persona)
+> **Q2 — Confirm identity** (derived from your persona)
 
-  slug          salah-abo-elmagd          ← kebab of the figure's name
-  display_name  Salah Abo El Magd
-  name_ar       صلاح أبو المجد              ← if the figure has an Arabic name
+| Field | Value | |
+|---|---|---|
+| `slug` | `salah-abo-elmagd` | kebab of the figure's name |
+| `display_name` | Salah Abo El Magd | |
+| `name_ar` | صلاح أبو المجد | if the figure has an Arabic name |
 
-  confirm   — take these
-  edit      — change slug / display name / Arabic name
-```
+→ `confirm` to take these, or `edit` to change slug / display name / Arabic name.
 
 Derivation rules:
 - `slug` = kebab-case of the figure's common name (ASCII; transliterate Arabic).
@@ -786,12 +795,12 @@ When needed:  Risks · Conditions · Impact · Next steps
 
 **Override:**
 
-```
-rigid    — always show 5 sections (Decision/Why/Risks/Alt/Impact)
-7-step   — full advisory (Clarification → Options → Trade-offs → ... → Follow-ups)
-3-block  — short action format (Bottom-line/Why/Action)
-custom   — write your own
-```
+| Keyword | Shape |
+|---|---|
+| `rigid` | always show 5 sections (Decision / Why / Risks / Alt / Impact) |
+| `7-step` | full advisory (Clarification → Options → Trade-offs → … → Follow-ups) |
+| `3-block` | short action format (Bottom-line / Why / Action) |
+| `custom` | write your own |
 
 → Type `default`, `rigid`, `7-step`, `3-block`, or `custom`.
 
@@ -813,13 +822,13 @@ How does the agent label uncertain claims?
 
 **Override:**
 
-```
-five-state    — confirmed / reported / estimated / uncertain / not knowable
-source-tier   — Tier 1 (official) / Tier 2 (analysis) / Tier 3 (synthesis)
-experience    — direct experience / readings / general context / official source
-kb-citation   — [knowledge/<path>.md] / [source: <url>]
-custom        — write your own
-```
+| Keyword | Vocabulary |
+|---|---|
+| `five-state` | confirmed / reported / estimated / uncertain / not knowable |
+| `source-tier` | Tier 1 (official) / Tier 2 (analysis) / Tier 3 (synthesis) |
+| `experience` | direct experience / readings / general context / official source |
+| `kb-citation` | `[knowledge/<path>.md]` / `[source: <url>]` |
+| `custom` | write your own |
 
 → Type `default`, a keyword, or `custom`.
 
@@ -843,11 +852,11 @@ What sections does every review have?
 
 **Override:**
 
-```
-8-section   — Executive Summary / Mode / Confidence / [domain] / Unknowns
-verdict-fields — single verdict + conditional follow-ups
-custom      — write your own
-```
+| Keyword | Shape |
+|---|---|
+| `8-section` | Executive Summary / Mode / Confidence / [domain] / Unknowns |
+| `verdict-fields` | single verdict + conditional follow-ups |
+| `custom` | write your own |
 
 → Type `default`, a keyword, or `custom`.
 
