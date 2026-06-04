@@ -1030,23 +1030,39 @@ Phase 9 summary, not asked as a blank turn.**
 
 **Q6b — Live source access** *(DERIVED — not asked)*
 
-Do **not** ask. Portfolio evidence: only ~7/16 agents read live source, and it tracks
-exactly one thing — whether the agent is embedded in a codebase/venture it can read.
-So derive it:
+Do **not** ask. First, separate two different things people lump under "live source":
+
+| Live source kind | Serves | Default |
+|---|---|---|
+| **Domain sources** (`sources/official-sources.md` via WebFetch) | the whole category | ✅ ON for every agent (built in Q6d) |
+| **Project files** (Read/Glob/Grep over `app/` · `backend/`) | one product | 🔴 OFF by default — reading them narrows a *domain* expert into a *product* auditor |
+
+The agent's live link to the world is its **official domain sources**, read live via
+WebFetch — that's a domain expert doing research, and it's already created in Q6d.
+**Reading a project's own files is the exception, not the default**, even when a
+Reference implementation exists: a homage persona reading `app/Services/…` breaks the
+whole framing (the figure doesn't read your codebase). So derive conservatively:
 
 ```
-reference_implementation present (a repo/venture the agent applies to)
-        → live_source_access = true,  live_source_paths = [TBD]  (or prefill paths)
-otherwise (pure reference / web / research domain)
-        → live_source_access = false
+default for ALL agents
+        → domain live source = ON (WebFetch sources/official-sources.md)
+        → project_file_access = false
+
+project_file_access = true  ONLY when BOTH hold:
+        → a Reference implementation exists (a repo the agent applies to), AND
+        → the user explicitly wants the agent to inspect that codebase
+   (flag it: "this narrows the agent toward a product auditor — deliberate opt-in")
 ```
 
-Surface the derived value read-only in the Phase 9 summary; the user can flip it
-there in one line. Capture: `live_source_access` (bool), `live_source_paths`.
+Surface the derived value read-only in the Phase 9 summary; the user can flip
+`project_file_access` on there in one line if they truly want codebase inspection.
+Capture: `project_file_access` (bool, default false), `live_source_paths` (only if true).
 
-*(Why derived, not defaulted-yes: a blanket "yes" was wrong — most domain experts —
-ziad, abo-lijan, fekri — have no live source to read. Presence of a reference
-implementation is the real signal.)*
+*(Why this changed: the old rule defaulted project-file reading ON whenever a Reference
+implementation existed — but that pulls the agent toward product-expert, contradicting
+domain-widening. The spine now states the same: WebFetch official domain sources by
+default; Read/Glob/Grep project files only on explicit request. ziad, abo-lijan, fekri,
+and every homage persona stay pure domain experts.)*
 
 **Q6c — Memory scope** *(SILENT DEFAULT — not asked)*
 
@@ -1265,7 +1281,8 @@ corrects all of it — one screen instead of one turn per field.
    | Categories | `decision_support` · `competitive_intel` · `reference_lookup` | `[asked]` |
    | Out of scope | legal · mortgage advice · valuation · building code | `[derived]` |
    | KB categories | `market-data` · `cultural-context` · `vendor-playbooks` | `[derived]` |
-   | Live source | no (no repo to read) | `[derived]` |
+   | Domain sources | WebFetch official sources (always on) | `[spine]` |
+   | Project files | off (domain expert, not product auditor) | `[derived]` |
    | Memory | project | `[derived]` |
    | Pressure-test | ON (has `decision_support`) | `[derived ← cats]` |
    | Anti-fab | spine floor | `[spine]` |
