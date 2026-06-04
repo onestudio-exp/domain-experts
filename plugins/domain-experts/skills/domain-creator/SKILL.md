@@ -527,10 +527,20 @@ out across angles**. MENA/Arabic figures are badly under-indexed in English-only
    individuals.
 7. Pick the **top 3 DIVERSE** candidates — different schools / eras / angles, not three
    clones of one niche.
-8. For each finalist, capture a **link** for the table's last column — **top priority is
-   the figure's own social/personal page** (their channel, official site, verified
-   profile); else the best info page about them (publisher/institution bio, reputable
-   profile). Record it now so Step B's Link column is never empty.
+8. **Digital-presence pass (dedicated second search — do NOT skip).** The personal link
+   rarely surfaces from the topic angles above; it has to be hunted **by name**. After
+   the top 3 are chosen, run one more targeted search **per finalist** (parallel, bilingual):
+   ```
+   "<figure name>" official site OR YouTube OR X/Twitter OR LinkedIn OR Instagram
+   "<اسم الشخص>" الموقع الرسمي OR يوتيوب OR تويتر OR لينكدإن OR انستقرام
+   ```
+   For each finalist capture **two things** for Step B's Link column:
+   - `personal_link` — the figure's OWN page (verified channel / official site /
+     verified social profile). **Top priority.** If none is found after this dedicated
+     pass, set it to `none` (not empty — `none` is a real, honest result).
+   - `about_link` — the best page *about* them (publisher / institution bio / reputable
+     profile), used as the fallback shown when `personal_link = none`.
+   Never invent a profile URL — an unverified social link is worse than `none`.
 
 If web search is unavailable, say so plainly and ask the user to name a figure
 (→ Step C `custom`). **Never fabricate a candidate** — a made-up "expert" poisons the
@@ -547,17 +557,20 @@ link. Confidence marker (🟢 high · 🟡 medium · 🔴 low) sits with the nam
 
 > **Persona candidates** — influential figures in `<domain>`
 
-| # | Figure | Influence | Domain fit | Source depth | Link |
+| # | Figure | Influence | Domain fit | Source depth | Personal link |
 |---|---|---|---|---|---|
-| 1 | `<Name>` 🟢 | high / canonical / legendary | exact / core / partial | rich / thin | [link](url) |
-| 2 | … 🟡 | … | … | … | [link](url) |
-| 3 | … 🟡 | … | … | … | [link](url) |
+| 1 | `<Name>` 🟢 | high / canonical / legendary | exact / core / partial | rich / thin | 🔗 [YouTube](url) |
+| 2 | … 🟡 | … | … | … | [publisher](url) `(about)` |
+| 3 | … 🟡 | … | … | … | `none found` ⚠️ |
 
-**Link column — priority order** (pick the highest available):
-1. the figure's **own social / personal page** (their channel, official site, verified
-   profile) — **top priority**, it's the most first-party;
-2. else any page with substantive info about them (publisher page, institution bio,
-   reputable profile). Never leave the cell empty — if truly nothing, write `no page found`.
+**The last column is one smart, tagged link** (not two columns — that would break the
+≤5-column compatibility rule). Fill it from the Step A digital-presence pass, by priority:
+
+| Case | Render |
+|---|---|
+| `personal_link` found | 🔗 [`<platform>`](url) — the figure's own page (top priority) |
+| only `about_link` found | [`<source>`](url) `(about)` — tag it so the user knows it's *about* them, not theirs |
+| neither | `none found` ⚠️ — honest, never an invented URL |
 
 **② Narrative details** — one short line per figure *under* the table for the things too
 long for a cell (key works, the homage's source depth, any caveat). Example shape:
