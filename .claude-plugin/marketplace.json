@@ -1,6 +1,6 @@
 {
   "name": "domain-experts",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "OneStudio's domain expert agent toolkit — one plugin, 3 skills: domain-creator, domain-upgrade, domain-chat. Build, upgrade, and chat with domain expert agents in Claude Code.",
   "owner": {
     "name": "OneStudio"
@@ -9,7 +9,7 @@
     {
       "name": "domain-experts",
       "source": "./plugins/domain-experts",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "description": "The toolkit — 3 skills: domain-creator (build a new agent, with context-aware prefill from venture docs and strict domain-widening so the agent is built around the wider category, never the product a PRD describes), domain-upgrade (audit + uplevel an existing agent against the framework's 11 dimensions), domain-chat (browser chat UI via agent-kit). Install this to build or maintain domain expert agents."
     }
   ]

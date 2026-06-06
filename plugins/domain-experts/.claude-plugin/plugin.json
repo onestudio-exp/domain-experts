@@ -1,6 +1,6 @@
 {
   "name": "domain-experts",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Toolkit for building, upgrading, and CHATTING WITH domain expert agents in Claude Code. Three skills: domain-creator (build a new agent — from blank or from venture docs via context-aware prefill), domain-upgrade (audit an existing agent against the framework's 11 dimensions and uplevel it, incl. recompiling onto the current spine), and domain-chat (open a browser chat UI for an agent via agent-kit — spawns a local dev server, auto-discovers persona, KB, and memory with zero config).",
   "author": {
     "name": "OneStudio"

@@ -209,6 +209,13 @@ Internal to OneStudio for now.
 
 ## Changelog
 
+**v2.1.0** — *docs overhaul*
+- READMEs rewritten feature-first: "why not just write an agent file by hand?"
+  comparison, and the creation flow documented as a 5-stage pipeline (context
+  discovery → domain widening → persona discovery → knowledge harvest → spine
+  composition).
+- Final sweep of named examples in skill bodies — placeholders only.
+
 **v2.0.0** — *3-skill surface; refit split out; all bundled examples removed*
 - **Split refit out of `domain-creator` into its own skill: `/domain-upgrade`.** Create and
   upgrade are now fully separate skills. `domain-upgrade` owns the 11-dimension audit, the
