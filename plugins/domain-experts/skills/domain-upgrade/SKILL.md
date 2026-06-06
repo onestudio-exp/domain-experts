@@ -280,91 +280,105 @@ Sibling files:
    ✗ Starter prompts missing   → will generate from claimed categories
 ```
 
-## Step 3 — Walk through changes one by one
+## Step 3 — Resolve the changes (creator's logic: ask little, derive the rest)
 
-After the audit, walk the user through each recommended change INDIVIDUALLY. One question per turn. Use the same `default-with-WHY` question template as `domain-creator` (see its "Question template" section). Single-keystroke acceptance.
+Apply `domain-creator`'s central law to the audit findings: **a finding earns an
+interview turn only when its fix (a) varies meaningfully across agents AND (b) can't
+be inferred.** Everything else is fixed silently and surfaced in ONE consolidated
+review (Step 3.3) — never a one-question-per-finding march. A 9-change audit should
+cost the user **2–4 turns + one review screen**, not 9 turns.
 
-**Ordering — persona BEFORE identity.** Mirror create mode's order (domain → persona →
-identity). Whenever the audit recommends ANY identity change (dimension 1: rename, new
-display name, decoupling a project slug), the **dimension 11 persona offer is the FIRST
-question** — before identity. The framework's signature move is building the agent in
-homage to a **real domain figure**, and the figure *determines* the name (creator
-Phase 2 derives slug + display name + Arabic name from the figure). Proposing an
-abstract name first and offering a persona last buries the offer and names an agent
-you'd immediately rename. So:
+### Step 3.1 — Triage every finding into ASK vs AUTO-FIX
 
-1. Persona offer (dimension 11) — accepted → run Phase 1.5 inline, then identity is
-   *derived* from the figure (one-tap confirm, creator Phase 2 derivation rules).
-2. Identity (dimension 1) — only if the persona was declined: propose the abstract
-   rename then.
-3. All remaining changes in dimension order (2–10), then sibling files.
-
-If the audit recommends no identity change, the persona offer keeps its natural
-position at dimension 11.
-
-**For each recommended change**, ask ONE question. Two dimensions are handled specially:
-
-- **Dimension 11 (Persona)** — present it as an **offer** (the recommended default when
-  identity is changing anyway), not a routine change, because adopting a real-figure
-  persona changes the agent's identity (and may rename it). If the user accepts, run
-  **domain-creator Phase 1.5 Persona Discovery** inline (search → 3 candidates → pick /
-  custom / composite), then fold the result into the rewrite. If they decline, the
-  agent stays abstract — no change.
-- **Dimension 6 harvest** — if the user accepts populating the KB, run the
-  **domain-creator Phase 6 Q6d knowledge-harvest workflow** inline and write its outputs
-  into the rewrite's KB.
-
-For all other dimensions, ask ONE question:
+**ASK (a real turn each — same `default-with-WHY` question template as `domain-creator`):**
 
 ```
-**Change <N> of <total>: <short title>**
-
-Current state in the agent:
-  <excerpt from the existing file, OR "not declared">
-
-**✨ Default — <recommended new value>**
-
-```
-<aligned shape — code block>
+persona offer        dimension 11 — changes the agent's identity; user's explicit call
+identity             dimension 1  — ONLY if the persona was declined (else derived from figure)
+domain reframing     dimensions 2/10 — domain sentence, reference implementation,
+                     comparable peers (the substantive-reframe case)
+categories           dimension 4 — claimed work categories define the whole schema set
+KB harvest offer     dimension 6 (Q6d) — runs a real research Workflow; costs time; user call
 ```
 
-*<one-line why this is recommended FOR THIS AGENT, not generic>*
-
-**Override:**
-
-```
-<keyword>  — <short alt>
-skip       — leave the agent's current state alone
-```
-
-→ Type `default`, an override keyword, or `skip`.
-```
-
-Behavioral rules during Step 3:
-
-- **One change per turn.** Wait for the user's answer. Then move to the next change.
-- **Show progress.** After each answer, briefly: *"Got it — change N: <decision>. Next…"*
-- **Tailor the WHY to this agent.** Don't use generic boilerplate. The WHY should reference what the agent already does (e.g., *"Your agent already deflects out-of-scope politely — declaring `pressure_test_default = wait-until-asked` formalizes the current behavior"*).
-- **Skip is a real option.** If the user types `skip`, that change is dropped. The existing value stays.
-- **Don't bulk-accept by default.** No "type `all` to accept everything" — every change earns its keystroke.
-
-After ALL changes processed, show a compact summary on one screen:
+**AUTO-FIX (apply silently — recompiling onto the spine fixes these; list each in the
+Step 3.3 review with its origin tag, editable in one line):**
 
 ```
-**Summary of changes** (X accepted · Y skipped)
-
-✓ Change 1 — Add "Who you serve" section          → accepted (default: VB C-level team)
-✓ Change 2 — Declare canonical categories          → accepted (default: reference_lookup, educational_explainer)
-✗ Change 3 — Add memory: project                   → skipped
-✓ Change 4 — Formalize confidence vocab            → accepted (override: existing five-state — no change)
-...
+schema shapes · confidence vocab · review markers   → [spine]   (fragments injected on recompile)
+anti-fabrication floor                              → [spine]   (always emitted — never a question)
+verdict vocabulary                                  → [derived] from domain + categories
+                                                      (keep the agent's existing words if it has
+                                                       consistent ones — existing usage wins)
+primary user + example question                     → [derived] from the domain (keep existing if present)
+out-of-scope refusals                               → [derived] — MERGE with the agent's existing
+                                                      refusals; never silently drop one
+pressure-test posture                               → [derived ← categories]
+memory scope                                        → [derived] memory: project (zero variance in production)
+live source                                         → [spine]   WebFetch official domain sources;
+                                                      project-file access stays OFF unless already
+                                                      explicitly granted in the old agent
+frontmatter contract fields                         → [spine]   name_ar, categories, spine_version
+                                                      per ../domain-creator/references/CONTRACT.md
+KB scaffold + starter prompts (missing siblings)    → [derived] generated per Step 4 rules
 ```
 
-Then ask:
+**Triage rule of thumb:** if `domain-creator` would have ASKED it, ask it. If creator
+derives it or inherits it from the spine (its Phases 3, 5, 6b/6c, 7, 8 are all marked
+*derived / silent — not asked*), DO NOT ask it here either — fix it and show it in the
+review. Asking a user to approve `memory: project` or a confidence vocabulary is the
+exact anti-pattern creator eliminated.
 
-```
-Type `go` to generate the rewrite, or `back <N>` to revisit one change.
-```
+### Step 3.2 — Ask the ASK turns (persona FIRST when identity changes)
+
+Mirror create mode's order (domain → persona → identity). Whenever the audit
+recommends ANY identity change (rename, new display name, decoupling a project slug),
+the **persona offer is the FIRST question** — the framework's signature move is
+building the agent in homage to a **real domain figure**, and the figure *determines*
+the name (creator Phase 2 derives slug + display name + Arabic name from the figure).
+Never propose an abstract name before the persona decision.
+
+1. **Persona offer** (dimension 11) — accepted → run **domain-creator Phase 1.5
+   Persona Discovery** inline (search → 3 candidates → pick / custom / composite);
+   identity is then *derived* from the figure (one-tap confirm). Declined → the agent
+   stays abstract.
+2. **Identity** (dimension 1) — only if the persona was declined: propose the abstract
+   rename now.
+3. **Domain reframing** (dimensions 2/10) — when product-coupling fired: domain
+   sentence + reference implementation + comparable peers, per creator's Phase 2
+   framing rules (professional domain-label convention, 3–7 peers).
+4. **Categories** (dimension 4) — confirm/correct the claimed canonical categories.
+5. **KB harvest offer** (dimension 6) — if accepted, run the **domain-creator Phase 6
+   Q6d knowledge-harvest workflow** inline and write its outputs into the rewrite's KB.
+
+Ask ONE question per turn; wait for the answer. `skip` is a real option on every turn
+— the existing value stays. Tailor every WHY to *this* agent (reference what it
+already does), never generic boilerplate.
+
+### Step 3.3 — Consolidated review (creator's Phase 9, with a "was" column)
+
+Show ONE **markdown table** — every field of the rewrite with its old value, new
+value, and origin tag (`[asked]` · `[derived]` · `[spine]` · `[kept]`):
+
+| Field | Was | Now | Origin |
+|---|---|---|---|
+| Identity | `<old-slug>` (project-coupled) | `<figure or abstract name>` | `[asked]` |
+| Domain | "<old framing>" | "<widened category>" | `[asked]` |
+| Comparable peers | (none) | 5 peers | `[asked]` |
+| Categories | (undeclared) | `decision_support` · `reference_lookup` | `[asked]` |
+| Primary user | (none) | <derived role + context> | `[derived]` |
+| Verdict vocab | inconsistent | <existing words, standardized> | `[kept]` |
+| Confidence vocab | 5-state ad-hoc | `[VERIFIED]`/`[UNVERIFIED]`/`[NEEDS-RESEARCH]` | `[spine]` |
+| Out of scope | 2 items | 4 items (merged, nothing dropped) | `[derived]` |
+| Pressure-test | (none) | ON (has `decision_support`) | `[derived ← cats]` |
+| Memory | (none) | `project` | `[derived]` |
+| Live source | project files | WebFetch official sources | `[spine]` |
+| Anti-fab | informal | spine floor | `[spine]` |
+| spine_version | absent (pre-spine) | current | `[spine]` |
+
+Show only rows that apply. Then ask: *"Look right? Type `go` to generate, or
+`edit <field>` to change any row."* On `edit <field>`, capture the new value with
+`origin: typed` (user-authored overrides derived), re-show the table, loop until `go`.
 
 ## Step 4 — Generate the rewrite (3 files)
 
@@ -425,6 +439,10 @@ Save options:
 
 On `save`, write all 3 files. The agent .md goes to `existing_path` (overwrite). KB and prompts go to their conventional paths relative to the agent's parent dir.
 
+After save, if the agent is registered in the OneStudio hub, offer to re-sync its spec
+per `../domain-creator/references/PLAYBOOK.md` — one idempotent `register_my_venture`
+call with the updated file texts (fill-only-nulls; safe to re-run).
+
 ## Output destinations
 
 | File | Destination |
@@ -437,6 +455,11 @@ On `save`, write all 3 files. The agent .md goes to `existing_path` (overwrite).
 
 ## Anti-patterns
 
+- **Don't run a one-question-per-finding march.** Creator's law applies here too: ask
+  only persona / identity / domain-framing / categories / harvest. Asking the user to
+  approve `memory: project`, a confidence vocabulary, or the anti-fabrication floor is
+  asking about spine-inherited and derived values — fix silently, show in the Step 3.3
+  review table.
 - **Don't name the agent before the persona decision.** If identity is changing, the
   persona offer comes FIRST and the name is derived from the chosen figure — proposing
   an abstract rename at change 1 and offering a real-figure persona at change 9 buries

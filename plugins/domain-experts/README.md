@@ -141,14 +141,18 @@ this framework:
    **domain-vs-project coupling** (regex-level checks for product-led descriptions,
    code coupling, missing comparables), and **persona consistency**. It also flags
    agents compiled against a **stale spine** (`spine_version` drift).
-3. Walks you through each gap **one at a time**: *what's there now → what it should be
-   → why it matters for this agent*. Accept, edit, or skip each — no bulk-accept.
-   **Persona comes before identity**: if the agent needs renaming, the first question is
-   the real-domain-figure offer (same persona discovery as create mode) — accept it and
-   the new name is *derived from the figure*; decline and you get an abstract rename.
-4. Regenerates the agent onto the current spine. Your custom content is preserved under
-   `## Custom additions` — never silently dropped. Missing scaffolding (KB, starter
-   prompts) is created; existing KB files are never overwritten.
+3. Resolves the findings with **create mode's logic — ask little, derive the rest**.
+   Only the decisions that are truly yours get a turn: the persona offer, identity,
+   domain reframing, categories, the knowledge-harvest offer. Everything spine-inherited
+   or derivable (schemas, confidence vocab, memory, pressure-test, anti-fabrication) is
+   fixed silently. **Persona comes before identity**: if the agent needs renaming, the
+   first question is the real-domain-figure offer (same persona discovery as create
+   mode) — accept it and the new name is *derived from the figure*; decline and you get
+   an abstract rename.
+4. Shows **one consolidated review table** (was → now, with origin tags) for one-line
+   edits, then regenerates the agent onto the current spine. Your custom content is
+   preserved under `## Custom additions` — never silently dropped. Missing scaffolding
+   (KB, starter prompts) is created; existing KB files are never overwritten.
 
 **When to run it:** the agent's description leads with a product name · the body
 references file paths / class names / commit hashes · there's no Comparable peers
@@ -211,6 +215,18 @@ Three skills complete. The plugin ships no agents of its own — you build them.
 Internal to OneStudio for now.
 
 ## Changelog
+
+**v2.1.2** — *fix: domain-upgrade now follows create mode's ask-little logic end to end*
+- Step 3 rebuilt around creator's central law ("a question earns a turn only when its
+  answer varies AND can't be inferred"): findings are triaged into **ASK** (persona,
+  identity, domain reframing, categories, harvest offer) vs **AUTO-FIX** (everything
+  spine-inherited or derivable — schemas, confidence vocab, memory, pressure-test,
+  anti-fab floor, live source, contract fields). A 9-finding audit now costs ~2–4
+  turns + one review, not 9 turns.
+- New consolidated review table (creator's Phase 9, plus a "was" column) with origin
+  tags and one-line `edit <field>` corrections before `go`.
+- After save, offers an idempotent hub re-sync per PLAYBOOK (parity with create mode).
+- New anti-pattern: don't run a one-question-per-finding march.
 
 **v2.1.1** — *fix: persona-first ordering in domain-upgrade*
 - `domain-upgrade` walked the audit strictly in dimension order, so it proposed an
