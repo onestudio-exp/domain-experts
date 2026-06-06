@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+#
+# post-commit hook — Agent Edit Telemetry
+#
+# Installed by: scripts/install-telemetry-hook.{ps1,sh}
+# Source repo:  onestudio-exp/domain-experts
+#
+# What this does:
+#   After every commit in the venture's git repo, check whether the
+#   commit touched any agent files (under .claude/plugins/<slug>/agents/
+#   or .../examples/). If yes, append a structured entry to
+#   .telemetry/edits.jsonl for later classification by
+#   /domain-experts:classify-edit.
+#
+#   Toolkit edits (under .claude/plugins/domain-experts/**) are excluded
+#   -- those are improvements to the toolkit itself, not telemetry.
+#
+# Exit silently on any non-agent commit. No noise in the user's
+# terminal unless something actually fails.
+
+set -u
+
+# Resolve venture root (where .git lives)
+venture_root="$(git rev-parse --show-toplevel 2>/dev/null)"
+[ -z "$venture_root" ] && exit 0
+
+# What files did this commit touch?
+changed_files=$(git diff-tree --no-commit-id --name-only -r HEAD 2>/dev/null)
+[ -z "$changed_files" ] && exit 0
+
+# Filter to agent-related paths, exclude the toolkit submodule itself
+agent_files=$(echo "$changed_files" | grep -E '^\.claude/plugins/[^/]+/(agents/|examples/)' | grep -v '^\.claude/plugins/domain-experts/' || true)
+[ -z "$agent_files" ] && exit 0
+
+# Prepare telemetry dir + file
+telemetry_dir="$venture_root/.telemetry"
+mkdir -p "$telemetry_dir"
+edits_file="$telemetry_dir/edits.jsonl"
+
+commit_hash=$(git rev-parse HEAD)
+commit_short=$(git rev-parse --short HEAD)
+commit_msg=$(git log -1 --pretty=%s)
+author=$(git log -1 --pretty=%an)
+timestamp=$(git log -1 --pretty=%aI)
+
+# One JSONL entry per touched agent file
+echo "$agent_files" | while IFS= read -r file; do
+    [ -z "$file" ] && continue
+
+    # Extract agent slug from path: .claude/plugins/<slug>/...
+    agent_slug=$(echo "$file" | awk -F/ '{print $3}')
+
+    # Classify file kind for downstream classifier hints
+    case "$file" in
+        *.claude/plugins/*/agents/*-knowledge/*) kind="kb_file" ;;
+        *.claude/plugins/*/agents/*.md)          kind="agent_body" ;;
+        *.claude/plugins/*/examples/*)           kind="starter_prompts" ;;
+        *)                                        kind="other" ;;
+    esac
+
+    # Change type
+    change_type=$(git log -1 --name-status --pretty="" -- "$file" | awk '{print $1}')
+    case "$change_type" in
+        A) change_type="added" ;;
+        M) change_type="modified" ;;
+        D) change_type="deleted" ;;
+        *) change_type="unknown" ;;
+    esac
+
+    # Build JSON line manually (avoid jq dependency for portability)
+    edit_id="${commit_short}_$(echo "$file" | tr '/' '_' | tr '.' '_')"
+    json=$(printf '{"edit_id":"%s","agent":"%s","file":"%s","kind":"%s","change_type":"%s","commit":"%s","commit_msg":"%s","author":"%s","timestamp":"%s","classified":false}' \
+        "$edit_id" \
+        "$agent_slug" \
+        "$file" \
+        "$kind" \
+        "$change_type" \
+        "$commit_hash" \
+        "$(echo "$commit_msg" | sed 's/"/\\"/g')" \
+        "$(echo "$author" | sed 's/"/\\"/g')" \
+        "$timestamp")
+    echo "$json" >> "$edits_file"
+done
+
+# Friendly summary on stdout (one line, not noisy)
+count=$(echo "$agent_files" | grep -c . || true)
+echo "[telemetry] captured $count agent edit(s) -> .telemetry/edits.jsonl"
+
+exit 0
