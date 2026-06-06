@@ -245,11 +245,11 @@ it must read like the catalog, not like a casual phrase. The catalog pattern is:
   <geography as a MODIFIER, glued to the practice>
   : <2–4 scoping sub-topics>
 
-Real examples from the catalog:
-  ✓ "merchant-funded loyalty, embedded cashback, retention economics" (Aref)
-  ✓ "Iraqi K-12 education: curriculum G6-G12, Wazari exams"            (Fekri)
-  ✓ "GCC corporate gifting governance: anti-bribery, GAP…"            (Wafaa)
-  ✓ "Qatar's economy: hydrocarbons, financial system, policy"         (Shaheen)
+Real examples of well-formed labels:
+  ✓ "merchant-funded loyalty, embedded cashback, retention economics"
+  ✓ "Iraqi K-12 education: curriculum G6-G12, Wazari exams"
+  ✓ "GCC corporate gifting governance: anti-bribery, GAP…"
+  ✓ "Qatar's economy: hydrocarbons, financial system, policy"
 ```
 
 Three rules that separate a professional label from a flat one:
@@ -806,9 +806,9 @@ Review schema    (🔴🟡🟢❓🚏)                            →  doesn't v
 Verdict vocabulary (the decision WORDS)                →  varies, but inferable → AUTO-DERIVE
 ```
 
-Portfolio evidence that only the verdict *words* vary (the shapes don't):
-`membership → Go/Go-with-conditions/No-Go` · `rushd → Yes/No/Needs-adjustment` ·
-`nala → Invest/Hold/Pivot/Kill` · `salwa → Pursue/Pass/Restructure`.
+Production evidence that only the verdict *words* vary (the shapes don't) — observed
+vocabularies across past agents: `Go/Go-with-conditions/No-Go` ·
+`Yes/No/Needs-adjustment` · `Invest/Hold/Pivot/Kill` · `Pursue/Pass/Restructure`.
 
 **What Phase 5 actually does (no user turn):**
 
@@ -1121,12 +1121,12 @@ Capture: `project_file_access` (bool, default false), `live_source_paths` (only 
 *(Why this changed: the old rule defaulted project-file reading ON whenever a Reference
 implementation existed — but that pulls the agent toward product-expert, contradicting
 domain-widening. The spine now states the same: WebFetch official domain sources by
-default; Read/Glob/Grep project files only on explicit request. ziad, abo-lijan, fekri,
-and every homage persona stay pure domain experts.)*
+default; Read/Glob/Grep project files only on explicit request — agents stay pure
+domain experts.)*
 
 **Q6c — Memory scope** *(SILENT DEFAULT — not asked)*
 
-Do **not** ask. Portfolio evidence: **15/15 agents = `project`** — zero variance. The
+Do **not** ask. Production evidence: **every agent built so far = `project`** — zero variance. The
 mechanics already live in the spine (`memory_mechanics`). So set silently:
 
 ```
@@ -1241,10 +1241,10 @@ they are not added to the canonical `categories:` list.
 
 **Q7 — Out of scope** *(auto-derive from the domain; confirm in Phase 9 — not a blank turn)*
 
-Do **not** ask from blank. The refusal set is highly inferable from the domain — the
-portfolio shows the same shapes every time ("NOT a journalist/coder/UI", adjacent
-regulated specialties). Derive 2–4 items, then surface read-only in the Phase 9
-summary for one-line add/remove:
+Do **not** ask from blank. The refusal set is highly inferable from the domain —
+production agents show the same shapes every time ("NOT a journalist/coder/UI",
+adjacent regulated specialties). Derive 2–4 items, then surface read-only in the
+Phase 9 summary for one-line add/remove:
 
 ```
 if out_of_scope_hints was captured in Phase 0.5  → use it
@@ -1298,10 +1298,9 @@ value emits the floor PLUS a "Beyond the floor, you hold yourself to: …" line.
 
 **Q8 — Pressure-testing posture** *(derive from Phase 4 categories)*
 
-Do **not** ask. Portfolio evidence confirms the posture tracks the categories, not the
-user's taste: decision/review agents pressure-test (salwa, rushd, nala, membership,
-sada…), while reference/educational/intake agents stay responsive (fekri, shaheen,
-harvester). So derive:
+Do **not** ask. Production evidence confirms the posture tracks the categories, not the
+user's taste: decision/review agents pressure-test, while reference/educational/intake
+agents stay responsive. So derive:
 
 ```
 primary_categories includes decision_support OR structured_review
@@ -1476,9 +1475,9 @@ the schema catalog). Fill template placeholders from captured answers; resolve
 `spine_version` into the agent frontmatter.
 
 Why this split: the shared rules live in **one** file. Fix the spine once and every
-agent picks up the fix on its next recompile — no drift across the portfolio's many
-agents. (Recompiling existing agents onto a newer spine is `domain-upgrade`'s job, out
-of scope for create mode.)
+agent picks up the fix on its next recompile — no drift across however many agents
+you build. (Recompiling existing agents onto a newer spine is `domain-upgrade`'s job,
+out of scope for create mode.)
 
 For sections that depend on Phase 4 choices (e.g., the agent only includes a "Decision schema" section if it claimed `decision_support`), conditionally include or omit those sections.
 
