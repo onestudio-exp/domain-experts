@@ -33,13 +33,42 @@ The five skills:
 
 ## Install — 30 seconds
 
-Two paths. Pick by whether you'll also *improve* the toolkit.
+Two modes. Pick by whether you'll also *improve* the toolkit.
 
-### A) Developer (or consumer = developer) — clone + `setup`
+### A) Normal — official Claude Code plugin marketplace
 
-The clone **is** the install: you run the skills, edit them, `git pull` to update, and
-`git push` / PR to share — all from one directory. This is the recommended path while the
-toolkit is actively evolving.
+The standard path for anyone who just wants to *use* the toolkit. Inside Claude Code,
+add the marketplace once, then install the plugin:
+
+```text
+/plugin marketplace add onestudio-exp/domain-experts
+/plugin install domain-experts@domain-experts
+```
+
+Skills appear namespaced: **`/domain-experts:domain-creator`**, `/domain-experts:domain-eval`,
+`/domain-experts:domain-capture`, `/domain-experts:domain-contribute`, `/domain-experts:domain-chat`.
+
+- **Update:** `/plugin marketplace update domain-experts` — then Claude Code installs the new
+  version on the next session. (Or browse + manage everything with `/plugin`.)
+- **Remove:** `/plugin uninstall domain-experts@domain-experts`.
+
+**Team auto-provision (optional).** To make every teammate get the plugin auto-installed and
+auto-updated when they open a project — no manual commands — commit a settings file once:
+
+```bash
+# from inside your project repo (needs a local clone of this repo — see mode B):
+/path/to/domain-experts/bin/team-init required \
+  && git add .claude/settings.json && git commit -m "require domain-experts toolkit"
+```
+
+This writes `.claude/settings.json` registering the `onestudio-exp/domain-experts` marketplace
+(`autoUpdate: true`) and enabling the plugin. On a teammate's first trusted open, Claude Code
+prompts them to add the marketplace + enable the plugin, then tracks the repo each session.
+
+### B) Developer — clone + `setup`
+
+For anyone who will also *edit* the toolkit. The clone **is** the install: you run the skills,
+edit them, `git pull` to update, and `git push` / PR to share — all from one directory.
 
 ```bash
 git clone https://github.com/onestudio-exp/domain-experts.git ~/.claude/skills/domain-experts \
@@ -58,33 +87,16 @@ flat slash commands: **`/domain-creator`**, `/domain-eval`, `/domain-capture`,
 - Flags: `--prefix` (namespace as `domain-experts-<skill>`) · `--local` (install into
   `./.claude/skills` of the current project) · `--status`.
 
-### B) Pure consumer (team auto-provision) — committed settings, official plugin system
-
-For teammates who only *use* the toolkit (never edit it), bootstrap a project once so
-everyone who opens it gets the plugin auto-installed and auto-updated — no manual commands,
-no vendored files:
-
-```bash
-# from inside your project repo:
-~/.claude/skills/domain-experts/bin/team-init required \
-  && git add .claude/settings.json && git commit -m "require domain-experts toolkit"
-```
-
-This writes `.claude/settings.json` registering the `onestudio-exp/domain-experts`
-marketplace (`autoUpdate: true`) and enabling the plugin. On a teammate's first trusted
-open, Claude Code prompts them to add the marketplace + enable the plugin, then tracks the
-repo each session. (Via the plugin system, skills are namespaced `/domain-experts:domain-creator`.)
-
 ### Which invocation do I type?
 
 Same skills, name depends on how you installed:
 
-| Install path | Invoke as |
+| Install mode | Invoke as |
 |---|---|
-| **A** clone + `./setup` (skills) | `/domain-creator`, `/domain-eval`, `/domain-capture`, `/domain-contribute`, `/domain-chat` |
-| **B** plugin (marketplace) | `/domain-experts:domain-creator`, … (namespaced) |
+| **A** plugin (marketplace) | `/domain-experts:domain-creator`, … (namespaced) |
+| **B** clone + `./setup` (skills) | `/domain-creator`, `/domain-eval`, `/domain-capture`, `/domain-contribute`, `/domain-chat` |
 
-Examples elsewhere in this doc use the **B** namespaced form; if you installed via **A**, drop the `domain-experts:` prefix.
+Examples elsewhere in this doc use the **A** namespaced form; if you installed via **B**, drop the `domain-experts:` prefix.
 
 ---
 
@@ -120,7 +132,7 @@ No config. agent-kit auto-discovers any persona at `.claude/agents/<slug>.md` (o
 
 ### Improving the toolkit itself (the skills)
 
-If you installed via **path A** (clone + `./setup`), the clone IS your dev copy — improve the skills in place:
+If you installed via **mode B** (clone + `./setup`), the clone IS your dev copy — improve the skills in place:
 
 1. `cd ~/.claude/skills/domain-experts && git checkout -b feat/<change>`
 2. Edit `plugins/domain-experts/skills/<skill>/SKILL.md` (or `spine/SPINE.md`).
@@ -143,6 +155,6 @@ You stay in your venture's working dir. **No clone, no nav-to-subdir.**
 
 ## Status
 
-**Toolkit v0.5.0** — 5 skills + Nala (reference agent). Two install paths live: gstack-style clone + `./setup` (skills) and the official plugin marketplace (`/plugin install domain-experts@domain-experts`). `domain-creator` runs an 11-dimension refit audit (incl. persona homage) and workflow-driven persona discovery + knowledge harvest.
+**Toolkit v0.5.0** — 5 skills + Nala (reference agent). Two install modes live: the official plugin marketplace (`/plugin install domain-experts@domain-experts`) and a gstack-style clone + `./setup` (skills). `domain-creator` runs an 11-dimension refit audit (incl. persona homage) and workflow-driven persona discovery + knowledge harvest.
 
 See [`plugins/domain-experts/README.md`](plugins/domain-experts/README.md) for the toolkit's usage guide and lifecycle docs.
