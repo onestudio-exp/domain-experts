@@ -2,6 +2,30 @@
 
 OneStudio's toolkit for building domain expert agents — packaged as a Claude Code plugin. **One plugin, 3 skills. It ships no agents of its own — you build them.**
 
+## Why not just write an agent file by hand?
+
+Claude Code lets you drop a markdown file in `.claude/agents/` and call it an agent.
+That gives you a *prompt*. This plugin gives you a **system**:
+
+- **Deep creation, not a blank page** — the skill auto-reads your venture's docs (PRD,
+  README, specs) and prefills the whole framing with per-field confidence + source
+  citations. The interview collapses to ~3 turns.
+- **Domain-widening, enforced** — the agent owns the *category*, never your product.
+  Your product becomes one Reference Implementation among 3–7 named comparable peers,
+  so the agent has a real category to reason against and stays reusable across ventures.
+- **Persona homage (optional)** — a workflow researches real influential figures in the
+  domain (bilingually, ≥2 independent sources) and builds the agent in their school of
+  thought — cited works, hard fabricated-quote guard.
+- **Harvested, cited knowledge** — a workflow pulls the domain's official/academic canon
+  into a per-topic KB with a 3-tier source gate. No "knowledge" from model memory.
+- **A shared spine** — anti-fabrication floor, citation discipline, confidence
+  vocabulary, and tested output schemas are *compiled* into every agent from one
+  versioned source. Fix the spine once, `/domain-upgrade` recompiles every agent.
+- **Testable + maintainable** — generated starter prompts (incl. refusal tests),
+  per-project memory, and an 11-dimension audit that catches drift.
+
+Full comparison table in the [toolkit README](plugins/domain-experts/README.md#why-not-just-write-an-agent-file-by-hand).
+
 ## What's here
 
 ```
@@ -23,9 +47,9 @@ The repo hosts **one plugin — the toolkit** (`plugins/domain-experts/`): skill
 
 The three skills:
 
-- **`domain-creator`** — build a new agent, from blank or from your venture's docs (context-aware prefill).
-- **`domain-upgrade`** — audit an existing agent against the framework's 11 dimensions and uplevel it (incl. recompiling onto the current spine).
-- **`domain-chat`** — open a browser chat UI for an agent via [agent-kit](https://github.com/onestudio-exp/agent-kit).
+- **`domain-creator`** — the deep creation pipeline: context discovery → domain widening → persona discovery (workflow) → knowledge harvest (workflow) → spine composition. Output: agent definition + cited KB + starter prompts + memory wiring.
+- **`domain-upgrade`** — audit an existing agent against the framework's 11 dimensions (incl. product-coupling regex checks and stale-`spine_version` detection) and recompile it, preserving custom content.
+- **`domain-chat`** — open a browser chat UI for an agent via [agent-kit](https://github.com/onestudio-exp/agent-kit): streaming chat, KB browser, memory CRUD. Zero config.
 
 ---
 

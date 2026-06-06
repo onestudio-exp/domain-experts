@@ -139,8 +139,8 @@ Run all of these against the file. Any flag → mark dimension 10 as ⚠ or ✗.
 ```
 A. Description leads with a product
    regex on `description:` line — flag if matches:
-     /\bfor [A-Z][A-Za-z0-9 ]+\b/         e.g. "for Member Plus"
-     /\b[A-Z][A-Za-z0-9]+ (PM|product manager|expert)\b/  e.g. "WalletPlus expert"
+     /\bfor [A-Z][A-Za-z0-9 ]+\b/         e.g. "for <ProductName>"
+     /\b[A-Z][A-Za-z0-9]+ (PM|product manager|expert)\b/  e.g. "<ProductName> expert"
    → ✗ if leads-with-product detected.
 
 B. Persona subtitle binds identity to a venture
@@ -253,7 +253,7 @@ I. Abstract agent — offer (do not flag)
    ⚠ no `memory:` field — recommend adding `memory: project`
 
 10. Domain-vs-project framing
-    ⚠ description leads with "for Member Plus" — couples agent to one venture
+    ⚠ description leads with "for <ProductName>" — couples agent to one venture
     ✗ no `## Comparable peers` section — agent has no category to reason against
     ⚠ body references specific class `WhatsAppMessageService.php:42`
     → Recommend: reframe description domain-first; add Reference implementation
@@ -265,7 +265,7 @@ I. Abstract agent — offer (do not flag)
     💡 OFFER: rebuild in homage to a real domain figure? (runs domain-creator
        Phase 1.5 discovery)
     [or, when inconsistent:]
-    ⚠ body speaks as "Salah Abo El Magd" but no `persona:` frontmatter block
+    ⚠ body speaks as "<Figure Name>" but no `persona:` frontmatter block
     ⚠ persona declared but no cited profile + no fabricated-quote guard
     → Recommend: formalize the homage contract (frontmatter + disclosure + profile)
 

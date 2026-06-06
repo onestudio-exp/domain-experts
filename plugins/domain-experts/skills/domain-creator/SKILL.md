@@ -281,22 +281,22 @@ Render the label bilingually when the domain is bilingual (e.g.
 **Domain-widening examples — required widening:**
 
 ```
-Sources describe "Member Plus" (loyalty platform)
-  ✗ domain: "Member Plus expert"
+Sources describe a loyalty platform (the venture's product)
+  ✗ domain: "<product-name> expert"
   ✓ domain: "merchant-funded loyalty in MENA"
-  → Reference implementation: Member Plus
-  → Peers: Bilt, Rakuten, Entertainer, Collinson, Sprive
+  → Reference implementation: <product-name>
+  → Peers: 3–7 named products in the category (global + regional)
 
-Sources describe "RevXAI Auditor" (AI code reviewer)
-  ✗ domain: "RevXAI expert"
+Sources describe an AI code-review tool (the venture's product)
+  ✗ domain: "<tool-name> expert"
   ✓ domain: "AI-assisted code review for rapid-prototype apps"
-  → Reference implementation: RevXAI Auditor
+  → Reference implementation: <tool-name>
   → Peers: Snyk, SonarQube, CodeRabbit, GreptileAI, DeepCode
 
-Sources describe "TaxFlow" (bilingual GCC tax practice platform)
-  ✗ domain: "TaxFlow expert"
+Sources describe a bilingual GCC tax practice platform (the venture's product)
+  ✗ domain: "<product-name> expert"
   ✓ domain: "GCC tax compliance across VAT, CT, and Excise"
-  → Reference implementation: TaxFlow
+  → Reference implementation: <product-name>
   → Peers: PwC ME, Deloitte ME, EY ME, KPMG ME, BDO ME
 ```
 
@@ -328,12 +328,12 @@ Show **one compact screen** as a **markdown table** with confidence colors
 | 4 | User context | Filing VAT returns + advising on CT obligations | 🟡 | PRD §5–7 |
 | 5 | Example question | "How to treat reverse-charge VAT on UAE↔KSA imports?" | 🟡 | derived |
 | 6 | Primary categories | `regulatory_compliance`, `reference_lookup` | 🟢 | PRD §1, §5 |
-| 7 | Reference impl. | TaxFlow | 🟢 | PRD title |
+| 7 | Reference impl. | <product-name> | 🟢 | PRD title |
 | 8 | Comparable peers | PwC ME, Deloitte ME, EY ME, KPMG ME, BDO ME | 🔴 | no source — guessed |
 | 9 | Out-of-scope hints | zakat (refused), personal tax advice | 🟢 | CLAUDE.md §3 |
 | 10 | Knowledge folders | `regulations`, `cultural-context` | 🟡 | derived from source type |
 
-> **Notice:** sources describe one specific venture (TaxFlow). The agent is framed
+> **Notice:** sources describe one specific venture (the product the PRD names). The agent is framed
 > around the WIDER category so any team in the space can use it — the venture is the
 > Reference Implementation, not the agent's identity.
 >
@@ -415,7 +415,7 @@ agent's **domain spine** and seeds the persona search that follows.
               gifting governance", "Iraqi K-12 education").
              Reference companies are EXAMPLES, not the agent's identity.
   project  — a single product, codebase, or venture's PM work.
-             (e.g., "Member Plus product manager", "RevXAI auditor").
+             (e.g., "<product> product manager", "<tool> auditor").
 
 **2 · Domain in one sentence**
 
@@ -507,9 +507,10 @@ out across angles**. MENA/Arabic figures are badly under-indexed in English-only
    — a multi-modal sweep), using the available web-search tool (firecrawl
    `firecrawl_search` / Tavily / `WebSearch`). No single angle becomes the bottleneck.
 3. **Dedup** by normalized name; reconcile transliteration variants
-   (`Abo El Magd` ↔ `أبو المجد`).
-4. **Disambiguate collisions** — confirm the candidate is the figure in *this* domain
-   (e.g., Salah Abo El Magd the leadership trainer ≠ Ahmed Kamal Abo El Magd).
+   (Latin spelling ↔ Arabic script of the same name).
+4. **Disambiguate collisions** — two public figures can share a (partial) name;
+   confirm the candidate is the figure in *this* domain by field + era + body of
+   work, never by name alone.
 5. **Rank** by influence signals corroborated across **≥2 independent sources**:
    cross-platform following, books/publications, media presence, leadership of known
    orgs, recency of activity.
@@ -705,9 +706,9 @@ don't ask from a blank field:
 
 | Field | Value | |
 |---|---|---|
-| `slug` | `salah-abo-elmagd` | kebab of the figure's name |
-| `display_name` | Salah Abo El Magd | |
-| `name_ar` | صلاح أبو المجد | if the figure has an Arabic name |
+| `slug` | `<figure-name-kebab>` | kebab of the figure's name |
+| `display_name` | <Figure Name> | |
+| `name_ar` | <الاسم بالعربية> | if the figure has an Arabic name |
 
 → `confirm` to take these, or `edit` to change slug / display name / Arabic name.
 
