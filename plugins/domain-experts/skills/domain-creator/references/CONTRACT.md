@@ -15,7 +15,7 @@ READS it. Changing one side without the other breaks the round-trip.
 | `tools` | yes | `agents.tools` | comma-separated |
 | `memory` | yes | `agents.memory` | `project` \| `user` \| `local` \| `none` |
 | `model` | optional | `agents.model` | `opus` \| `sonnet` \| `haiku` \| explicit id |
-| `spine_version` | yes (compiled agents) | `agents.spine_version` | **NEW** — integer; the `spine_version` from `spine/SPINE.md` this agent was compiled against. Lets refit detect a stale spine and recompile. Absent ⇒ pre-spine legacy agent (treat as `0`). |
+| `spine_version` | yes (compiled agents) | `agents.spine_version` | **NEW** — integer; the `spine_version` from `spine/SPINE.md` this agent was compiled against. Lets domain-upgrade detect a stale spine and recompile. Absent ⇒ pre-spine legacy agent (treat as `0`). |
 
 ## Canonical categories
 
@@ -46,5 +46,5 @@ work-bullet labels to canonical slugs. New files MUST emit them explicitly.
 
 Legacy files without `spine_version` are pre-spine agents (their invariant
 prose is hand-baked, not composed). Treat a missing `spine_version` as `0`;
-the hub and refit read it only to detect staleness, never to gate parsing.
+the hub and domain-upgrade read it only to detect staleness, never to gate parsing.
 New (compiled) files MUST emit it.

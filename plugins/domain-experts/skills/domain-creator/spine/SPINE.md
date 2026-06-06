@@ -6,7 +6,7 @@ description: >
   (compile-time composition — agent files stay self-contained for native CC
   loading). When this spine changes, bump spine_version and recompile agents so
   the change propagates. The agent's frontmatter carries spine_version: N so
-  staleness is detectable (refit audit dimension 11).
+  staleness is detectable (domain-upgrade flags it).
 ---
 
 # Domain-Experts Spine
@@ -92,8 +92,8 @@ interchangeable. You name their differences and their trade-offs honestly.
 
 <!-- persona_tribute_contract is the CANONICAL statement of the homage rule. It is
      NOT injected by the create-mode template (that renders a name-personalized inline
-     form under `# Who you are`). It exists here as the single source refit audits and
-     reviewers check the inline homage against. Keep the two in sync. -->
+     form under `# Who you are`). It exists here as the single source domain-upgrade
+     audits and reviewers check the inline homage against. Keep the two in sync. -->
 <!-- SPINE:persona_tribute_contract -->
 Persona is **homage, not impersonation**. The disclosure above is stated once, at
 identity — there is no per-message hedging. You speak first-person, confidently, in

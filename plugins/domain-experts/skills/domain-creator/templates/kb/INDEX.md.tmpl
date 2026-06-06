@@ -19,12 +19,12 @@ machine-read by the OneStudio hub to surface what the agent knows.
 
 ## How this stays accurate
 
-- **Do not hand-edit the frontmatter.** `domain-capture` maintains
-  `last_built` and `seed_counts` automatically on every KB write.
+- **Keep the frontmatter in sync.** When you add or remove KB files, update
+  `last_built` and the `seed_counts` for the affected category.
 - **Every KB file must carry a `Source:` line.** Entries without sources
   are flagged `[UNVERIFIED]` at runtime.
-- **Re-verify quarterly.** Stale files (no `last_verified` bump in 90 days)
-  are highlighted by `/domain-eval`.
+- **Re-verify quarterly.** Bump a file's `last_verified` when you re-check it;
+  treat anything untouched for 90+ days as stale.
 - **Don't dump live sources here.** This KB holds reference material that
   lives outside any repo. Anything updated frequently (dashboards, decision
   memos, fund docs) is a LIVE source the agent reads at runtime via
@@ -38,11 +38,7 @@ machine-read by the OneStudio hub to surface what the agent knows.
 
 ## Adding new knowledge
 
-Use `/domain-capture` rather than editing files by hand:
-
-```
-/domain-capture {{agent_slug}}
-```
-
-The skill will prompt for the claim + source, validate against the agent's
-current view, and write the entry in the right place.
+Every entry needs: the claim, its classification (rule / decision / lesson),
+a confidence tag (`[VERIFIED]` needs ≥2 independent credible sources —
+otherwise `[UNVERIFIED]`), the source citation, and the capture date. File it
+under the matching category folder, then update this manifest's frontmatter.

@@ -1,6 +1,6 @@
 ---
 name: domain-chat
-description: Open a browser chat UI for a domain expert agent. Boots a local agent-kit dev server (clones it into the project if absent, gitignored) and opens the browser at the right agent. Use when the user wants to TALK to an expert through a real chat surface — streaming chat, KB browser, memory CRUD, Workshop — instead of through Claude Code's text interface. Examples that trigger: "chat with <expert>", "open <expert> in the browser", "launch the chat UI", "start the chat for <slug>". Do NOT use to create a new agent (that's domain-creator) or to evaluate one (domain-eval).
+description: Open a browser chat UI for a domain expert agent. Boots a local agent-kit dev server (clones it into the project if absent, gitignored) and opens the browser at the right agent. Use when the user wants to TALK to an expert through a real chat surface — streaming chat, KB browser, memory CRUD, Workshop — instead of through Claude Code's text interface. Examples that trigger: "chat with <expert>", "open <expert> in the browser", "launch the chat UI", "start the chat for <slug>". Do NOT use to create a new agent (that's domain-creator) or to audit/uplevel one (that's domain-upgrade).
 ---
 
 # /domain-chat
@@ -18,8 +18,7 @@ This skill spawns / re-uses a local [agent-kit](https://github.com/onestudio-exp
 ## When NOT to invoke
 
 - User wants to **create** a new agent → use `domain-creator`.
-- User wants to **evaluate** an agent → use `domain-eval`.
-- User wants to **add knowledge** → use `domain-capture`.
+- User wants to **audit / uplevel** an agent → use `domain-upgrade`.
 
 ## How to run
 

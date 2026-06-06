@@ -1,6 +1,6 @@
 # domain-experts
 
-OneStudio's toolkit for building domain expert agents — packaged as a Claude Code plugin. **One plugin, 5 skills. It ships no agents of its own — you build them.**
+OneStudio's toolkit for building domain expert agents — packaged as a Claude Code plugin. **One plugin, 3 skills. It ships no agents of its own — you build them.**
 
 ## What's here
 
@@ -8,25 +8,23 @@ OneStudio's toolkit for building domain expert agents — packaged as a Claude C
 domain-experts/
 ├── .claude-plugin/marketplace.json    # one plugin entry (the toolkit)
 ├── plugins/
-│   └── domain-experts/                # the toolkit (5 skills)
+│   └── domain-experts/                # the toolkit (3 skills)
 │       └── README.md                  # toolkit usage guide
 └── README.md                          # this file
 ```
 
-The repo hosts **one plugin — the toolkit** (`plugins/domain-experts/`): skills for building, evaluating, evolving, contributing, and chatting with domain expert agents. It ships no agents itself — you build your own with it.
+The repo hosts **one plugin — the toolkit** (`plugins/domain-experts/`): skills for building, upgrading, and chatting with domain expert agents. It ships no agents itself — you build your own with it.
 
 ## The toolkit
 
 | Plugin | Version | Use it for |
 |---|---|---|
-| **domain-experts** | 1.0.0 | Build / refit / evaluate / extend / chat-with domain expert agents (5 skills) |
+| **domain-experts** | 2.0.0 | Build / upgrade / chat-with domain expert agents (3 skills) |
 
-The five skills:
+The three skills:
 
-- **`domain-creator`** — build a new agent (from blank or a PRD) or uplevel an existing one (11-dimension refit audit).
-- **`domain-eval`** — test an agent against its declared schema, vocabulary, and rules.
-- **`domain-capture`** — add evidence-backed knowledge to an agent.
-- **`domain-contribute`** — push a local agent improvement back to its source repo.
+- **`domain-creator`** — build a new agent, from blank or from your venture's docs (context-aware prefill).
+- **`domain-upgrade`** — audit an existing agent against the framework's 11 dimensions and uplevel it (incl. recompiling onto the current spine).
 - **`domain-chat`** — open a browser chat UI for an agent via [agent-kit](https://github.com/onestudio-exp/agent-kit).
 
 ---
@@ -45,8 +43,8 @@ add the marketplace once, then install the plugin:
 /plugin install domain-experts@domain-experts
 ```
 
-Skills appear namespaced: **`/domain-experts:domain-creator`**, `/domain-experts:domain-eval`,
-`/domain-experts:domain-capture`, `/domain-experts:domain-contribute`, `/domain-experts:domain-chat`.
+Skills appear namespaced: **`/domain-experts:domain-creator`**, `/domain-experts:domain-upgrade`,
+`/domain-experts:domain-chat`.
 
 - **Update:** `/plugin marketplace update domain-experts` — then Claude Code installs the new
   version on the next session. (Or browse + manage everything with `/plugin`.)
@@ -76,8 +74,7 @@ git clone https://github.com/onestudio-exp/domain-experts.git ~/.claude/skills/d
 ```
 
 `setup` registers the toolkit skills into `~/.claude/skills/`, so they appear as
-flat slash commands: **`/domain-creator`**, `/domain-eval`, `/domain-capture`,
-`/domain-contribute`, `/domain-chat`.
+flat slash commands: **`/domain-creator`**, `/domain-upgrade`, `/domain-chat`.
 
 - **Live edits** require symlink support. macOS/Linux: automatic. **Windows: turn on
   Developer Mode** (Settings → Privacy & security → For developers), then `./setup --link`.
@@ -94,7 +91,7 @@ Same skills, name depends on how you installed:
 | Install mode | Invoke as |
 |---|---|
 | **A** plugin (marketplace) | `/domain-experts:domain-creator`, … (namespaced) |
-| **B** clone + `./setup` (skills) | `/domain-creator`, `/domain-eval`, `/domain-capture`, `/domain-contribute`, `/domain-chat` |
+| **B** clone + `./setup` (skills) | `/domain-creator`, `/domain-upgrade`, `/domain-chat` |
 
 Examples elsewhere in this doc use the **A** namespaced form; if you installed via **B**, drop the `domain-experts:` prefix.
 
@@ -143,18 +140,16 @@ The installed plugin cache is **never** edited for development — always work f
 
 ### Improving an agent you built (the persona / KB)
 
-You discover improvements while using an agent on real work. Path of least friction:
+You discover improvements while using an agent on real work:
 
-1. In your venture's project, edit `.claude/agents/<slug>.md` (the override). Test live.
-2. Run `domain-contribute` — it detects the override, diffs against the agent's source repo, asks "what changed and why", opens a PR there.
-3. After merge, delete the override; your project pulls the new canonical version.
-
-You stay in your venture's working dir. **No clone, no nav-to-subdir.**
+1. In your venture's project, edit `.claude/agents/<slug>.md` (the override if the agent is installed from a repo; the file itself if it lives in your project). Test live.
+2. Run `/domain-experts:domain-upgrade` afterwards if you want the edit audited against the framework's 11 dimensions.
+3. If the agent's canonical home is another repo, open a PR there with your tested change; after merge, delete the local override.
 
 ---
 
 ## Status
 
-**Toolkit v1.0.0** — 5 skills, no bundled agents (you build your own). Two install modes live: the official plugin marketplace (`/plugin install domain-experts@domain-experts`) and a gstack-style clone + `./setup` (skills). `domain-creator` runs an 11-dimension refit audit (incl. persona homage) and workflow-driven persona discovery + knowledge harvest.
+**Toolkit v2.0.0** — 3 skills (create / upgrade / chat), no bundled agents (you build your own). Two install modes live: the official plugin marketplace (`/plugin install domain-experts@domain-experts`) and a gstack-style clone + `./setup` (skills). `domain-creator` runs workflow-driven persona discovery + knowledge harvest; `domain-upgrade` runs the 11-dimension audit (incl. persona homage) and recompiles agents onto the current spine.
 
 See [`plugins/domain-experts/README.md`](plugins/domain-experts/README.md) for the toolkit's usage guide and lifecycle docs.

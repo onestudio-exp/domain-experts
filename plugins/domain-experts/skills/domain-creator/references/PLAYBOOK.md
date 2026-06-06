@@ -34,8 +34,9 @@ You do NOT need admin tools for either path.
 
 ## After registration
 
-- Run `/domain-eval`; let its Phase 4.5 push the score via
-  `report_agent_eval` so the hub badge is real.
+- Push an eval score via `report_agent_eval` so the hub badge is real
+  (run the agent against its starter prompts and report the result —
+  the dedicated eval skill was retired from the toolkit).
 - Record produced deliverables (induction deck, briefs) with
   `add_agent_artifact` so they show on the agent page.
 
@@ -45,5 +46,5 @@ You do NOT need admin tools for either path.
 |---|---|---|
 | Git activity empty on the agent | Hub token can't see the repo | Heed the `warnings` from registration — install the OneStudio GitHub app on the org |
 | A skill is missing in the hub | `categories:` frontmatter missing/wrong | Fix `categories` per `CONTRACT.md`, re-run register |
-| "no eval" badge persists | domain-eval push skipped | Re-run `/domain-eval` and allow Phase 4.5 |
+| "no eval" badge persists | no eval score pushed | Run the starter prompts and push via `report_agent_eval` |
 | Field didn't update on re-run | fill-only-nulls protected a set value | Re-run with `force: true` if the overwrite is intended |

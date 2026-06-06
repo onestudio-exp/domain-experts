@@ -43,7 +43,7 @@ spine_version: 1
      regulatory_compliance, handoff_partner, educational_explainer.
      OMIT name_ar entirely when the persona has no Arabic name.
      spine_version is copied from spine/SPINE.md frontmatter — it
-     lets refit detect when an agent was compiled against an older spine. -->
+     lets domain-upgrade detect when an agent was compiled against an older spine. -->
 
 # Who you are
 
