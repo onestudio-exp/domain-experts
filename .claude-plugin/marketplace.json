@@ -1,7 +1,7 @@
 {
   "name": "domain-experts",
   "version": "1.0.0",
-  "description": "OneStudio's domain expert agent toolkit + portfolio. The toolkit (4 skills + Nala) is one plugin; each portfolio agent ships as its own independent plugin. v1.0.0 marks the first release with the full portfolio shipped: aref, wafaa, fekri, shaheen, merchant-advocate, membership, omar, rushd, adam, sada, abo-lijan, sales-marketing, ziad, salwa. Install only what you need.",
+  "description": "OneStudio's domain expert agent toolkit — one plugin: 5 skills (domain-creator, domain-eval, domain-capture, domain-contribute, domain-chat) plus Nala, the venture-building reference agent. Build, evaluate, evolve, contribute, and chat with domain expert agents in Claude Code.",
   "owner": {
     "name": "OneStudio"
   },
@@ -9,98 +9,8 @@
     {
       "name": "domain-experts",
       "source": "./plugins/domain-experts",
-      "version": "0.4.0",
-      "description": "The toolkit — 4 skills (domain-creator, domain-eval, domain-capture, domain-contribute) plus Nala, the venture-building reference agent. v0.4 adds a PRD-first path to domain-creator: read `docs/prd.md` and propose framing (with strict domain-widening so the agent is built around the wider category, never the product the PRD describes). Install this if you're building or maintaining domain expert agents."
-    },
-    {
-      "name": "aref",
-      "source": "./plugins/aref",
-      "version": "1.0.0",
-      "description": "Aref (عارف) — independent domain expert on merchant-funded loyalty, embedded cashback, retention economics, and MENA payment regulation. Bilingual (English/Arabic). Built using the domain-experts toolkit."
-    },
-    {
-      "name": "wafaa",
-      "source": "./plugins/wafaa",
-      "version": "1.0.0",
-      "description": "Wafaa (وفاء الأسطل) — independent domain expert on GCC corporate gifting governance: anti-bribery regimes (FCPA, UK Bribery Act, Nazaha, UAE 31/2021), GAP (Gift Acceptance Profile), governance-vs-marketplace economics, and the GCC operating context (PDPL, ZATCA, Hijri, hierarchy, dialect) applied to gifting decisions. Bilingual (English/Arabic on cultural framing or user signal)."
-    },
-    {
-      "name": "fekri",
-      "source": "./plugins/fekri",
-      "version": "1.0.0",
-      "description": "Fekri (فكري) — independent domain expert on Iraqi K-12 education: curriculum G6-G12 across the four tracks (scientific/literary/applied/vocational), Wazari examinations, classroom pedagogy, the Iraqi student profile, and comparative education across Gulf/Arab systems. Iraqi by birth; declares source-tier on every claim ([عشتها]/[درستها]/[استنتاج]/[رسمي]). Bilingual (Iraqi Arabic primary, English on explicit user request)."
-    },
-    {
-      "name": "shaheen",
-      "source": "./plugins/shaheen",
-      "version": "1.0.0",
-      "description": "Shaheen (شاهين) — independent Qatar Economy domain expert: macroeconomy, hydrocarbon sector (LNG / North Field), Qatar's financial system, GCC dynamics, and policy. Bilingual (English/Arabic). Maintains a structured wiki (Tier 1 concepts/entities/events + Tier 2 indicators + Tier 3 web cascade) with strict citation discipline (confidence vocabulary + numbered footnote Sources block). Bundles four operational skills: question-answer, validate-wiki-answer, ingest-source, sme-management."
-    },
-    {
-      "name": "merchant-advocate",
-      "source": "./plugins/merchant-advocate",
-      "version": "1.0.0",
-      "description": "Merchant Advocate (محامي التاجر) — independent end-user advocate that role-plays the real, non-technical MENA merchant who will actually use the product, and pressure-tests user-facing flows for clarity, friction, mental-model fit, and real-world value. Bilingual (English/Arabic) with KSA-anchored MENA persona library. NOT a code reviewer, visual designer, or security reviewer — output is product/UX/copy feedback only."
-    },
-    {
-      "name": "membership",
-      "source": "./plugins/membership",
-      "version": "1.0.0",
-      "description": "Membary (ممبري) — independent senior domain expert for Loyalty & Subscription Commerce. Renders Go / Go-with-conditions / No-Go decisions through a strict 11-heading Output Contract (Short Decision → Business Analysis → Risks → Evidence buckets → Validation Table → Scoring Matrix → Blocker Override → Final Decision → Confidence Level → Maintenance Note → Next Agent Handoff). Source-tagged evidence with anti-hallucination discipline on Salla-platform claims, market numbers, and regulations. Bilingual; English and Arabic."
-    },
-    {
-      "name": "omar",
-      "source": "./plugins/omar",
-      "version": "1.0.0",
-      "description": "Omar (عمر) — independent domain expert on WhatsApp Business marketing for KSA Salla merchants. Strategy / policy / compliance / competitive intelligence for templates (Authentication/Utility/Marketing), campaigns (cart-abandon, order updates, re-engagement), Meta platform rules (24h window, quality rating, messaging limits, pricing), KSA regulation (CITC, PDPL), Hijri-aware timing, audience segmentation, BSP comparison (Wati, Unifonic, Twilio, MessageBird, Cloud API direct). Strict 3-line refusal discipline on out-of-scope. Bilingual (Arabic primary, English on request). NOT a code reviewer."
-    },
-    {
-      "name": "rushd",
-      "source": "./plugins/rushd",
-      "version": "1.0.0",
-      "description": "Rushd (رُشد) — independent domain expert and decision-making engine for e-commerce cashback / wallet-based loyalty in the Saudi market, anchored in the Salla ecosystem. Transforms product questions into Yes / No / Needs-adjustment decisions with explicit reasoning, risk analysis (fraud, refunds, misuse), edge cases, and safer alternatives. Bilingual; English and Arabic."
-    },
-    {
-      "name": "adam",
-      "source": "./plugins/adam",
-      "version": "1.0.0",
-      "description": "Adam — independent competitive intelligence specialist for SaaS and digital products. Three modes auto-detected (Mode A idea validation, Mode B competitor discovery, Mode C competitor monitoring). Produces structured 8-section reports with [CONFIRMED]/[INFERRED] labels, mandatory unknowns section, Direct/Indirect/Substitute competitor classification, Mode B 'Customer Voice' requirement (≥3 verbatim quotes per Direct competitor from G2/Capterra/Trustpilot/Reddit/App Stores). Domain-agnostic — applied across SaaS / e-commerce / B2B / HR / EdTech / Custom Domain via the hybrid-domain-expert lens."
-    },
-    {
-      "name": "harvester",
-      "source": "./plugins/harvester",
-      "version": "1.0.0",
-      "description": "Harvester -- research intake & knowledge-base curator. Ingests links/sources, classifies and triages them (summary, why-it-matters, next moves, autonomy verdict), and maintains a growing per-topic knowledge base over time (dedupe, topic filing, recurring digest). Domain-agnostic -- works for any team in any domain via a pluggable store (local files by default)."
-    },
-    {
-      "name": "sada",
-      "source": "./plugins/sada",
-      "version": "1.0.0",
-      "description": "Sada (صدى — 'echo') — independent domain expert on employee advocacy and internal-communications platforms (EveryoneSocial, Sociabble, Haiilo, Hootsuite Amplify, GaggleAMP, Bambu, Firstup, Staffbase, PostBeyond, Oktopost, Workvivo). Senior advisor on build / GTM / pricing decisions, competitive benchmarking, advocacy participation psychology, EMV math, approval workflow patterns, KSA/MENA market context (PDPL, SDAIA, NCA, Vision 2030). Bilingual; English primary, Arabic on user signal."
-    },
-    {
-      "name": "abo-lijan",
-      "source": "./plugins/abo-lijan",
-      "version": "1.0.0",
-      "description": "Abo Lijan (أبو لجان — 'Father of Committees') — independent senior election intelligence specialist with 15+ years across US, UK, EU, and MENA. Electoral systems (FPTP / PR / MMP / two-round / STV), polling methodology (sampling, weighting, MRP, likely-voter screens, MoE), voter analytics, election-night decision-desk discipline, campaign operations, integrity / anomaly detection (Benford, ecological inference), regulatory compliance (FEC, OFCOM, GDPR, MENA election commissions). Standards-anchored (AAPOR, ESOMAR, BPC, NCPP, WAPOR, IFES, IDEA). Time-decay aware with watchlist discipline. Two-source verification strict. Bilingual; English primary, Arabic on user signal."
-    },
-    {
-      "name": "sales-marketing",
-      "source": "./plugins/sales-marketing",
-      "version": "1.0.0",
-      "description": "Abo Nawaf (أبو نواف) — independent senior GCC/MENA revenue executive (CRO/VP-Sales level) and B2B revenue marketing strategist. Decade closing B2B deals across UAE, KSA, Qatar, Egypt, Jordan. Strategic advisory on GTM, ICP critique, channel mix (WhatsApp-primary reality, LinkedIn, email, face-to-face / events), Arabic-first outbound, pricing & packaging for family-conglomerate / gov't-linked / scale-up buyer types. Plus reality-audit capability: reads venture's codebase under backend/ and frontend/ to compare product claims against actual implementation (gap classification: Match / Partial / Mismatch / Vaporware). Bilingual; mirrors user's language. Direct, opinionated CRO tone."
-    },
-    {
-      "name": "ziad",
-      "source": "./plugins/ziad",
-      "version": "1.0.0",
-      "description": "Ziad (زياد) — independent senior domain expert in Diplomatic Intelligence Analysis. OSINT media monitoring, news analysis from diverse and adversarial sources, sentiment / entity / topic / risk-event tracking, dossier preparation for diplomatic decision support. IC-style probability language (Almost certain / Highly likely / Likely / Roughly even / Unlikely / Highly unlikely / Almost no chance). 5-tier source-credibility model (Primary/official → Analyst-grade → Newsroom → State-affiliated → OSINT). Two-source-strict empirical claims. Sentiment-vs-stance and narrative-drift discipline. Bilingual; English primary, Arabic on user signal."
-    },
-    {
-      "name": "salwa",
-      "source": "./plugins/salwa",
-      "version": "1.0.0",
-      "description": "Salwa (سلوى) — independent domain expert on coworking-space asset management, operations, development & fractional investment for the MENA/GCC market (KSA-anchored). Ex-COO of multiple Saudi coworking spaces, community manager, and startup founder; consults operators, never joins as staff. Renders Pursue / Pass / Restructure decisions with unit-economics shown, Direct/Indirect/Substitute competitor tiering, and article-level KSA regulatory citation (ZATCA e-invoicing, 15% VAT, PDPL, Ejar, MISA) with applicability checks. Experience-rooted confidence tags. Bilingual (English/Arabic). NOT a lawyer, accountant, or code reviewer."
+      "version": "0.5.0",
+      "description": "The toolkit — 5 skills (domain-creator, domain-eval, domain-capture, domain-contribute, domain-chat) plus Nala, the venture-building reference agent. domain-creator includes a PRD-first path: read `docs/prd.md` and propose framing (with strict domain-widening so the agent is built around the wider category, never the product the PRD describes). Install this to build or maintain domain expert agents."
     }
   ]
 }

@@ -1,8 +1,0 @@
-{
-  "name": "membership",
-  "version": "1.0.0",
-  "description": "Membary (ممبري) — independent senior domain expert for Loyalty & Subscription Commerce. Analyzes, validates, and challenges membership/subscription eCommerce ideas using a strict 11-heading Output Contract (Short Decision → Business Analysis → Risks → Evidence buckets → Validation Table → Scoring Matrix → Blocker Override → Final Decision → Confidence Level → Maintenance Note → Next Agent Handoff). Source-tagged evidence (Confirmed / Inferred / Unknown / Risk) with anti-hallucination discipline on Salla-platform claims, market numbers, regulations. Bilingual; English and Arabic.",
-  "author": {
-    "name": "OneStudio"
-  }
-}

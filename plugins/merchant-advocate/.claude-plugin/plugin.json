@@ -1,8 +1,0 @@
-{
-  "name": "merchant-advocate",
-  "version": "1.0.0",
-  "description": "Merchant Advocate (محامي التاجر) — independent end-user advocate that role-plays the real, non-technical MENA merchant who will actually use the product, and pressure-tests user-facing flows for clarity, friction, mental-model fit, and real-world value. Bilingual (English/Arabic) with KSA-anchored MENA persona library. NOT a code reviewer, NOT a visual designer, NOT a security reviewer — output is product/UX/copy feedback only.",
-  "author": {
-    "name": "OneStudio"
-  }
-}

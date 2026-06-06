@@ -1,47 +1,33 @@
 # domain-experts
 
-OneStudio's catalog of domain expert agents — packaged as a Claude Code multi-plugin marketplace. **One plugin per agent.** Install only what you need.
+OneStudio's toolkit for building domain expert agents — packaged as a Claude Code plugin. **One plugin: 5 skills + Nala, a reference agent.**
 
 ## What's here
 
 ```
 domain-experts/
-├── .claude-plugin/marketplace.json    # one entry per plugin
+├── .claude-plugin/marketplace.json    # one plugin entry (the toolkit)
 ├── plugins/
-│   ├── domain-experts/                # the toolkit (5 skills + Nala)
-│   │   └── README.md                  # toolkit usage guide
-│   ├── aref/                          # loyalty / embedded fintech
-│   └── ... (more agents land here as owners ship)
+│   └── domain-experts/                # the toolkit (5 skills + Nala)
+│       └── README.md                  # toolkit usage guide
 └── README.md                          # this file
 ```
 
-The repo hosts **two kinds of plugins**:
+The repo hosts **one plugin — the toolkit** (`plugins/domain-experts/`): skills for building, evaluating, evolving, contributing, and chatting with domain expert agents, plus **Nala**, a venture-building reference agent built with the toolkit.
 
-1. **The toolkit** (`plugins/domain-experts/`) — skills for building, evaluating, evolving, and contributing domain expert agents. Install this if you're building or maintaining agents.
-2. **Domain expert agents** (`plugins/aref/`, `plugins/fekri/`, etc.) — the agents themselves, each in its own plugin. Install the ones your project needs.
+## The toolkit
 
-## Available plugins
-
-**1 toolkit + 15 domain expert agents** (see [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json) for the authoritative list + descriptions).
-
-| Plugin | Kind | Use it for |
+| Plugin | Version | Use it for |
 |---|---|---|
-| **domain-experts** | toolkit (v0.5.0) | Build / refit / evaluate / extend / chat-with domain expert agents (5 skills + Nala) |
-| **aref** | agent | Merchant-funded loyalty, embedded cashback, MENA payments |
-| **wafaa** | agent | GCC corporate gifting governance |
-| **fekri** | agent | Iraqi K-12 education |
-| **shaheen** | agent | Qatar economy |
-| **merchant-advocate** | agent | MENA merchant end-user advocacy / UX pressure-testing |
-| **membership** | agent | Loyalty & subscription commerce |
-| **omar** | agent | WhatsApp Business marketing for KSA Salla merchants |
-| **rushd** | agent | E-commerce cashback / wallet loyalty (Saudi / Salla) |
-| **adam** | agent | SaaS competitive intelligence |
-| **harvester** | agent | Research intake & knowledge-base curation |
-| **sada** | agent | Employee advocacy & internal-comms platforms |
-| **abo-lijan** | agent | Election intelligence & polling methodology |
-| **sales-marketing** | agent | GCC/MENA B2B revenue (CRO-level) |
-| **ziad** | agent | Diplomatic / OSINT intelligence analysis |
-| **salwa** | agent | Coworking-space asset management (MENA/GCC, KSA-anchored) |
+| **domain-experts** | 0.5.0 | Build / refit / evaluate / extend / chat-with domain expert agents (5 skills + Nala) |
+
+The five skills:
+
+- **`domain-creator`** — build a new agent (from blank or a PRD) or uplevel an existing one (11-dimension refit audit).
+- **`domain-eval`** — test an agent against its declared schema, vocabulary, and rules.
+- **`domain-capture`** — add evidence-backed knowledge to an agent.
+- **`domain-contribute`** — push a local agent improvement back to its source repo.
+- **`domain-chat`** — open a browser chat UI for an agent via [agent-kit](https://github.com/onestudio-exp/agent-kit).
 
 ---
 
@@ -89,9 +75,6 @@ marketplace (`autoUpdate: true`) and enabling the plugin. On a teammate's first 
 open, Claude Code prompts them to add the marketplace + enable the plugin, then tracks the
 repo each session. (Via the plugin system, skills are namespaced `/domain-experts:domain-creator`.)
 
-Pre-built domain expert agents (aref, salwa, …) still install per-need:
-`/plugin install aref@domain-experts`.
-
 ### Which invocation do I type?
 
 Same skills, name depends on how you installed:
@@ -107,11 +90,11 @@ Examples elsewhere in this doc use the **B** namespaced form; if you installed v
 
 ## Per-project memory and KB
 
-Each agent supports per-project state without overlap:
+Each agent you build supports per-project state without overlap:
 
 - **Memory** — `memory: project` in the agent's frontmatter auto-creates `.claude/agent-memory/<slug>/MEMORY.md` in your project. Persists across sessions, scoped to the working dir.
 - **Project KB extension** — drop venture-specific knowledge under `.claude/agents/<slug>-knowledge/`. The agent reads project KB first, falls back to the plugin's bundled defaults.
-- **Project override** — to customize the agent itself, create `.claude/agents/<slug>.md` in your project. Claude Code uses your override instead of the plugin's canonical version.
+- **Project override** — to customize the agent itself, create `.claude/agents/<slug>.md` in your project. Claude Code uses your override instead of the canonical version.
 
 ---
 
@@ -146,48 +129,20 @@ If you installed via **path A** (clone + `./setup`), the clone IS your dev copy 
 
 The installed plugin cache is **never** edited for development — always work from a clone.
 
-### Improving an agent (the persona / KB)
+### Improving an agent you built (the persona / KB)
 
-Owners and consumers discover improvements while using agents on real work. Path of least friction:
+You discover improvements while using an agent on real work. Path of least friction:
 
 1. In your venture's project, edit `.claude/agents/<slug>.md` (the override). Test live.
-2. Run `domain-contribute` — it detects the override, diffs against this catalog, asks "what changed and why", opens a PR here.
+2. Run `domain-contribute` — it detects the override, diffs against the agent's source repo, asks "what changed and why", opens a PR there.
 3. After merge, delete the override; your project pulls the new canonical version.
 
 You stay in your venture's working dir. **No clone, no nav-to-subdir.**
 
 ---
 
-## For agent owners — adding your agent to this catalog
-
-1. Refit your agent with `domain-creator → refit`. Pass the 11-dimension audit (incl. dimension 10 — domain-vs-project framing — and dimension 11 — persona homage).
-2. Run `domain-eval`. Confirm PASS.
-3. Drop your plugin under `plugins/<slug>/`:
-   ```
-   plugins/<slug>/
-   ├── .claude-plugin/plugin.json     # name, version 1.0.0, description
-   ├── agents/<slug>.md               # canonical agent definition
-   ├── agents/<slug>-knowledge/       # plugin-default KB (REUSABLE only —
-   │                                  # no venture-specific content)
-   └── examples/<slug>-starter-prompts.yaml
-   ```
-4. Add an entry to `.claude-plugin/marketplace.json`:
-   ```json
-   {
-     "name": "<slug>",
-     "source": "./plugins/<slug>",
-     "version": "1.0.0",
-     "description": "<one-line domain summary>"
-   }
-   ```
-5. Open a PR. After merge, tag the release: `git tag <slug>--v1.0.0 && git push origin <slug>--v1.0.0`.
-
-Updates ship per-agent. Bumping Aref to v1.1 doesn't touch any other agent. Consumers pull the new version with `/plugin install aref@domain-experts`.
-
----
-
 ## Status
 
-**Marketplace v1.0.0** — full portfolio shipped: the toolkit (5 skills + Nala) + 15 domain expert agents. Two install paths live: gstack-style clone + `./setup` (skills) and the official plugin marketplace (`/plugin install …@domain-experts`). The toolkit's `domain-creator` runs an 11-dimension refit audit (incl. persona homage) and workflow-driven persona discovery + knowledge harvest.
+**Toolkit v0.5.0** — 5 skills + Nala (reference agent). Two install paths live: gstack-style clone + `./setup` (skills) and the official plugin marketplace (`/plugin install domain-experts@domain-experts`). `domain-creator` runs an 11-dimension refit audit (incl. persona homage) and workflow-driven persona discovery + knowledge harvest.
 
 See [`plugins/domain-experts/README.md`](plugins/domain-experts/README.md) for the toolkit's usage guide and lifecycle docs.
