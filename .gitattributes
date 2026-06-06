@@ -1,6 +1,5 @@
 # Shell scripts MUST stay LF, even when checked out on Windows — a CRLF in the
 # shebang line (`#!/usr/bin/env bash\r`) breaks execution under Git Bash/WSL.
 setup        text eol=lf
-bin/*        text eol=lf
 scripts/*.sh text eol=lf
 *.sh         text eol=lf

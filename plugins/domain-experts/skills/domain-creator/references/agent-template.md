@@ -5,7 +5,7 @@ Placeholders are `{{...}}`. Conditional blocks are `<!-- IF: condition -->...<!-
 include the block if the condition is true, omit otherwise.
 
 `{{spine:<name>}}` markers are **spine references** — at generation the skill reads
-`domain-experts/spine/SPINE.md`, extracts the fragment named `<name>` (between its
+`spine/SPINE.md`, extracts the fragment named `<name>` (between its
 `<!-- SPINE:<name> -->` … `<!-- /SPINE:<name> -->` markers), and substitutes it here.
 Wrap each injected region in the OUTPUT file with visible
 `<!-- BEGIN SPINE (generated — do not edit) -->` … `<!-- END SPINE -->` markers so
@@ -38,11 +38,11 @@ spine_version: 1
 ---
 
 <!-- name_ar, categories, and spine_version are CONTRACT fields (see
-     domain-experts/CONTRACT.md). categories MUST be the canonical Phase-4 slugs:
+     references/CONTRACT.md). categories MUST be the canonical Phase-4 slugs:
      decision_support, reference_lookup, structured_review, competitive_intel,
      regulatory_compliance, handoff_partner, educational_explainer.
      OMIT name_ar entirely when the persona has no Arabic name.
-     spine_version is copied from domain-experts/spine/SPINE.md frontmatter — it
+     spine_version is copied from spine/SPINE.md frontmatter — it
      lets refit detect when an agent was compiled against an older spine. -->
 
 # Who you are
@@ -212,6 +212,6 @@ When filling in this template:
 
 - **Conditionals** — when a flag is false (e.g., `pressure_test_default = false`), the IF block is omitted entirely from the generated file. Don't output empty section headers.
 
-- **Spine composition** — every `{{spine:<name>}}` marker is resolved from `domain-experts/spine/SPINE.md` (see its "Composition rules"). Read the spine once before generating. Drop prose fragments in verbatim; fill `bilingual_mechanics` placeholders (`{{primary_language}}`/`{{other_language}}`) and the `{{slug}}` inside `memory_mechanics`. Inject a `schema_*` fragment only for a claimed category; on `customize`, render that one section from the override instead. Wrap each injected region in the output with `<!-- BEGIN SPINE (generated — do not edit) -->` … `<!-- END SPINE -->`. Stamp `spine_version` (from the spine's frontmatter) into the agent frontmatter. The spine floor (`anti_fabrication_floor`) is always emitted; the `{{anti_fabrication_rule}}` strengthening line is emitted only when the user chose a rule stronger than the default `hybrid` floor.
+- **Spine composition** — every `{{spine:<name>}}` marker is resolved from `spine/SPINE.md` (see its "Composition rules"). Read the spine once before generating. Drop prose fragments in verbatim; fill `bilingual_mechanics` placeholders (`{{primary_language}}`/`{{other_language}}`) and the `{{slug}}` inside `memory_mechanics`. Inject a `schema_*` fragment only for a claimed category; on `customize`, render that one section from the override instead. Wrap each injected region in the output with `<!-- BEGIN SPINE (generated — do not edit) -->` … `<!-- END SPINE -->`. Stamp `spine_version` (from the spine's frontmatter) into the agent frontmatter. The spine floor (`anti_fabrication_floor`) is always emitted; the `{{anti_fabrication_rule}}` strengthening line is emitted only when the user chose a rule stronger than the default `hybrid` floor.
 
 - **Final output** — clean markdown, no trailing template artifacts, no leftover `{{...}}` or `{{spine:...}}` placeholders, no `<!-- IF: -->` or `<!-- SPINE:* -->` comments. The only comments that survive into the agent file are the `BEGIN/END SPINE (generated)` wrapper markers.

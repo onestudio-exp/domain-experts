@@ -248,22 +248,28 @@ example used in this guide. Internal to OneStudio for now.
 
 ## Changelog
 
-**Unreleased**
+**v1.0.0** — *first stable release; breaking layout changes*
 - **Removed the bundled Nala agent.** The toolkit no longer ships any agent — every file
   under `agents/` was being loaded by Claude Code as an invokable subagent, which confused
   agent selection. Nala now survives only as the hypothetical worked example in this guide.
   The one piece of reusable guidance from her KB (the "don't dump live sources here"
   anti-pattern) moved into the KB index template. *Consequence:* `scripts/eval_runner.py`
   was hardcoded to Nala as its eval fixture and now has no shipped example to run against.
-
-**Unreleased** *(domain-creator overhaul)*
+- **Fixed spine packaging.** `SPINE.md`, `CONTRACT.md`, and `PLAYBOOK.md` lived at the repo
+  root, so they did **not** ship with the marketplace plugin — `domain-creator` could not
+  compose agents on a plugin install. They now live inside the `domain-creator` skill
+  (`spine/SPINE.md`, `references/CONTRACT.md`, `references/PLAYBOOK.md`); the ~14 path
+  references were rewritten skill-relative so both install modes work.
+- **One install entrypoint.** Folded `bin/team-init` into `setup` as `./setup team-init`
+  and removed the `bin/` dir. The repo root is now just `setup`, `README.md`, `plugins/`,
+  and config.
 - **Context discovery** replaces PRD-only prefill: auto-scans + silently reads the venture's high-signal docs (no file-picking question); proposes a professional domain label.
 - **Persona homage flow**: interview reordered to domain → persona → identity; a Workflow finds 3 real domain figures (comparison table + recommendation); the agent is named after and built in homage to the chosen figure (first-person, cited, no fabricated quotes).
 - **Knowledge harvest (Workflow)**: deep bilingual search + extraction of the figure's works + the domain's official/academic canon into a cited KB, with a 3-tier source gate.
 - **Refit parity**: audit grew to **11 dimensions** (adds Persona) and now offers the knowledge harvest; KB scaffold matches create mode.
 - **Live source reframed**: default live source is the official domain sources (WebFetch), not the project's code — a domain expert, not a product auditor (spine-level change).
 - **Presentation**: data screens render as markdown tables (RTL-friendly) instead of ASCII code blocks.
-- **Distribution**: gstack-style `clone + ./setup` install (skills into `~/.claude/skills/`) alongside the plugin marketplace; `bin/team-init` for consumer auto-provisioning.
+- **Distribution**: gstack-style `clone + ./setup` install (skills into `~/.claude/skills/`) alongside the plugin marketplace; `./setup team-init` for consumer auto-provisioning.
 
 **v0.5.0**
 - New skill: **`/domain-chat`** — opens a browser chat UI for a domain expert. Boots a local [agent-kit](https://github.com/onestudio-exp/agent-kit) install (clones it into the current project, gitignored, on first use), starts the dev server, and opens the browser at the right agent. Zero config — agent-kit auto-discovers the persona, KB, and memory from `.claude/agents/`.

@@ -19,7 +19,7 @@ The repo hosts **one plugin — the toolkit** (`plugins/domain-experts/`): skill
 
 | Plugin | Version | Use it for |
 |---|---|---|
-| **domain-experts** | 0.5.0 | Build / refit / evaluate / extend / chat-with domain expert agents (5 skills) |
+| **domain-experts** | 1.0.0 | Build / refit / evaluate / extend / chat-with domain expert agents (5 skills) |
 
 The five skills:
 
@@ -57,7 +57,7 @@ auto-updated when they open a project — no manual commands — commit a settin
 
 ```bash
 # from inside your project repo (needs a local clone of this repo — see mode B):
-/path/to/domain-experts/bin/team-init required \
+/path/to/domain-experts/setup team-init required \
   && git add .claude/settings.json && git commit -m "require domain-experts toolkit"
 ```
 
@@ -135,7 +135,7 @@ No config. agent-kit auto-discovers any persona at `.claude/agents/<slug>.md` (o
 If you installed via **mode B** (clone + `./setup`), the clone IS your dev copy — improve the skills in place:
 
 1. `cd ~/.claude/skills/domain-experts && git checkout -b feat/<change>`
-2. Edit `plugins/domain-experts/skills/<skill>/SKILL.md` (or `spine/SPINE.md`).
+2. Edit `plugins/domain-experts/skills/<skill>/SKILL.md` (the agent spine lives at `plugins/domain-experts/skills/domain-creator/spine/SPINE.md`).
 3. Test live. On Windows without Developer Mode, re-run `./setup` after each edit to refresh the copy.
 4. `git push` and open a PR to `onestudio-exp/domain-experts:main`. After merge, everyone gets it on their next `git pull && ./setup` (or auto-update for plugin consumers).
 
@@ -155,6 +155,6 @@ You stay in your venture's working dir. **No clone, no nav-to-subdir.**
 
 ## Status
 
-**Toolkit v0.5.0** — 5 skills, no bundled agents (you build your own). Two install modes live: the official plugin marketplace (`/plugin install domain-experts@domain-experts`) and a gstack-style clone + `./setup` (skills). `domain-creator` runs an 11-dimension refit audit (incl. persona homage) and workflow-driven persona discovery + knowledge harvest.
+**Toolkit v1.0.0** — 5 skills, no bundled agents (you build your own). Two install modes live: the official plugin marketplace (`/plugin install domain-experts@domain-experts`) and a gstack-style clone + `./setup` (skills). `domain-creator` runs an 11-dimension refit audit (incl. persona homage) and workflow-driven persona discovery + knowledge harvest.
 
 See [`plugins/domain-experts/README.md`](plugins/domain-experts/README.md) for the toolkit's usage guide and lifecycle docs.

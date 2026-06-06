@@ -16,7 +16,7 @@ every domain expert** — operating principles, anti-fabrication floor, citation
 discipline, peers/reference-implementation framing, memory + bilingual mechanics,
 the persona tribute contract, and the **output-schema catalog**.
 
-The agent template (`skills/domain-creator/references/agent-template.md`) no longer
+The agent template (`references/agent-template.md`, its sibling) no longer
 re-bakes any of this. It carries `{{spine:<fragment>}}` references instead. At
 generation, `domain-creator` reads this file, extracts each requested fragment by
 its `<!-- SPINE:<name> -->` … `<!-- /SPINE:<name> -->` markers, and substitutes it

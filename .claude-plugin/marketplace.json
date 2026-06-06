@@ -1,6 +1,6 @@
 {
   "name": "domain-experts",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "OneStudio's domain expert agent toolkit — one plugin, 5 skills: domain-creator, domain-eval, domain-capture, domain-contribute, domain-chat. Build, evaluate, evolve, contribute, and chat with domain expert agents in Claude Code.",
   "owner": {
     "name": "OneStudio"
@@ -9,7 +9,7 @@
     {
       "name": "domain-experts",
       "source": "./plugins/domain-experts",
-      "version": "0.5.0",
+      "version": "1.0.0",
       "description": "The toolkit — 5 skills: domain-creator, domain-eval, domain-capture, domain-contribute, domain-chat. domain-creator includes a PRD-first path: read `docs/prd.md` and propose framing (with strict domain-widening so the agent is built around the wider category, never the product the PRD describes). Install this to build or maintain domain expert agents."
     }
   ]

@@ -15,6 +15,11 @@
 #   ./setup --link          require live symlinks; fail if the OS can't (Windows Dev Mode off)
 #   ./setup --uninstall     remove everything this script installed
 #   ./setup --status        show install mode + where skills resolve
+#
+# Consumer / team path (run from inside ANOTHER project's repo):
+#   /path/to/domain-experts/setup team-init [required|optional]
+#                           write a committed .claude/settings.json so every
+#                           teammate auto-installs the marketplace plugin
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
@@ -30,15 +35,18 @@ PREFIX=""
 DEST_BASE="$HOME/.claude"
 ACTION="install"
 FORCE_LINK=0
+TEAM_MODE="required"
 for arg in "$@"; do
   case "$arg" in
-    --prefix)    PREFIX="domain-experts-" ;;
-    --local)     DEST_BASE="$(pwd)/.claude" ;;
-    --link)      FORCE_LINK=1 ;;
-    --uninstall) ACTION="uninstall" ;;
-    --status)    ACTION="status" ;;
-    -h|--help)   sed -n '2,19p' "$0"; exit 0 ;;
-    *)           echo "Unknown flag: $arg" >&2; exit 1 ;;
+    team-init)         ACTION="team-init" ;;
+    required|optional) TEAM_MODE="$arg" ;;
+    --prefix)          PREFIX="domain-experts-" ;;
+    --local)           DEST_BASE="$(pwd)/.claude" ;;
+    --link)            FORCE_LINK=1 ;;
+    --uninstall)       ACTION="uninstall" ;;
+    --status)          ACTION="status" ;;
+    -h|--help)         sed -n '2,21p' "$0"; exit 0 ;;
+    *)                 echo "Unknown argument: $arg" >&2; exit 1 ;;
   esac
 done
 
@@ -120,8 +128,65 @@ cmd_status() {
   if [ -f "$MANIFEST" ]; then sed 's/^/  \//' "$MANIFEST"; else echo "  (none — run ./setup)"; fi
 }
 
+# ─── consumer / team provisioning ───────────────────────────
+# Writes a committed .claude/settings.json into the CURRENT project (the cwd's
+# git repo, NOT this clone) that registers the GitHub marketplace and enables
+# the plugin, so anyone who opens + trusts the repo auto-installs the toolkit
+# with auto-update. Developers who want live edits use plain ./setup instead.
+cmd_team_init() {
+  local MARKETPLACE_NAME="domain-experts"
+  local MARKETPLACE_REPO="onestudio-exp/domain-experts"
+  local PLUGIN_ID="domain-experts@domain-experts"
+
+  local PROJECT_ROOT; PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+  if [ -z "$PROJECT_ROOT" ]; then
+    echo "ERROR: run 'setup team-init' from inside the target project's git repo." >&2
+    exit 1
+  fi
+
+  local SETTINGS="$PROJECT_ROOT/.claude/settings.json"
+  mkdir -p "$PROJECT_ROOT/.claude"
+
+  local DESIRED
+  read -r -d '' DESIRED <<JSON || true
+{
+  "extraKnownMarketplaces": {
+    "$MARKETPLACE_NAME": {
+      "source": { "source": "github", "repo": "$MARKETPLACE_REPO" },
+      "autoUpdate": true
+    }
+  },
+  "enabledPlugins": {
+    "$PLUGIN_ID": true
+  }
+}
+JSON
+
+  if [ -f "$SETTINGS" ]; then
+    echo "NOTE: $SETTINGS already exists."
+    echo "Merge these keys into it by hand (don't blindly overwrite a populated settings file):"
+    echo "$DESIRED"
+    echo ""
+    echo "Keys to ensure: extraKnownMarketplaces.$MARKETPLACE_NAME + enabledPlugins.\"$PLUGIN_ID\""
+  else
+    printf '%s\n' "$DESIRED" > "$SETTINGS"
+    echo "Wrote $SETTINGS"
+  fi
+
+  echo ""
+  echo "Mode: $TEAM_MODE  (teammates are $([ "$TEAM_MODE" = optional ] && echo 'nudged' || echo 'blocked until they install'))"
+  echo "Next:"
+  echo "  git -C \"$PROJECT_ROOT\" add .claude/settings.json"
+  echo "  git -C \"$PROJECT_ROOT\" commit -m 'require domain-experts toolkit'"
+  echo ""
+  echo "On a teammate's first trusted open of this repo, Claude Code prompts them to"
+  echo "add the '$MARKETPLACE_NAME' marketplace and enable the plugin — then auto-updates"
+  echo "from $MARKETPLACE_REPO each session. No manual /plugin commands."
+}
+
 case "$ACTION" in
   install)   cmd_install ;;
   uninstall) cmd_uninstall ;;
   status)    cmd_status ;;
+  team-init) cmd_team_init ;;
 esac

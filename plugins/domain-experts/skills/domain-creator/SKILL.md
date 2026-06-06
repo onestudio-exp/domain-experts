@@ -823,7 +823,7 @@ Portfolio evidence that only the verdict *words* vary (the shapes don't):
 **What Phase 5 actually does (no user turn):**
 
 1. **Schema shapes → spine, silent.** For each category claimed in Phase 4, the agent
-   inherits the matching `schema_*` fragment from `domain-experts/spine/SPINE.md`
+   inherits the matching `schema_*` fragment from `spine/SPINE.md`
    verbatim (Phase 9 injects it). Mark every claimed category `schema_origin: spine`.
    Capture nothing. Ask nothing.
 2. **Verdict vocabulary → auto-derive** (only if `decision_support` is claimed). From
@@ -1271,7 +1271,7 @@ shows the derived list for the user to correct. Capture: `out_of_scope`.
 **Q7b — Anti-fabrication rule** *(strengthening above the spine floor)*
 
 Every agent already inherits the **anti-fabrication floor** from
-`domain-experts/spine/SPINE.md` (`anti_fabrication_floor`): never fabricate a quote,
+`spine/SPINE.md` (`anti_fabrication_floor`): never fabricate a quote,
 statistic, date, or publication; cite a source per empirical claim; flag uncertainty
 rather than guess. **You do not need to ask about the floor — it is always in
 force.** This question only asks whether THIS agent strengthens beyond it.
@@ -1377,7 +1377,7 @@ corrects all of it — one screen instead of one turn per field.
    override`. A deeper schema-shape reshape is an expert move — honor it via the
    Q5a–Q5h override menus only if explicitly asked.
 3. **On `go`, produce the file set** (do NOT write to disk yet):
-   - **Read the spine first.** Load `domain-experts/spine/SPINE.md` and follow its
+   - **Read the spine first.** Load `spine/SPINE.md` and follow its
      "Composition rules". The agent file is *compiled* = template delta + spine
      fragments. For every `{{spine:<name>}}` marker in the template, inject the
      matching fragment, wrapping each injected region in the output with
@@ -1420,7 +1420,7 @@ corrects all of it — one screen instead of one turn per field.
        paragraph from the template. Render the homage contract **verbatim** — do
        not soften or drop the "one line you never cross" sentence.
    - Emit `name_ar:`, `categories:`, and `spine_version:` in frontmatter per
-     `domain-experts/CONTRACT.md`. `categories` = the exact canonical slugs picked in
+     `references/CONTRACT.md`. `categories` = the exact canonical slugs picked in
      Phase 4 (a missing/wrong category silently drops a skill from the hub).
      `spine_version` = the `spine_version` from the spine's frontmatter you just
      read — it records which spine this agent was compiled against, so refit can flag
@@ -1436,7 +1436,7 @@ corrects all of it — one screen instead of one turn per field.
 #### Handoff — register in the hub
 
 The agent file is the source of truth. To put this expert in the OneStudio
-hub, follow `domain-experts/PLAYBOOK.md`. One `register_my_venture` call
+hub, follow `references/PLAYBOOK.md`. One `register_my_venture` call
 with `expert_spec` (the raw file texts) works for both a new venture and a
 pre-existing stub — idempotent, no admin tools, no hand-transcription.
 
@@ -1822,7 +1822,7 @@ Both modes produce the same file set using the same templates — only the desti
 | `<slug>-knowledge/<cat>/<stub>.md` | seed-stub per category that has a template under `templates/kb/<cat>/` | same path (create only if missing) |
 | `<slug>-starter-prompts.yaml` | `examples/<slug>-starter-prompts.yaml` (new) | same path (merge if exists) |
 
-Read `references/agent-template.md` AND `domain-experts/spine/SPINE.md` once before
+Read `references/agent-template.md` AND `spine/SPINE.md` once before
 generating. The agent file is **compiled** from two layers: the template carries the
 **delta** (this agent's identity, domain, peers, user, out-of-scope, KB, persona) and
 `{{spine:<name>}}` references; the spine carries the **invariant** prose every agent
