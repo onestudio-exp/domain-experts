@@ -43,7 +43,7 @@ The repo hosts **one plugin — the toolkit** (`plugins/domain-experts/`): skill
 
 | Plugin | Version | Use it for |
 |---|---|---|
-| **domain-experts** | 2.1.0 | Build / upgrade / chat-with domain expert agents (3 skills) |
+| **domain-experts** | 2.1.1 | Build / upgrade / chat-with domain expert agents (3 skills) |
 
 The three skills:
 
@@ -174,6 +174,6 @@ You discover improvements while using an agent on real work:
 
 ## Status
 
-**Toolkit v2.1.0** — 3 skills (create / upgrade / chat), no bundled agents (you build your own). Two install modes live: the official plugin marketplace (`/plugin install domain-experts@domain-experts`) and a gstack-style clone + `./setup` (skills). `domain-creator` runs workflow-driven persona discovery + knowledge harvest; `domain-upgrade` runs the 11-dimension audit (incl. persona homage) and recompiles agents onto the current spine.
+**Toolkit v2.1.1** — 3 skills (create / upgrade / chat), no bundled agents (you build your own). Two install modes live: the official plugin marketplace (`/plugin install domain-experts@domain-experts`) and a gstack-style clone + `./setup` (skills). `domain-creator` runs workflow-driven persona discovery + knowledge harvest; `domain-upgrade` runs the 11-dimension audit (incl. persona homage) and recompiles agents onto the current spine.
 
 See [`plugins/domain-experts/README.md`](plugins/domain-experts/README.md) for the toolkit's usage guide and lifecycle docs.

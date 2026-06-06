@@ -143,6 +143,9 @@ this framework:
    agents compiled against a **stale spine** (`spine_version` drift).
 3. Walks you through each gap **one at a time**: *what's there now → what it should be
    → why it matters for this agent*. Accept, edit, or skip each — no bulk-accept.
+   **Persona comes before identity**: if the agent needs renaming, the first question is
+   the real-domain-figure offer (same persona discovery as create mode) — accept it and
+   the new name is *derived from the figure*; decline and you get an abstract rename.
 4. Regenerates the agent onto the current spine. Your custom content is preserved under
    `## Custom additions` — never silently dropped. Missing scaffolding (KB, starter
    prompts) is created; existing KB files are never overwritten.
@@ -208,6 +211,14 @@ Three skills complete. The plugin ships no agents of its own — you build them.
 Internal to OneStudio for now.
 
 ## Changelog
+
+**v2.1.1** — *fix: persona-first ordering in domain-upgrade*
+- `domain-upgrade` walked the audit strictly in dimension order, so it proposed an
+  abstract rename (dimension 1, Identity) long before offering the real-domain-figure
+  persona (dimension 11) — burying the framework's signature move. Now, whenever
+  identity is changing, the persona offer is the FIRST question and the new name is
+  derived from the chosen figure (mirrors create mode's domain → persona → identity
+  order). Added a matching anti-pattern.
 
 **v2.1.0** — *docs overhaul*
 - READMEs rewritten feature-first: "why not just write an agent file by hand?"

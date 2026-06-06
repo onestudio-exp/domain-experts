@@ -200,7 +200,9 @@ I. Abstract agent — offer (do not flag)
    single non-blocking OFFER in the report: "This agent is abstract. Want to rebuild it
    in homage to a real domain figure? (runs domain-creator Phase 1.5 persona
    discovery)." Never auto-add a persona — it changes the agent's identity, so it's the
-   user's explicit call.
+   user's explicit call. NOTE: if the audit ALSO recommends an identity change, this
+   offer becomes the FIRST Step 3 question (persona determines the name — see Step 3
+   ordering), and the report should say so next to the offer.
 ```
 
 **Audit report format:**
@@ -282,13 +284,32 @@ Sibling files:
 
 After the audit, walk the user through each recommended change INDIVIDUALLY. One question per turn. Use the same `default-with-WHY` question template as `domain-creator` (see its "Question template" section). Single-keystroke acceptance.
 
-**For each recommended change in the audit** (in order: dimensions 1–11, then sibling files), ask ONE question. Two dimensions are handled specially:
+**Ordering — persona BEFORE identity.** Mirror create mode's order (domain → persona →
+identity). Whenever the audit recommends ANY identity change (dimension 1: rename, new
+display name, decoupling a project slug), the **dimension 11 persona offer is the FIRST
+question** — before identity. The framework's signature move is building the agent in
+homage to a **real domain figure**, and the figure *determines* the name (creator
+Phase 2 derives slug + display name + Arabic name from the figure). Proposing an
+abstract name first and offering a persona last buries the offer and names an agent
+you'd immediately rename. So:
 
-- **Dimension 11 (Persona)** — present it as an **offer**, not a routine change, because
-  adopting a real-figure persona changes the agent's identity (and may rename it). If the
-  user accepts, run **domain-creator Phase 1.5 Persona Discovery** inline (search → 3
-  candidates → pick / custom / composite), then fold the result into the rewrite. If they
-  decline, the agent stays abstract — no change.
+1. Persona offer (dimension 11) — accepted → run Phase 1.5 inline, then identity is
+   *derived* from the figure (one-tap confirm, creator Phase 2 derivation rules).
+2. Identity (dimension 1) — only if the persona was declined: propose the abstract
+   rename then.
+3. All remaining changes in dimension order (2–10), then sibling files.
+
+If the audit recommends no identity change, the persona offer keeps its natural
+position at dimension 11.
+
+**For each recommended change**, ask ONE question. Two dimensions are handled specially:
+
+- **Dimension 11 (Persona)** — present it as an **offer** (the recommended default when
+  identity is changing anyway), not a routine change, because adopting a real-figure
+  persona changes the agent's identity (and may rename it). If the user accepts, run
+  **domain-creator Phase 1.5 Persona Discovery** inline (search → 3 candidates → pick /
+  custom / composite), then fold the result into the rewrite. If they decline, the
+  agent stays abstract — no change.
 - **Dimension 6 harvest** — if the user accepts populating the KB, run the
   **domain-creator Phase 6 Q6d knowledge-harvest workflow** inline and write its outputs
   into the rewrite's KB.
@@ -416,6 +437,10 @@ On `save`, write all 3 files. The agent .md goes to `existing_path` (overwrite).
 
 ## Anti-patterns
 
+- **Don't name the agent before the persona decision.** If identity is changing, the
+  persona offer comes FIRST and the name is derived from the chosen figure — proposing
+  an abstract rename at change 1 and offering a real-figure persona at change 9 buries
+  the framework's signature move and names an agent you'd immediately rename.
 - **Don't silently drop existing content.** If the original agent has custom sections that don't map to the framework, append under `## Custom additions` — don't lose them.
 - **Don't recreate KB if it already exists.** The user may have populated it. Upgrade only ADDS the scaffold if missing; never overwrites existing KB files.
 - **Don't overwrite an existing prompts file blindly.** Real-usage prompts are gold. Merge, don't replace.
