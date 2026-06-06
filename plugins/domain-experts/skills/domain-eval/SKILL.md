@@ -46,7 +46,7 @@ Search order (first match wins):
 6. ~/.claude/plugins/marketplaces/*/agents/<slug>.md                   # marketplace source, single-plugin
 ```
 
-The `cache/` paths use 4 levels: `<marketplace>/<plugin>/<version>/agents/`. The `<version>` is dynamic per install — glob with `*`. For agents inside a plugin whose name is NOT the slug (e.g. when nala lives inside the `domain-experts` plugin), also try `~/.claude/plugins/cache/*/*/*/agents/<slug>.md`.
+The `cache/` paths use 4 levels: `<marketplace>/<plugin>/<version>/agents/`. The `<version>` is dynamic per install — glob with `*`. For an agent that ships inside a plugin whose name is NOT the agent's slug, also try `~/.claude/plugins/cache/*/*/*/agents/<slug>.md`.
 
 → Type a slug or full path.
 

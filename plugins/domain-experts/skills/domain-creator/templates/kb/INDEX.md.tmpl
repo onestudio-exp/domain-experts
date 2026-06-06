@@ -25,6 +25,10 @@ machine-read by the OneStudio hub to surface what the agent knows.
   are flagged `[UNVERIFIED]` at runtime.
 - **Re-verify quarterly.** Stale files (no `last_verified` bump in 90 days)
   are highlighted by `/domain-eval`.
+- **Don't dump live sources here.** This KB holds reference material that
+  lives outside any repo. Anything updated frequently (dashboards, decision
+  memos, fund docs) is a LIVE source the agent reads at runtime via
+  Read/Grep/Glob — snapshotting it here means it goes stale within hours.
 
 ## Categories in this KB
 

@@ -2,7 +2,9 @@
 
 A Claude Code plugin for **building, evaluating, evolving, and talking to** domain expert agents.
 
-Five skills, one reference agent (**Nala** — MENA/KSA Venture Builder expert).
+Five skills. The plugin ships **no agents of its own** — you build them. To make each step
+concrete, this guide follows one running example: **Nala**, a *hypothetical* MENA/KSA Venture
+Builder expert. Nala is a walkthrough device, not a bundled agent.
 
 ---
 
@@ -43,7 +45,7 @@ Any time the user wants to *talk* to one of these agents — not via Claude Code
 
 Builds a brand-new agent from ~10 short questions. Most have one-keystroke defaults — accept them and move on.
 
-**What we did for Nala:** ran `new`. The skill asked who she serves, what her domain is, what kinds of work she does (decision support? structured reviews? competitor profiling?), what verdicts she's allowed to give, and how she should refuse to invent facts. About 10 minutes start to finish.
+**In our running example:** to build Nala we ran `new`. The skill asked who she serves, what her domain is, what kinds of work she does (decision support? structured reviews? competitor profiling?), what verdicts she's allowed to give, and how she should refuse to invent facts. About 10 minutes start to finish.
 
 It produced three things:
 
@@ -83,7 +85,7 @@ figure's own work + the domain's official/academic sources into a cited KB.
 
 Runs the agent against its **own declared rules** and reports PASS / WEAK / FAIL on each starter prompt. Catches drift and regressions before you ship anything that depends on the agent.
 
-**What we did for Nala:** ran the full set of 11 prompts. Result: **11 / 11 PASS** across 8 categories.
+**In our running example:** running Nala's full set of 11 prompts gives **11 / 11 PASS** across 8 categories.
 
 ```
 decision_support       3/3 PASS    Used the right verdicts (Invest / Hold / Pivot / Kill)
@@ -116,7 +118,7 @@ It also refuses to capture **live data** (e.g., a venture's current ARR). That k
 
 ### The Nala capture story (worked example)
 
-I told Nala: *"KSA just announced an SPV-like model."*
+In the running example, I told Nala: *"KSA just announced an SPV-like model."*
 
 That's a headline, not a usable claim. The skill walked me through turning it into one:
 
@@ -241,9 +243,18 @@ git clone https://github.com/onestudio-exp/domain-experts.git ~/.claude/skills/d
 
 ## Status
 
-All five skills complete. Reference agent (Nala) validated 11/11. Internal to OneStudio for now.
+All five skills complete. The plugin ships no agents of its own — Nala is a hypothetical
+example used in this guide. Internal to OneStudio for now.
 
 ## Changelog
+
+**Unreleased**
+- **Removed the bundled Nala agent.** The toolkit no longer ships any agent — every file
+  under `agents/` was being loaded by Claude Code as an invokable subagent, which confused
+  agent selection. Nala now survives only as the hypothetical worked example in this guide.
+  The one piece of reusable guidance from her KB (the "don't dump live sources here"
+  anti-pattern) moved into the KB index template. *Consequence:* `scripts/eval_runner.py`
+  was hardcoded to Nala as its eval fixture and now has no shipped example to run against.
 
 **Unreleased** *(domain-creator overhaul)*
 - **Context discovery** replaces PRD-only prefill: auto-scans + silently reads the venture's high-signal docs (no file-picking question); proposes a professional domain label.
@@ -265,7 +276,7 @@ All five skills complete. Reference agent (Nala) validated 11/11. Internal to On
 - New required template sections: `## Reference implementation` (the venture as one example, not the agent's identity) and `## Comparable peers` (3–7 peers in the category).
 - New eval check: `cross_venture_applicability` — synthesizes a prompt that asks the agent to advise a peer company from its own Comparable peers list, and verifies that advice transfers in principle.
 - Source: 2026-05-08 audit of OneStudio's 13 agents revealed that 6 of them were project-coupled in ways the v0.1 framework didn't catch. v0.2 closes that gap.
-- **Known**: Nala (the reference agent in this repo, `agents/nala.md`) was authored against v0.1 and does not yet have `## Reference implementation` or `## Comparable peers` sections. She'll be refit to v0.2 in a follow-up commit so the canonical example passes its own checks.
+- **Known** *(historical — Nala was the bundled reference agent at this version; removed in Unreleased)*: Nala was authored against v0.1 and lacked `## Reference implementation` and `## Comparable peers` sections.
 
 **v0.1.0** *(initial release)*
 - Three skills: `domain-creator`, `domain-eval`, `domain-capture`. Reference agent: Nala.

@@ -1,6 +1,6 @@
 # domain-experts
 
-OneStudio's toolkit for building domain expert agents — packaged as a Claude Code plugin. **One plugin: 5 skills + Nala, a reference agent.**
+OneStudio's toolkit for building domain expert agents — packaged as a Claude Code plugin. **One plugin, 5 skills. It ships no agents of its own — you build them.**
 
 ## What's here
 
@@ -8,18 +8,18 @@ OneStudio's toolkit for building domain expert agents — packaged as a Claude C
 domain-experts/
 ├── .claude-plugin/marketplace.json    # one plugin entry (the toolkit)
 ├── plugins/
-│   └── domain-experts/                # the toolkit (5 skills + Nala)
+│   └── domain-experts/                # the toolkit (5 skills)
 │       └── README.md                  # toolkit usage guide
 └── README.md                          # this file
 ```
 
-The repo hosts **one plugin — the toolkit** (`plugins/domain-experts/`): skills for building, evaluating, evolving, contributing, and chatting with domain expert agents, plus **Nala**, a venture-building reference agent built with the toolkit.
+The repo hosts **one plugin — the toolkit** (`plugins/domain-experts/`): skills for building, evaluating, evolving, contributing, and chatting with domain expert agents. It ships no agents itself — you build your own with it.
 
 ## The toolkit
 
 | Plugin | Version | Use it for |
 |---|---|---|
-| **domain-experts** | 0.5.0 | Build / refit / evaluate / extend / chat-with domain expert agents (5 skills + Nala) |
+| **domain-experts** | 0.5.0 | Build / refit / evaluate / extend / chat-with domain expert agents (5 skills) |
 
 The five skills:
 
@@ -155,6 +155,6 @@ You stay in your venture's working dir. **No clone, no nav-to-subdir.**
 
 ## Status
 
-**Toolkit v0.5.0** — 5 skills + Nala (reference agent). Two install modes live: the official plugin marketplace (`/plugin install domain-experts@domain-experts`) and a gstack-style clone + `./setup` (skills). `domain-creator` runs an 11-dimension refit audit (incl. persona homage) and workflow-driven persona discovery + knowledge harvest.
+**Toolkit v0.5.0** — 5 skills, no bundled agents (you build your own). Two install modes live: the official plugin marketplace (`/plugin install domain-experts@domain-experts`) and a gstack-style clone + `./setup` (skills). `domain-creator` runs an 11-dimension refit audit (incl. persona homage) and workflow-driven persona discovery + knowledge harvest.
 
 See [`plugins/domain-experts/README.md`](plugins/domain-experts/README.md) for the toolkit's usage guide and lifecycle docs.
